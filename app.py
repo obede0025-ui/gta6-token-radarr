@@ -1,5 +1,5 @@
 
-"""GTA 6 Narrative Radar v5.1 — research and signal tracking, not live trading."""
+"""GTA 6 Token Radar V5.2 — read-only signal research, no trading."""
 import os
 import re
 import sqlite3
@@ -11,19 +11,19 @@ import requests
 import streamlit as st
 
 st.set_page_config(
-    page_title="GTA 6 Radar V5.1",
+    page_title="GTA 6 Radar V5.2",
     page_icon="🎮",
     layout="wide"
 )
 
+DB = os.getenv("GTA6_RADAR_DB", "gta6_radar.db")
 DEX = "https://api.dexscreener.com"
 GECKO = "https://api.geckoterminal.com/api/v2"
-DB = os.environ.get("GTA6_RADAR_DB", "gta6_radar.db")
 
-SEARCH_TERMS = [
+TERMS = [
     "GTA6", "GTA VI", "Grand Theft Auto",
-    "Vice City", "Leonida", "Port Gellhorn",
-    "Lucia Camino", "Jason Duval"
+    "Vice City", "Leonida", "Lucia Camino",
+    "Jason Duval", "Port Gellhorn"
 ]
 
 STRONG = [
@@ -32,23 +32,20 @@ STRONG = [
 ]
 
 RELATED = [
-    "vice city", "leonida", "port gellhorn",
-    "lucia camino", "jason duval", "ambrosia",
-    "raul bautista", "boobie ike", "mount kalaga"
+    "vice city", "leonida", "lucia camino",
+    "jason duval", "port gellhorn",
+    "raul bautista", "boobie ike", "ambrosia"
 ]
-
-MAX_CANDIDATES = 150
 
 SESSION = requests.Session()
 SESSION.headers.update({
-    "User-Agent": "GTA6-Narrative-Radar/5.1",
-    "Accept": "application/json"
+    "User-Agent": "GTA6-Token-Radar/5.2"
 })
 
 
-# ==========================================================
+# ==================================================
 # HELPERS
-# ==========================================================
+# ==================================================
 
 def now():
     return datetime.now(timezone.utc).isoformat(
@@ -56,43 +53,45 @@ def now():
     )
 
 
-def num(x):
+def val(value):
     try:
-        return float(x) if x is not None else 0.0
+        return float(value) if value is not None else 0.0
     except (ValueError, TypeError):
         return 0.0
 
 
-def has_term(text, terms):
+def contains(text, words):
     text = str(text or "").lower()
+
     return any(
         re.search(
             r"(?<![a-z0-9])"
-            + re.escape(word)
+            + re.escape(w)
             + r"(?![a-z0-9])",
             text
         )
-        for word in terms
+        for w in words
     )
 
 
-# ==========================================================
-# DATABASE — BESTAANDE GEGEVENS BEHOUDEN
-# ==========================================================
+# ==================================================
+# DATABASE
+# ==================================================
 
-def db_connect():
+def connect():
     con = sqlite3.connect(DB, timeout=20)
     con.execute("PRAGMA busy_timeout=20000")
     return con
 
 
-def db_all(query, params=()):
-    with db_connect() as con:
-        return con.execute(query, params).fetchall()
+def read(sql, args=()):
+    with connect() as con:
+        return con.execute(sql, args).fetchall()
 
 
-def init_db():
-    schema = [
+def initialize():
+    # Existing V4/V5/V5.1 tables are preserved.
+    schemas = [
         """
         CREATE TABLE IF NOT EXISTS watchlist (
             address TEXT PRIMARY KEY,
@@ -168,45 +167,44 @@ def init_db():
         )
         """,
         """
-        CREATE TABLE IF NOT EXISTS radar_v51 (
-            address TEXT NOT NULL,
-            scanned_at TEXT NOT NULL,
+        CREATE TABLE IF NOT EXISTS radar_v52 (
+            address TEXT,
+            scanned_at TEXT,
             name TEXT,
             symbol TEXT,
             source TEXT,
-            pair_created_at INTEGER,
-            age_hours REAL,
+            pair_age_hours REAL,
             price REAL,
             liquidity REAL,
             volume_m5 REAL,
             buys_m5 INTEGER,
             sells_m5 INTEGER,
-            volume_h24 REAL,
-            narrative_score INTEGER,
-            discovery_score INTEGER,
-            momentum_score INTEGER,
-            risk_level TEXT,
-            stage TEXT,
+            narrative INTEGER,
+            discovery INTEGER,
+            momentum INTEGER,
+            risk TEXT,
+            phase TEXT,
+            evidence TEXT,
             PRIMARY KEY(address, scanned_at)
         )
         """
     ]
 
-    with db_connect() as con:
-        for statement in schema:
-            con.execute(statement)
+    with connect() as con:
+        for sql in schemas:
+            con.execute(sql)
 
         con.execute("""
-            CREATE INDEX IF NOT EXISTS ix_radar_v51_address_date
-            ON radar_v51(address, scanned_at)
+            CREATE INDEX IF NOT EXISTS idx_v52_history
+            ON radar_v52(address, scanned_at)
         """)
 
 
-# ==========================================================
+# ==================================================
 # API
-# ==========================================================
+# ==================================================
 
-def http_json(url, params=None):
+def api(url, params=None):
     response = SESSION.get(
         url,
         params=params,
@@ -216,77 +214,86 @@ def http_json(url, params=None):
     return response.json()
 
 
-# ==========================================================
-# GTA NARRATIVE ANALYSIS
-# ==========================================================
+# ==================================================
+# GTA NARRATIVE DETECTION
+# ==================================================
 
-def narrative(name, symbol, extra):
-    primary = f"{name} {symbol}"
+def narrative(name, ticker, text):
+    title = f"{name} {ticker}"
 
-    if has_term(primary, STRONG):
-        return 100, "GTA 6 in naam/ticker"
+    if contains(title, STRONG):
+        return 100, "Direct GTA 6"
 
-    if has_term(primary, RELATED):
+    if contains(title, RELATED):
         return 65, "GTA-gerelateerde naam"
 
-    if has_term(extra, STRONG):
-        return 75, "GTA 6 in profiel/socials"
+    if contains(text, STRONG):
+        return 75, "GTA in profiel"
 
-    if has_term(extra, RELATED):
+    if contains(text, RELATED):
         return 35, "Zwakke GTA-context"
 
-    return 0, "Geen GTA-context"
+    return 0, "Geen match"
 
 
-# ==========================================================
-# DISCOVERY ENGINE
-# ==========================================================
+# ==================================================
+# TOKEN DISCOVERY
+# ==================================================
 
-def collect_candidates():
+def discover():
     candidates = {}
-    errors = []
+    issues = []
 
-    def add(address, source, profile=""):
+    def add(address, source, extra=""):
         if not address:
             return
 
-        if len(candidates) >= MAX_CANDIDATES and address not in candidates:
+        if not re.fullmatch(
+            r"[1-9A-HJ-NP-Za-km-z]{32,44}",
+            address
+        ):
             return
 
-        entry = candidates.setdefault(
+        if len(candidates) >= 200 and address not in candidates:
+            return
+
+        obj = candidates.setdefault(
             address,
-            {"source": set(), "extra": ""}
+            {"sources": set(), "text": ""}
         )
 
-        entry["source"].add(source)
-        entry["extra"] = (
-            entry["extra"] + " " + str(profile or "")
-        )[:3500]
+        obj["sources"].add(source)
+        obj["text"] = (
+            obj["text"] + " " + str(extra)
+        )[:3000]
 
-    # DexScreener keyword discovery
-    for term in SEARCH_TERMS:
+    # DexScreener keyword search
+    for term in TERMS:
         try:
-            data = http_json(
-                f"{DEX}/latest/dex/search",
+            response = api(
+                DEX + "/latest/dex/search",
                 {"q": term}
             )
 
-            for pair in data.get("pairs") or []:
+            for pair in response.get("pairs") or []:
                 if pair.get("chainId") != "solana":
                     continue
 
-                base = pair.get("baseToken") or {}
+                token = pair.get("baseToken") or {}
 
                 add(
-                    base.get("address"),
+                    token.get("address"),
                     "DEX search",
-                    f"{base.get('name', '')} {base.get('symbol', '')}"
+                    f"{token.get('name', '')} "
+                    f"{token.get('symbol', '')}"
                 )
 
         except (requests.RequestException, ValueError) as exc:
-            errors.append(f"DEX search {term}: {exc}")
+            issues.append(
+                f"DEX search ({term}): {exc}"
+            )
 
-    # DexScreener latest profiles and boosts
+    # Latest profiles and boosted tokens
     endpoints = [
         "/token-profiles/latest/v1",
         "/token-boosts/latest/v1",
@@ -295,109 +302,116 @@ def collect_candidates():
 
     for endpoint in endpoints:
         try:
-            data = http_json(DEX + endpoint)
+            data = api(DEX + endpoint)
 
-            for item in data if isinstance(data, list) else []:
+            for item in data:
                 if item.get("chainId") != "solana":
                     continue
 
                 links = " ".join(
-                    str(x.get("url", ""))
-                    for x in item.get("links") or []
+                    str(link.get("url", ""))
+                    for link in item.get("links") or []
                 )
 
                 add(
                     item.get("tokenAddress"),
-                    "DEX profiles/boosts",
-                    f"{item.get('description', '')} {links}"
+                    "DEX profiles",
+                    str(item.get("description") or "")
+                    + " " + links
                 )
 
-        except (requests.RequestException, ValueError) as exc:
-            errors.append(f"DEX {endpoint}: {exc}")
+        except (
+            requests.RequestException,
+            ValueError,
+            TypeError
+        ) as exc:
+            issues.append(
+                f"DEX profiles ({endpoint}): {exc}"
+            )
 
-    # GeckoTerminal new Solana pools
+    # GeckoTerminal newly created pools
     try:
-        data = http_json(
-            f"{GECKO}/networks/solana/new_pools",
-            {"page": 1}
+        response = api(
+            GECKO + "/networks/solana/new_pools",
+            {
+                "include": "base_token,quote_token",
+                "page": 1
+            }
         )
 
         included = {
-            x.get("id"): x.get("attributes") or {}
-            for x in data.get("included") or []
+            obj.get("id"): obj.get("attributes") or {}
+            for obj in response.get("included") or []
         }
 
-        for pool in data.get("data") or []:
-            attrs = pool.get("attributes") or {}
+        for pool in response.get("data") or []:
+            relation = (
+                (pool.get("relationships") or {})
+                .get("base_token") or {}
+            )
 
-            rel = (
-                pool.get("relationships") or {}
-            ).get("base_token") or {}
+            token_id = (
+                (relation.get("data") or {})
+                .get("id", "")
+            )
 
-            tok = (rel.get("data") or {}).get("id", "")
+            token = included.get(token_id, {})
 
-            address = (
-                tok.split("_", 1)[-1]
-                if "_" in tok
+            address = token.get("address") or (
+                token_id.split("_", 1)[1]
+                if "_" in token_id
                 else ""
             )
 
-            token_info = included.get(tok, {})
-
-            token_text = (
-                f"{token_info.get('name', '')} "
-                f"{token_info.get('symbol', '')} "
-                f"{attrs.get('name', '')}"
+            label = (
+                f"{token.get('name', '')} "
+                f"{token.get('symbol', '')} "
+                f"{(pool.get('attributes') or {}).get('name', '')}"
             )
 
-            if address and (
-                has_term(token_text, STRONG)
-                or has_term(token_text, RELATED)
-            ):
+            if contains(label, STRONG + RELATED):
                 add(
                     address,
                     "Gecko new pools",
-                    token_text
+                    label
                 )
 
     except (
         requests.RequestException,
         ValueError,
-        KeyError
+        TypeError
     ) as exc:
-        errors.append(f"Gecko new pools: {exc}")
+        issues.append(f"Gecko: {exc}")
 
-    # Existing watchlist
-    for address, name in db_all(
+    # Always include watchlist
+    for address, name in read(
         "SELECT address, name FROM watchlist"
     ):
         add(address, "Watchlist", name)
 
-    return candidates, errors
+    return candidates, issues
 
 
-# ==========================================================
+# ==================================================
 # MARKET DATA
-# ==========================================================
+# ==================================================
 
-def market_pairs(addresses):
-    chosen = {}
-    errors = []
-    all_addresses = list(addresses)
+def fetch_pairs(addresses):
+    selected = {}
+    issues = []
+    keys = list(addresses)
 
-    # DexScreener supports batches of up to 30.
-    for start in range(0, len(all_addresses), 30):
-        chunk = all_addresses[start:start + 30]
+    for start in range(0, len(keys), 30):
+        chunk = keys[start:start + 30]
 
         try:
-            pairs = http_json(
-                f"{DEX}/tokens/v1/solana/{','.join(chunk)}"
+            pairs = api(
+                DEX + "/tokens/v1/solana/"
+                + ",".join(chunk)
             )
 
             if not isinstance(pairs, list):
                 continue
-
-            allowed = set(chunk)
 
             for pair in pairs:
                 if pair.get("chainId") != "solana":
@@ -407,138 +421,125 @@ def market_pairs(addresses):
                     pair.get("baseToken") or {}
                 ).get("address", "")
 
-                if address not in allowed:
+                if address not in addresses:
                     continue
 
-                liquidity = num(
-                    (pair.get("liquidity") or {}).get("usd")
+                liquidity = val(
+                    (pair.get("liquidity") or {})
+                    .get("usd")
                 )
 
-                previous_liquidity = num(
-                    (chosen.get(address, {}).get("liquidity") or {}).get("usd")
+                previous = val(
+                    (
+                        selected.get(address, {})
+                        .get("liquidity") or {}
+                    ).get("usd")
                 )
 
                 if (
-                    address not in chosen
-                    or liquidity > previous_liquidity
+                    address not in selected
+                    or liquidity > previous
                 ):
-                    chosen[address] = pair
+                    selected[address] = pair
 
-        except (requests.RequestException, ValueError) as exc:
-            errors.append(
-                f"DEX batch {start // 30 + 1}: {exc}"
+        except (
+            requests.RequestException,
+            ValueError
+        ) as exc:
+            issues.append(
+                f"Pairs batch {start // 30 + 1}: {exc}"
             )
 
-    return chosen, errors
+    return selected, issues
 
 
-def previous_reading(address):
-    rows = db_all(
+def prior_samples(address):
+    return read(
         """
-        SELECT scanned_at, volume_m5, buys_m5,
-               sells_m5, liquidity, price
-        FROM radar_v51
+        SELECT scanned_at, price, volume_m5,
+               buys_m5, sells_m5
+        FROM radar_v52
         WHERE address=?
         ORDER BY scanned_at DESC
-        LIMIT 1
+        LIMIT 3
         """,
         (address,)
     )
 
-    return rows[0] if rows else None
 
+# ==================================================
+# TREND INTELLIGENCE
+# ==================================================
 
-# ==========================================================
-# SCORING AND TREND DETECTION
-# ==========================================================
+def analyze(address, pair, metadata, stamp):
+    token = pair.get("baseToken") or {}
 
-def assess(address, pair, meta, timestamp):
-    tok = pair.get("baseToken") or {}
-
-    name = tok.get("name") or "Unknown"
-    symbol = tok.get("symbol") or "?"
+    name = token.get("name") or "Unknown"
+    ticker = token.get("symbol") or "?"
 
     info = pair.get("info") or {}
 
-    links = " ".join(
-        str(x.get("url", "")) + " " + str(x.get("handle", ""))
-        for x in (
-            (info.get("websites") or [])
-            + (info.get("socials") or [])
-        )
+    links = (
+        (info.get("websites") or [])
+        + (info.get("socials") or [])
     )
 
-    score, reason = narrative(
-        name,
-        symbol,
-        meta["extra"] + " " + links
+    extra = metadata["text"] + " " + " ".join(
+        str(item.get("url", ""))
+        for item in links
     )
 
-    if not score:
+    nscore, reason = narrative(
+        name, ticker, extra
+    )
+
+    if not nscore:
         return None
 
-    created = int(num(pair.get("pairCreatedAt")))
+    creation = val(pair.get("pairCreatedAt"))
 
     age = (
         max(
             0,
             (
-                datetime.fromisoformat(timestamp).timestamp() * 1000
-                - created
+                datetime.fromisoformat(stamp).timestamp()
+                * 1000 - creation
             ) / 3600000
         )
-        if created else None
+        if creation else None
     )
 
-    liq = num(
+    price = val(pair.get("priceUsd"))
+
+    liquid = val(
         (pair.get("liquidity") or {}).get("usd")
     )
 
-    v5 = num(
+    volume5 = val(
         (pair.get("volume") or {}).get("m5")
     )
 
-    v24 = num(
+    volume24 = val(
         (pair.get("volume") or {}).get("h24")
     )
 
-    tx5 = (
+    transactions5 = (
         (pair.get("txns") or {}).get("m5") or {}
     )
 
-    buys = int(num(tx5.get("buys")))
-    sells = int(num(tx5.get("sells")))
-
-    price = num(pair.get("priceUsd"))
-
-    tx24 = (
+    transactions24 = (
         (pair.get("txns") or {}).get("h24") or {}
     )
 
-    buys24 = int(num(tx24.get("buys")))
-    sells24 = int(num(tx24.get("sells")))
+    buys = int(val(transactions5.get("buys")))
+    sells = int(val(transactions5.get("sells")))
 
-    prior = previous_reading(address)
+    buys24 = int(val(transactions24.get("buys")))
+    sells24 = int(val(transactions24.get("sells")))
 
-    ratio = None
-    comparable = False
+    older = prior_samples(address)
 
-    if prior:
-        try:
-            dt = (
-                datetime.fromisoformat(timestamp)
-                - datetime.fromisoformat(prior[0])
-            ).total_seconds() / 60
-
-            comparable = 4 <= dt <= 20
-
-            if comparable and num(prior[1]) >= 5:
-                ratio = v5 / num(prior[1])
-
-        except (ValueError, TypeError):
-            pass
-
-    # Early Discovery Score
+    # Early discovery score
     if age is None:
         discovery = 10
     elif age < 1:
@@ -552,114 +553,185 @@ def assess(address, pair, meta, timestamp):
     else:
         discovery = 10
 
-    # Momentum Score
+    # Momentum confirmation
+    evidence = []
     momentum = 0
+    volume_growth = False
+    price_growth = False
+    confirmed = False
 
-    if buys + sells >= 5:
-        momentum += 20
+    if len(older) >= 2:
+        recent = older[0]
+        earlier = older[1]
 
-    if buys >= 5 and buys >= 2 * max(sells, 1):
-        momentum += 30
+        gap1 = (
+            datetime.fromisoformat(stamp)
+            - datetime.fromisoformat(recent[0])
+        ).total_seconds() / 60
 
-    if v5 >= 100:
+        gap2 = (
+            datetime.fromisoformat(recent[0])
+            - datetime.fromisoformat(earlier[0])
+        ).total_seconds() / 60
+
+        if (
+            4 <= gap1 <= 12
+            and 4 <= gap2 <= 12
+        ):
+            confirmed = True
+
+            v1 = val(earlier[2])
+            v2 = val(recent[2])
+
+            p1 = val(earlier[1])
+            p2 = val(recent[1])
+
+            volume_growth = (
+                v1 >= 50
+                and v1 < v2 < volume5
+                and volume5 >= 250
+            )
+
+            price_growth = (
+                p1 > 0
+                and p1 < p2 < price
+                and price >= p1 * 1.02
+            )
+
+            if volume_growth:
+                momentum += 35
+                evidence.append(
+                    "3 stijgende volumemetingen"
+                )
+
+            if price_growth:
+                momentum += 35
+                evidence.append(
+                    "3 stijgende prijsmetingen"
+                )
+
+    # Current market activity
+    if buys + sells >= 20 and volume5 >= 250:
         momentum += 15
+        evidence.append(
+            "voldoende 5m-activiteit"
+        )
 
-    if v5 >= 1000:
-        momentum += 10
-
-    if ratio is not None and ratio >= 2 and v5 >= 250:
-        momentum += 25
+    if (
+        buys >= 10
+        and buys >= 1.4 * max(sells, 1)
+    ):
+        momentum += 15
+        evidence.append(
+            "meer koop- dan verkooptransacties"
+        )
 
     momentum = min(100, momentum)
 
-    # Risk flags
-    warnings = []
+    # Risk screening
+    risk_flags = []
 
-    if liq < 1000:
-        warnings.append("Extreem lage liquiditeit")
-    elif liq < 10000:
-        warnings.append("Lage liquiditeit")
-
-    if age is None:
-        warnings.append("Pairleeftijd onbekend")
-
-    if buys + sells < 5:
-        warnings.append("Weinig transacties (5m)")
-
-    if not links:
-        warnings.append(
-            "Socials/website ontbreken in pairgegevens"
+    if liquid < 1000:
+        risk_flags.append(
+            "extreem lage liquiditeit"
+        )
+    elif liquid < 10000:
+        risk_flags.append(
+            "lage liquiditeit"
         )
 
-    warnings.append(
-        "Contractbevoegdheden en holderverdeling niet geverifieerd"
+    if (
+        buys + sells > 300
+        and volume5 / max(buys + sells, 1) < 3
+    ):
+        risk_flags.append(
+            "zeer kleine gemiddelde transactie"
+        )
+
+    if age is None:
+        risk_flags.append(
+            "paarleeftijd onbekend"
+        )
+
+    risk_flags.append(
+        "holders/contractbevoegdheden/"
+        "verkoopbaarheid niet gecontroleerd"
     )
 
     risk = (
         "Hoog"
-        if liq < 10000
-        else "Onbekend — extra controles nodig"
+        if liquid < 10000
+        else "Onbekend"
     )
 
-    # Classification
-    if age is not None and age <= 24 and momentum < 45:
-        stage = "Pre-trend kandidaat"
-    elif momentum >= 60 and comparable:
-        stage = "Early momentum"
-    elif momentum >= 35:
-        stage = "Activiteit zichtbaar"
+    # Signal stage
+    if (
+        confirmed
+        and volume_growth
+        and price_growth
+        and liquid >= 10000
+        and momentum >= 70
+    ):
+        stage = "MOMENTUM TER CONTROLE"
+
+    elif age is not None and age <= 24:
+        stage = "PRE-TREND KANDIDAAT"
+
+    elif volume5 >= 250 and buys + sells >= 20:
+        stage = "ACTIEF — MONITOREN"
+
     else:
-        stage = "Monitoren"
-
-    signals = []
-
-    if ratio is not None and ratio >= 2 and v5 >= 250:
-        signals.append("VOLUME_VERSNELLING")
-
-    if buys >= 5 and buys >= 2 * max(sells, 1):
-        signals.append("KOOPDRUK_5M")
+        stage = "MONITOREN"
 
     return {
         "Naam": name,
-        "Ticker": symbol,
+        "Ticker": ticker,
         "Adres": address,
-        "Bron": ", ".join(sorted(meta["source"])),
-        "Narratief": reason,
-        "Narrative": score,
+        "Bron": ", ".join(
+            sorted(metadata["sources"])
+        ),
+        "Narrative": nscore,
+        "Waarom": reason,
         "Early Discovery": discovery,
         "Momentum": momentum,
-        "Risico": risk,
         "Fase": stage,
-        "Leeftijd uren": round(age, 2) if age is not None else None,
-        "Liquiditeit USD": liq,
-        "Volume 5m USD": v5,
-        "Volume 24u USD": v24,
+        "Risico": risk,
+        "Waarschuwingen": "; ".join(risk_flags),
+        "Leeftijd uren": (
+            round(age, 2)
+            if age is not None else None
+        ),
+        "Liquiditeit USD": liquid,
+        "Volume 5m USD": volume5,
+        "Volume 24u USD": volume24,
         "Koop 5m": buys,
         "Verkoop 5m": sells,
         "Koop 24u": buys24,
         "Verkoop 24u": sells24,
         "Prijs USD": price,
-        "Volume ratio": round(ratio, 2) if ratio is not None else None,
-        "Signalen": ", ".join(signals),
-        "Waarschuwingen": "; ".join(warnings),
-        "DEX": pair.get("url") or "",
-        "created": created
+        "Bewijs": (
+            "; ".join(evidence)
+            if evidence
+            else "Nog onvoldoende trendbewijs"
+        ),
+        "DEX": pair.get("url") or ""
     }
 
 
-# ==========================================================
-# SAVE RESULTS
-# ==========================================================
+# ==================================================
+# DATABASE STORAGE
+# ==================================================
 
-def persist(rows, timestamp, error_count):
-    with db_connect() as con:
+def save(rows, stamp, error_count):
+    with connect() as con:
         for r in rows:
             a = r["Adres"]
 
             con.execute(
                 """
                 INSERT INTO discovered
-                (address, name, symbol, first_seen, last_seen)
+                (address, name, symbol,
+                 first_seen, last_seen)
                 VALUES (?, ?, ?, ?, ?)
                 ON CONFLICT(address) DO UPDATE SET
                     name=excluded.name,
@@ -668,36 +740,37 @@ def persist(rows, timestamp, error_count):
                 """,
                 (
                     a, r["Naam"], r["Ticker"],
-                    timestamp, timestamp
+                    stamp, stamp
                 )
             )
 
             con.execute(
                 """
                 INSERT OR IGNORE INTO discovery_events
-                (address, detected_at, name, symbol,
-                 pair_age_hours, source)
+                (address, detected_at, name,
+                 symbol, pair_age_hours, source)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    a, timestamp, r["Naam"],
-                    r["Ticker"], r["Leeftijd uren"],
-                    r["Bron"]
+                    a, stamp, r["Naam"],
+                    r["Ticker"],
+                    r["Leeftijd uren"], r["Bron"]
                 )
             )
 
             con.execute(
                 """
                 INSERT INTO snapshots
-                (address, scanned_at, price, liquidity,
-                 volume24, buys24, sells24)
+                (address, scanned_at, price,
+                 liquidity, volume24, buys24, sells24)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    a, timestamp, r["Prijs USD"],
+                    a, stamp, r["Prijs USD"],
                     r["Liquiditeit USD"],
                     r["Volume 24u USD"],
-                    r["Koop 24u"], r["Verkoop 24u"]
+                    r["Koop 24u"],
+                    r["Verkoop 24u"]
                 )
             )
 
@@ -709,37 +782,45 @@ def persist(rows, timestamp, error_count):
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    a, timestamp, r["Volume 5m USD"],
-                    r["Koop 5m"], r["Verkoop 5m"],
-                    r["Liquiditeit USD"], r["Prijs USD"]
+                    a, stamp, r["Volume 5m USD"],
+                    r["Koop 5m"],
+                    r["Verkoop 5m"],
+                    r["Liquiditeit USD"],
+                    r["Prijs USD"]
                 )
             )
 
             con.execute(
                 """
-                INSERT OR REPLACE INTO radar_v51
-                (address, scanned_at, name, symbol, source,
-                 pair_created_at, age_hours, price, liquidity,
-                 volume_m5, buys_m5, sells_m5, volume_h24,
-                 narrative_score, discovery_score,
-                 momentum_score, risk_level, stage)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                INSERT OR REPLACE INTO radar_v52
+                (address, scanned_at, name, symbol,
+                 source, pair_age_hours, price,
+                 liquidity, volume_m5, buys_m5,
+                 sells_m5, narrative, discovery,
+                 momentum, risk, phase, evidence)
+                VALUES (
+                    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+                )
                 """,
                 (
-                    a, timestamp, r["Naam"], r["Ticker"],
-                    r["Bron"], r["created"],
-                    r["Leeftijd uren"], r["Prijs USD"],
-                    r["Liquiditeit USD"], r["Volume 5m USD"],
-                    r["Koop 5m"], r["Verkoop 5m"],
-                    r["Volume 24u USD"], r["Narrative"],
-                    r["Early Discovery"], r["Momentum"],
-                    r["Risico"], r["Fase"]
+                    a, stamp,
+                    r["Naam"], r["Ticker"],
+                    r["Bron"], r["Leeftijd uren"],
+                    r["Prijs USD"],
+                    r["Liquiditeit USD"],
+                    r["Volume 5m USD"],
+                    r["Koop 5m"],
+                    r["Verkoop 5m"],
+                    r["Narrative"],
+                    r["Early Discovery"],
+                    r["Momentum"],
+                    r["Risico"],
+                    r["Fase"],
+                    r["Bewijs"]
                 )
             )
 
-            for signal in filter(
-                None, r["Signalen"].split(", ")
-            ):
+            if r["Fase"] == "MOMENTUM TER CONTROLE":
                 con.execute(
                     """
                     INSERT OR IGNORE INTO token_signals
@@ -747,8 +828,9 @@ def persist(rows, timestamp, error_count):
                     VALUES (?, ?, ?, ?)
                     """,
                     (
-                        a, timestamp, signal,
-                        "V5.1 heuristiek; geen handelsadvies"
+                        a, stamp,
+                        "V52_TREND",
+                        r["Bewijs"]
                     )
                 )
 
@@ -758,123 +840,84 @@ def persist(rows, timestamp, error_count):
             (scanned_at, candidates, errors)
             VALUES (?, ?, ?)
             """,
-            (timestamp, len(rows), error_count)
+            (
+                stamp,
+                len(rows),
+                error_count
+            )
         )
 
 
-# ==========================================================
+# ==================================================
 # SCAN ENGINE
-# ==========================================================
+# ==================================================
 
-def run_scan():
-    timestamp = now()
+def perform_scan():
+    stamp = now()
 
-    candidate_map, errors = collect_candidates()
+    candidates, errors = discover()
 
-    pairs, pair_errors = market_pairs(candidate_map)
-
+    pairs, pair_errors = fetch_pairs(candidates)
     errors.extend(pair_errors)
 
     rows = []
 
     for address, pair in pairs.items():
         try:
-            row = assess(
+            result = analyze(
                 address,
                 pair,
-                candidate_map[address],
-                timestamp
+                candidates[address],
+                stamp
             )
 
-            if row:
-                rows.append(row)
+            if result:
+                rows.append(result)
 
-        except (KeyError, TypeError, ValueError) as exc:
+        except (
+            KeyError,
+            ValueError,
+            TypeError
+        ) as exc:
             errors.append(
-                f"Analyse {address[:12]}: {exc}"
+                f"Analyse {address[:10]}: {exc}"
             )
 
-    persist(rows, timestamp, len(errors))
+    save(rows, stamp, len(errors))
 
-    return rows, errors, timestamp
-
-
-def last_stored():
-    result = db_all(
-        """
-        SELECT scanned_at
-        FROM radar_v51
-        ORDER BY scanned_at DESC
-        LIMIT 1
-        """
-    )
-
-    if not result:
-        return pd.DataFrame()
-
-    stamp = result[0][0]
-
-    rows = db_all(
-        """
-        SELECT name, symbol, address, source, age_hours,
-               price, liquidity, volume_m5, volume_h24,
-               buys_m5, sells_m5, narrative_score,
-               discovery_score, momentum_score,
-               risk_level, stage
-        FROM radar_v51
-        WHERE scanned_at=?
-        """,
-        (stamp,)
-    )
-
-    return pd.DataFrame(
-        rows,
-        columns=[
-            "Naam", "Ticker", "Adres", "Bron",
-            "Leeftijd uren", "Prijs USD",
-            "Liquiditeit USD", "Volume 5m USD",
-            "Volume 24u USD", "Koop 5m",
-            "Verkoop 5m", "Narrative",
-            "Early Discovery", "Momentum",
-            "Risico", "Fase"
-        ]
-    )
+    return pd.DataFrame(rows), errors, stamp
 
 
-# ==========================================================
-# STREAMLIT DASHBOARD
-# ==========================================================
+# ==================================================
+# STREAMLIT INTERFACE
+# ==================================================
 
-init_db()
+initialize()
 
-st.title("🎮 GTA 6 Narrative Trading Radar V5.1")
+st.title("🎮 GTA 6 Narrative Trading Radar V5.2")
 
 st.caption(
-    "Solana · GTA-gerelateerde memecoins · "
-    "Early Discovery + Momentum · "
-    "Onderzoek / geen echte orders"
+    "Solana • Early Discovery • "
+    "Trendbevestiging • Geen echte transacties"
 )
 
 st.warning(
-    "Een score is geen winstverwachting. "
-    "Nieuw token ≠ veilig token. "
-    "Scams, wash trading en plotselinge "
-    "liquiditeitsverliezen zijn mogelijk."
+    "De scanner kan fake volume, wash trading, "
+    "scams of verkoopbeperkingen niet uitsluiten. "
+    "Een signaal is geen koopadvies."
 )
 
-st.sidebar.header("⚙️ Instellingen")
-
 auto = st.sidebar.toggle(
-    "Automatische scan elke 5 minuten (actieve sessie)",
+    "Automatische scan bij actieve sessie (5 min)",
     value=False
 )
 
 max_age = st.sidebar.slider(
-    "Early Discovery: max. leeftijd in uren",
-    1, 168, 24
+    "Maximale leeftijd pre-trend (uren)",
+    1, 72, 24
 )
 
-min_liq = st.sidebar.number_input(
+minimum_liquidity = st.sidebar.number_input(
     "Minimum liquiditeit shortlist ($)",
     min_value=0,
     value=10000,
@@ -882,114 +925,114 @@ min_liq = st.sidebar.number_input(
 )
 
 st.sidebar.caption(
-    "Streamlit Community Cloud is niet geschikt "
-    "voor gegarandeerde 24/7-scans of "
-    "permanente SQLite-opslag."
+    "Community Cloud kan in slaapstand gaan. "
+    "SQLite is daar niet gegarandeerd permanent."
 )
 
-if "v51_rows" not in st.session_state:
-    st.session_state.v51_rows = None
-
-if "v51_errors" not in st.session_state:
-    st.session_state.v51_errors = []
-
-if "v51_time" not in st.session_state:
-    st.session_state.v51_time = None
-
-if "v51_last_attempt" not in st.session_state:
-    st.session_state.v51_last_attempt = 0.0
+if "v52_data" not in st.session_state:
+    st.session_state.v52_data = pd.DataFrame()
+    st.session_state.v52_errors = []
+    st.session_state.v52_last = "Nog niet"
+    st.session_state.v52_last_attempt = 0.0
 
 
 @st.fragment(run_every="300s")
-def radar_dashboard():
-    manual = st.button(
+def dashboard():
+    clicked = st.button(
         "🔄 Scan nu",
         type="primary"
     )
 
     due = (
-        auto and (
-            time.monotonic()
-            - st.session_state.v51_last_attempt >= 300
-        )
+        auto
+        and time.monotonic()
+        - st.session_state.v52_last_attempt >= 300
     )
 
-    if manual or due:
-        st.session_state.v51_last_attempt = time.monotonic()
+    if clicked or due:
+        st.session_state.v52_last_attempt = (
+            time.monotonic()
+        )
 
         with st.spinner(
-            "GTA-tokens ontdekken en analyseren..."
+            "Scannen en signalen vergelijken..."
         ):
             try:
-                rows, errors, stamp = run_scan()
+                data, errors, timestamp = perform_scan()
 
-                st.session_state.v51_rows = rows
-                st.session_state.v51_errors = errors
-                st.session_state.v51_time = stamp
+                st.session_state.v52_data = data
+                st.session_state.v52_errors = errors
+                st.session_state.v52_last = timestamp
 
             except (
                 requests.RequestException,
                 sqlite3.Error,
                 ValueError
             ) as exc:
-                st.error(f"Scanfout: {exc}")
+                st.error(
+                    f"Scan mislukt: {exc}"
+                )
 
-    if st.session_state.v51_rows is not None:
-        df = pd.DataFrame(st.session_state.v51_rows)
-    else:
-        df = last_stored()
+    df = st.session_state.v52_data
 
     st.caption(
-        "Laatste scan in deze sessie (UTC): "
-        f"{st.session_state.v51_time or 'Nog niet uitgevoerd'}"
+        "Laatste scan (UTC): "
+        f"{st.session_state.v52_last}"
     )
 
     if df.empty:
         st.info(
-            "Nog geen GTA-kandidaten. "
-            "Klik op 'Scan nu'."
+            "Nog geen resultaten. Klik op Scan nu."
         )
         return
 
-    a, b, c = st.columns(3)
+    first, second, third = st.columns(3)
 
-    a.metric("GTA-kandidaten", len(df))
+    first.metric(
+        "GTA-kandidaten",
+        len(df)
+    )
 
-    b.metric(
-        f"Nieuwe paren (≤{max_age} uur)",
+    second.metric(
+        "Paar jonger dan 24 uur",
         int(
             (
-                df["Leeftijd uren"].fillna(1e9)
-                <= max_age
+                df["Leeftijd uren"].fillna(1e9) < 24
             ).sum()
         )
     )
 
-    c.metric(
-        "Momentum ≥60",
-        int((df["Momentum"] >= 60).sum())
+    third.metric(
+        "Trendbevestigingen",
+        int(
+            (
+                df["Fase"] == "MOMENTUM TER CONTROLE"
+            ).sum()
+        )
     )
 
     st.subheader(
-        "🚀 Early Discovery — recent aangemaakte paren"
+        "🚀 Pre-trend — nieuwe paren"
     )
 
     young = df[
-        df["Leeftijd uren"].notna()
+        (df["Leeftijd uren"].notna())
         & (df["Leeftijd uren"] <= max_age)
-    ].copy()
+    ].sort_values("Leeftijd uren")
 
     st.dataframe(
-        young.sort_values("Leeftijd uren")
-        if not young.empty else young,
-        use_container_width=True,
-        hide_index=True
+        young,
+        hide_index=True,
+        use_container_width=True
     )
 
-    st.subheader("📈 Activiteit en trends")
+    st.subheader(
+        "📈 Momentum & liquiditeit"
+    )
 
     active = df[
-        df["Liquiditeit USD"] >= min_liq
+        df["Liquiditeit USD"]
+        >= minimum_liquidity
     ].sort_values(
         ["Momentum", "Early Discovery"],
         ascending=False
@@ -997,133 +1040,170 @@ def radar_dashboard():
 
     st.dataframe(
         active,
-        use_container_width=True,
-        hide_index=True
+        hide_index=True,
+        use_container_width=True
     )
 
     with st.expander("Alle GTA-kandidaten"):
         st.dataframe(
             df,
-            use_container_width=True,
-            hide_index=True
+            hide_index=True,
+            use_container_width=True
         )
 
     options = {
-        f"{r['Naam']} ({r['Ticker']}) — {r['Adres'][:8]}": r["Adres"]
+        (
+            f"{r['Naam']} ({r['Ticker']}) "
+            f"— {r['Adres'][:9]}"
+        ): r["Adres"]
         for _, r in df.iterrows()
     }
 
-    selected = st.selectbox(
-        "🔍 Token bekijken",
-        list(options),
-        key="v51_selection"
+    label = st.selectbox(
+        "🔎 Token kiezen",
+        list(options)
     )
 
-    addr = options[selected]
+    address = options[label]
 
-    token = df[
-        df["Adres"] == addr
+    selected = df[
+        df["Adres"] == address
     ].iloc[0]
 
-    st.code(addr, language="text")
-
-    st.write(
-        "Fase:", token["Fase"],
-        "| Risico:", token["Risico"]
+    st.code(
+        address,
+        language="text"
     )
 
-    st.caption(
-        "Risicocontroles zijn onvolledig: "
-        "mint/freeze-authority, LP-lock, "
-        "top holders en verkoopbaarheid "
-        "zijn niet geverifieerd."
+    st.write(
+        "**Trendbewijs:**",
+        selected["Bewijs"]
+    )
+
+    st.write(
+        "**Risico's:**",
+        selected["Waarschuwingen"]
     )
 
     if st.button(
-        "➕ Op watchlist",
-        key="v51_watch"
+        "➕ Aan watchlist toevoegen"
     ):
-        with db_connect() as con:
+        with connect() as con:
             con.execute(
                 """
                 INSERT OR IGNORE INTO watchlist
                 (address, name, added_at)
                 VALUES (?, ?, ?)
                 """,
-                (addr, token["Naam"], now())
+                (
+                    address,
+                    selected["Naam"],
+                    now()
+                )
             )
 
         st.success("Toegevoegd")
 
-    st.link_button(
-        "Open op DexScreener",
-        f"https://dexscreener.com/solana/{addr}"
-    )
+    if selected["DEX"]:
+        st.link_button(
+            "Open DexScreener",
+            selected["DEX"]
+        )
 
-    past = db_all(
+    history = read(
         """
         SELECT scanned_at, price,
                volume_m5, liquidity
-        FROM radar_v51
+        FROM radar_v52
         WHERE address=?
         ORDER BY scanned_at DESC
         LIMIT 100
         """,
-        (addr,)
+        (address,)
     )
 
-    if len(past) >= 2:
-        hist = pd.DataFrame(
-            past,
+    if len(history) >= 2:
+        chart = pd.DataFrame(
+            history,
             columns=[
                 "Tijd", "Prijs",
                 "Volume 5m", "Liquiditeit"
             ]
         )
 
-        hist["Tijd"] = pd.to_datetime(
-            hist["Tijd"],
+        chart["Tijd"] = pd.to_datetime(
+            chart["Tijd"],
             utc=True
         )
 
-        hist = hist.sort_values("Tijd").set_index("Tijd")
+        chart = (
+            chart.sort_values("Tijd")
+            .set_index("Tijd")
+        )
 
-        st.line_chart(hist[["Prijs"]])
+        st.line_chart(
+            chart[["Prijs"]]
+        )
 
-        st.line_chart(hist[["Volume 5m"]])
+        st.line_chart(
+            chart[["Volume 5m"]]
+        )
 
     st.download_button(
-        "📥 Download scan-CSV",
+        "📥 CSV-export",
         df.to_csv(index=False).encode("utf-8"),
-        "gta6_radar_v51.csv",
+        "gta6_v52.csv",
         "text/csv"
     )
 
-    if st.session_state.v51_errors:
+    if st.session_state.v52_errors:
         with st.expander(
-            f"⚠️ API-meldingen "
-            f"({len(st.session_state.v51_errors)})"
+            "⚠️ API-meldingen"
         ):
             st.write(
-                st.session_state.v51_errors[:30]
+                st.session_state.v52_errors[:25]
             )
 
 
-radar_dashboard()
-
-
-# ==========================================================
-# HISTORY AND WATCHLIST
-# ==========================================================
+dashboard()
 
 st.divider()
 
-st.subheader("📣 Historische signalen")
+# ==================================================
+# WATCHLIST AND SIGNAL HISTORY
+# ==================================================
 
-signals = db_all(
+st.subheader("⭐ Watchlist")
+
+watch = read(
     """
-    SELECT scanned_at, address, signal
+    SELECT name, address, added_at
+    FROM watchlist
+    ORDER BY added_at DESC
+    LIMIT 100
+    """
+)
+
+if watch:
+    st.dataframe(
+        pd.DataFrame(
+            watch,
+            columns=[
+                "Naam", "Adres", "Toegevoegd"
+            ]
+        ),
+        hide_index=True,
+        use_container_width=True
+    )
+
+st.subheader("📣 Trendmeldingen")
+
+signals = read(
+    """
+    SELECT scanned_at, address,
+           signal, detail
     FROM token_signals
+    WHERE signal='V52_TREND'
     ORDER BY scanned_at DESC
     LIMIT 50
     """
@@ -1133,29 +1213,9 @@ if signals:
     st.dataframe(
         pd.DataFrame(
             signals,
-            columns=["UTC", "Mint", "Signaal"]
-        ),
-        hide_index=True,
-        use_container_width=True
-    )
-
-st.subheader("⭐ Watchlist")
-
-watch = db_all(
-    """
-    SELECT name, address, added_at
-    FROM watchlist
-    ORDER BY added_at DESC
-    LIMIT 50
-    """
-)
-
-if watch:
-    st.dataframe(
-        pd.DataFrame(
-            watch,
             columns=[
-                "Naam", "Mint", "Toegevoegd"
+                "Tijd", "Adres",
+                "Type", "Bewijs"
             ]
         ),
         hide_index=True,
@@ -1163,7 +1223,7 @@ if watch:
     )
 
 st.caption(
-    "V5.1 registreert signalen, maar verstuurt "
-    "geen orders. Nieuws/sociale trending-feed "
-    "en paper trading volgen in latere versies."
+    "Geen handelsorders. "
+    "Geen uniek-wallet- of buy/sell-volumeanalyse "
+    "zonder aanvullende on-chain databron."
 )
