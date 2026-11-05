@@ -1,6 +1,5 @@
 
-"""GTA 6 Narrative Radar V5.3: persistent tracking and manual paper trading."""
-
+"""GTA narrative radar V5.4: persistent discovery and simulated trades only."""
 import os
 import re
 import sqlite3
@@ -12,16 +11,15 @@ import requests
 import streamlit as st
 
 st.set_page_config(
-    page_title="GTA 6 Radar V5.3",
+    page_title="GTA 6 Radar V5.4",
     page_icon="🎮",
     layout="wide"
 )
 
 DB = os.getenv("GTA6_RADAR_DB", "gta6_radar.db")
 DEX = "https://api.dexscreener.com"
-GECKO = "https://api.geckoterminal.com/api/v2"
 
-WORDS = [
+TERMS = [
     "GTA6", "GTA VI", "Grand Theft Auto",
     "Vice City", "Leonida", "Lucia Camino",
     "Jason Duval", "Port Gellhorn"
@@ -38,12 +36,11 @@ RELATED = [
     "raul bautista", "ambrosia"
 ]
 
-ADDRESS = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
+ADDR = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
 
-SESSION = requests.Session()
-SESSION.headers.update({
-    "User-Agent": "GTA6-Radar-V5.3",
-    "Accept": "application/json"
+HTTP = requests.Session()
+HTTP.headers.update({
+    "User-Agent": "GTA6-Radar-Research/5.4"
 })
 
 
@@ -51,31 +48,34 @@ SESSION.headers.update({
 # HELPERS
 # ==================================================
 
-def now():
+def utcnow():
     return datetime.now(timezone.utc).isoformat(
         timespec="seconds"
     )
 
 
-def numeric(x):
+def number(x):
     try:
         return float(x) if x is not None else None
-    except (TypeError, ValueError):
+    except (ValueError, TypeError):
         return None
 
 
 def n(x):
-    return numeric(x) or 0.0
+    return number(x) or 0.0
 
 
-def matches(text, phrases):
-    value = str(text or "").lower()
+def contains(text, terms):
+    text = str(text or "").lower()
+
     return any(
         re.search(
-            r"(?<![a-z0-9])" + re.escape(term) + r"(?![a-z0-9])",
-            value
+            r"(?<![a-z0-9])"
+            + re.escape(word)
+            + r"(?![a-z0-9])",
+            text
         )
-        for term in phrases
+        for word in terms
     )
 
 
@@ -83,27 +83,20 @@ def matches(text, phrases):
 # DATABASE
 # ==================================================
 
-def db():
-    con = sqlite3.connect(DB, timeout=20)
-    con.execute("PRAGMA busy_timeout=20000")
-    return con
+def database():
+    connection = sqlite3.connect(DB, timeout=20)
+    connection.execute("PRAGMA busy_timeout=20000")
+    return connection
 
 
-def read(sql, params=()):
-    with db() as con:
+def rows(sql, params=()):
+    with database() as con:
         return con.execute(sql, params).fetchall()
 
 
-def setup():
-    # Existing tables and data are preserved.
-    statements = [
-        """
-        CREATE TABLE IF NOT EXISTS watchlist (
-            address TEXT PRIMARY KEY,
-            name TEXT,
-            added_at TEXT
-        )
-        """,
+def initialize():
+    # Existing database tables are preserved.
+    sqls = [
         """
         CREATE TABLE IF NOT EXISTS discovered (
             address TEXT PRIMARY KEY,
@@ -114,55 +107,10 @@ def setup():
         )
         """,
         """
-        CREATE TABLE IF NOT EXISTS snapshots (
-            address TEXT,
-            scanned_at TEXT,
-            price REAL,
-            liquidity REAL,
-            volume24 REAL,
-            buys24 INTEGER,
-            sells24 INTEGER
-        )
-        """,
-        """
-        CREATE TABLE IF NOT EXISTS discovery_events (
+        CREATE TABLE IF NOT EXISTS watchlist (
             address TEXT PRIMARY KEY,
-            detected_at TEXT,
             name TEXT,
-            symbol TEXT,
-            pair_age_hours REAL,
-            source TEXT
-        )
-        """,
-        """
-        CREATE TABLE IF NOT EXISTS token_signals (
-            address TEXT,
-            scanned_at TEXT,
-            signal TEXT,
-            detail TEXT,
-            PRIMARY KEY(address, scanned_at, signal)
-        )
-        """,
-        """
-        CREATE TABLE IF NOT EXISTS radar_v53 (
-            address TEXT NOT NULL,
-            scanned_at TEXT NOT NULL,
-            name TEXT,
-            symbol TEXT,
-            source TEXT,
-            status TEXT,
-            pair_address TEXT,
-            age_hours REAL,
-            price REAL,
-            liquidity REAL,
-            volume_m5 REAL,
-            buys_m5 INTEGER,
-            sells_m5 INTEGER,
-            narrative INTEGER,
-            momentum INTEGER,
-            phase TEXT,
-            warnings TEXT,
-            PRIMARY KEY(address, scanned_at)
+            added_at TEXT
         )
         """,
         """
@@ -176,36 +124,73 @@ def setup():
         )
         """,
         """
-        CREATE TABLE IF NOT EXISTS paper_trades (
+        CREATE TABLE IF NOT EXISTS radar_v54 (
+            address TEXT NOT NULL,
+            scanned_at TEXT NOT NULL,
+            name TEXT,
+            symbol TEXT,
+            pair_address TEXT,
+            source TEXT,
+            price REAL,
+            liquidity REAL,
+            volume_m5 REAL,
+            buys_m5 INTEGER,
+            sells_m5 INTEGER,
+            age_hours REAL,
+            narrative INTEGER,
+            momentum INTEGER,
+            evidence TEXT,
+            phase TEXT,
+            warnings TEXT,
+            PRIMARY KEY(address, scanned_at)
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS paper_v54 (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             address TEXT NOT NULL,
             name TEXT,
+            pair_address TEXT,
             opened_at TEXT NOT NULL,
             entry_market REAL NOT NULL,
             entry_effective REAL NOT NULL,
-            usd_amount REAL NOT NULL,
-            tokens REAL NOT NULL,
+            amount_usd REAL NOT NULL,
+            quantity REAL NOT NULL,
             fee_rate REAL NOT NULL,
             slippage_rate REAL NOT NULL,
             status TEXT NOT NULL DEFAULT 'OPEN',
             closed_at TEXT,
             exit_market REAL,
             exit_effective REAL,
-            net_pnl REAL
+            pnl_usd REAL,
+            exit_reason TEXT,
+            last_mark REAL,
+            last_mark_at TEXT,
+            peak_mark REAL
         )
         """,
         """
-        CREATE INDEX IF NOT EXISTS ix_v53_address_time
-        ON radar_v53(address, scanned_at)
+        CREATE TABLE IF NOT EXISTS v54_runs (
+            scanned_at TEXT PRIMARY KEY,
+            discovered_count INTEGER,
+            fetched_count INTEGER,
+            errors INTEGER,
+            entries INTEGER,
+            exits INTEGER
+        )
         """,
         """
-        CREATE INDEX IF NOT EXISTS ix_paper_status
-        ON paper_trades(status)
+        CREATE INDEX IF NOT EXISTS ix_v54_history
+        ON radar_v54(address, scanned_at)
+        """,
+        """
+        CREATE INDEX IF NOT EXISTS ix_paper_v54_status
+        ON paper_v54(status)
         """
     ]
 
-    with db() as con:
-        for statement in statements:
+    with database() as con:
+        for statement in sqls:
             con.execute(statement)
 
 
@@ -213,26 +198,30 @@ def setup():
 # API
 # ==================================================
 
-def request_json(url, params=None):
-    result = SESSION.get(
+def get_json(url, params=None):
+    response = HTTP.get(
         url,
         params=params,
         timeout=18
     )
-    result.raise_for_status()
-    return result.json()
+
+    response.raise_for_status()
+    return response.json()
 
 
 # ==================================================
-# TOKEN DISCOVERY
+# GTA TOKEN DISCOVERY
 # ==================================================
 
 def discover():
     found = {}
-    issues = []
+    errors = []
 
-    def add(address, source, extra=""):
-        if not address or not ADDRESS.fullmatch(address):
+    def add(address, source, text=""):
+        if (
+            not isinstance(address, str)
+            or not ADDR.fullmatch(address)
+        ):
             return
 
         item = found.setdefault(
@@ -241,204 +230,151 @@ def discover():
         )
 
         item["sources"].add(source)
+
         item["extra"] = (
-            item["extra"] + " " + str(extra)
+            item["extra"] + " " + str(text)
         )[:2000]
 
-    # DexScreener keyword search
-    for word in WORDS:
+    # Keyword search
+    for term in TERMS:
         try:
-            data = request_json(
+            data = get_json(
                 DEX + "/latest/dex/search",
-                {"q": word}
+                {"q": term}
             )
 
             for pair in data.get("pairs") or []:
-                if pair.get("chainId") == "solana":
-                    token = pair.get("baseToken") or {}
+                if pair.get("chainId") != "solana":
+                    continue
 
+                base = pair.get("baseToken") or {}
+
+                title = (
+                    f"{base.get('name', '')} "
+                    f"{base.get('symbol', '')}"
+                )
+
+                if contains(title, STRONG + RELATED):
                     add(
-                        token.get("address"),
-                        "DEX search",
-                        f"{token.get('name', '')} "
-                        f"{token.get('symbol', '')}"
+                        base.get("address"),
+                        "DEX search"
                     )
 
         except (
             requests.RequestException,
             ValueError,
             TypeError
-        ) as error:
-            issues.append(f"Search {word}: {error}")
+        ) as exc:
+            errors.append(
+                f"Search {term}: {exc}"
+            )
 
-    # DexScreener latest profiles and boosts
-    for endpoint in [
+    # Latest profiles and boosts
+    endpoints = [
         "/token-profiles/latest/v1",
         "/token-boosts/latest/v1",
         "/token-boosts/top/v1"
-    ]:
+    ]
+
+    for endpoint in endpoints:
         try:
-            data = request_json(DEX + endpoint)
+            data = get_json(DEX + endpoint)
 
-            for item in data if isinstance(data, list) else []:
-                if item.get("chainId") == "solana":
-                    links = " ".join(
-                        str(x.get("url", ""))
-                        for x in item.get("links") or []
+            for item in (
+                data if isinstance(data, list) else []
+            ):
+                if item.get("chainId") != "solana":
+                    continue
+
+                extra = (
+                    str(item.get("description") or "")
+                    + " "
+                    + " ".join(
+                        str(link.get("url") or "")
+                        for link in item.get("links") or []
                     )
+                )
 
+                # Ignore unrelated boosted tokens.
+                if contains(extra, STRONG + RELATED):
                     add(
                         item.get("tokenAddress"),
                         "DEX profile",
-                        str(item.get("description") or "")
-                        + " " + links
+                        extra
                     )
 
         except (
             requests.RequestException,
             ValueError,
             TypeError
-        ) as error:
-            issues.append(
-                f"Profiles {endpoint}: {error}"
+        ) as exc:
+            errors.append(
+                f"Profiles: {exc}"
             )
 
-    # GeckoTerminal new pools
-    try:
-        data = request_json(
-            GECKO + "/networks/solana/new_pools",
-            {
-                "include": "base_token,quote_token",
-                "page": 1
-            }
-        )
-
-        included = {
-            x.get("id"): x.get("attributes") or {}
-            for x in data.get("included") or []
-        }
-
-        for pool in data.get("data") or []:
-            rel = (
-                (pool.get("relationships") or {})
-                .get("base_token") or {}
-            )
-
-            token_id = (
-                (rel.get("data") or {})
-                .get("id", "")
-            )
-
-            token = included.get(token_id, {})
-
-            address = token.get("address") or (
-                token_id.split("_", 1)[-1]
-                if "_" in token_id
-                else ""
-            )
-
-            description = " ".join([
-                str(token.get("name") or ""),
-                str(token.get("symbol") or ""),
-                str(
-                    (pool.get("attributes") or {})
-                    .get("name") or ""
-                )
-            ])
-
-            if matches(description, STRONG + RELATED):
-                add(
-                    address,
-                    "Gecko new pools",
-                    description
-                )
-
-    except (
-        requests.RequestException,
-        ValueError,
-        TypeError
-    ) as error:
-        issues.append(f"Gecko: {error}")
-
-    return found, issues
-
-
-# ==================================================
-# PERSISTENT TRACKING
-# ==================================================
-
-def pending_addresses(found, max_follow=250):
-    # Rotate older tokens so they stay monitored.
-    historical = [
-        x[0] for x in read(
-            """
-            SELECT address FROM discovered
-            ORDER BY COALESCE(last_seen, first_seen) ASC
-            """
-        )
-    ]
-
-    watch = [
-        x[0] for x in read(
-            """
-            SELECT address FROM watchlist
-            ORDER BY added_at DESC
-            """
-        )
-    ]
-
-    tracked = [
-        x[0] for x in read(
-            """
-            SELECT address FROM tracking_state
-            ORDER BY COALESCE(last_checked, first_seen) ASC
-            """
-        )
-    ]
-
-    follow = list(
-        dict.fromkeys(watch + tracked + historical)
-    )[:max_follow]
-
-    all_addresses = list(
-        dict.fromkeys(list(found) + follow)
+    # Historical tracking
+    historical = rows(
+        """
+        SELECT address FROM discovered
+        ORDER BY last_seen ASC
+        """
     )
 
-    for address in follow:
-        found.setdefault(
-            address,
-            {"sources": set(), "extra": ""}
-        )["sources"].add("Historisch gevolgd")
+    watch = rows(
+        """
+        SELECT address FROM watchlist
+        ORDER BY added_at DESC
+        """
+    )
 
-    return all_addresses
+    priority = rows(
+        """
+        SELECT address FROM tracking_state
+        ORDER BY COALESCE(last_checked, first_seen) ASC
+        """
+    )
+
+    for (address,) in historical + watch + priority:
+        if (
+            isinstance(address, str)
+            and ADDR.fullmatch(address)
+        ):
+            found.setdefault(
+                address,
+                {"sources": set(), "extra": ""}
+            )["sources"].add(
+                "Historisch gevolgd"
+            )
+
+    return found, errors
 
 
 # ==================================================
 # MARKET DATA
 # ==================================================
 
-def market_data(addresses):
-    best = {}
-    errors = []
+def fetch_pairs(addresses):
+    selected = {}
     successful = set()
+    errors = []
 
-    for start in range(0, len(addresses), 30):
-        chunk = addresses[start:start + 30]
+    for offset in range(0, len(addresses), 30):
+        batch = addresses[offset:offset + 30]
 
         try:
-            pairs = request_json(
+            data = get_json(
                 DEX + "/tokens/v1/solana/"
-                + ",".join(chunk)
+                + ",".join(batch)
             )
 
-            if not isinstance(pairs, list):
+            if not isinstance(data, list):
                 raise ValueError(
-                    "Unexpected response type"
+                    "Unexpected token-pairs response"
                 )
 
-            successful.update(chunk)
+            successful.update(batch)
 
-            for pair in pairs:
+            for pair in data:
                 if pair.get("chainId") != "solana":
                     continue
 
@@ -446,112 +382,120 @@ def market_data(addresses):
                     pair.get("baseToken") or {}
                 ).get("address")
 
-                if address not in chunk:
+                if address not in batch:
                     continue
 
-                current = best.get(address)
+                liquidity = n(
+                    (pair.get("liquidity") or {}).get("usd")
+                )
+
+                old = selected.get(address)
+
+                old_liquidity = n(
+                    (old.get("liquidity") or {}).get("usd")
+                ) if old else 0
 
                 if (
-                    current is None
-                    or n(
-                        (pair.get("liquidity") or {})
-                        .get("usd")
-                    ) > n(
-                        (current.get("liquidity") or {})
-                        .get("usd")
-                    )
+                    old is None
+                    or liquidity > old_liquidity
                 ):
-                    best[address] = pair
+                    selected[address] = pair
 
         except (
             requests.RequestException,
             ValueError,
             TypeError
-        ) as error:
+        ) as exc:
             errors.append(
-                f"Market batch {start // 30 + 1}: {error}"
+                f"Batch {offset // 30 + 1}: {exc}"
             )
 
-    return best, successful, errors
+    return selected, successful, errors
 
 
 # ==================================================
-# MOMENTUM INTELLIGENCE
+# MOMENTUM DETECTION
 # ==================================================
 
-def trend(address, stamp, price, volume):
-    previous = read(
+def momentum(address, stamp, price, volume):
+    previous = rows(
         """
         SELECT scanned_at, price, volume_m5
-        FROM radar_v53
-        WHERE address=? AND status='ACTIEF'
+        FROM radar_v54
+        WHERE address=?
         ORDER BY scanned_at DESC
         LIMIT 2
         """,
         (address,)
     )
 
-    if len(previous) < 2 or not price or not volume:
-        return 0, "Onvoldoende vergelijkbare metingen"
+    if len(previous) < 2:
+        return 0, "Nog geen 3 V5.4-metingen"
 
-    a, b = previous[0], previous[1]
+    newest, oldest = previous[0], previous[1]
 
     try:
-        delta1 = (
+        gap1 = (
             datetime.fromisoformat(stamp)
-            - datetime.fromisoformat(a[0])
+            - datetime.fromisoformat(newest[0])
         ).total_seconds() / 60
 
-        delta2 = (
-            datetime.fromisoformat(a[0])
-            - datetime.fromisoformat(b[0])
+        gap2 = (
+            datetime.fromisoformat(newest[0])
+            - datetime.fromisoformat(oldest[0])
         ).total_seconds() / 60
 
     except (TypeError, ValueError):
-        return 0, "Ongeldige tijdstempels"
+        return 0, "Ongeldige meettijden"
 
     if not (
-        4 <= delta1 <= 12
-        and 4 <= delta2 <= 12
+        4 <= gap1 <= 12
+        and 4 <= gap2 <= 12
     ):
-        return 0, "Metingen niet rond vijf minuten"
+        return 0, "Scaninterval niet 4-12 minuten"
 
-    if not all(
-        n(x) > 0
-        for x in [a[1], b[1], a[2], b[2]]
-    ):
-        return 0, "Ontbrekende prijs- of volumemetingen"
+    measurements = [
+        price,
+        volume,
+        newest[1],
+        newest[2],
+        oldest[1],
+        oldest[2]
+    ]
 
-    rising_price = (
-        n(b[1]) < n(a[1]) < price
-        and price >= n(b[1]) * 1.02
+    if not all(n(x) > 0 for x in measurements):
+        return 0, "Prijs/volume ontbreekt in een meting"
+
+    prices_rise = (
+        oldest[1] < newest[1] < price
+        and price >= oldest[1] * 1.02
     )
 
-    rising_volume = (
-        n(b[2]) < n(a[2]) < volume
+    volumes_rise = (
+        oldest[2] < newest[2] < volume
         and volume >= 250
     )
 
-    if rising_price and rising_volume:
+    if prices_rise and volumes_rise:
         return (
             80,
-            "Prijs en 5m-volume stijgen gedurende 3 metingen"
+            "3 stijgende prijs- en 5m-volumemetingen"
         )
 
-    if rising_price or rising_volume:
+    if prices_rise or volumes_rise:
         return (
             30,
-            "Slechts 1 van 2 trendvoorwaarden vervuld"
+            "Slechts 1 van de 2 trendvoorwaarden"
         )
 
-    return 0, "Geen bevestigd opwaarts momentum"
+    return 0, "Geen opwaartse bevestiging"
 
 
 # ==================================================
 # TOKEN ANALYSIS
 # ==================================================
 
-def analyze(address, pair, meta, stamp):
+def assess(address, pair, meta, stamp):
     token = pair.get("baseToken") or {}
 
     name = str(token.get("name") or "Unknown")
@@ -559,33 +503,25 @@ def analyze(address, pair, meta, stamp):
 
     info = pair.get("info") or {}
 
-    links = " ".join(
-        str(x.get("url", ""))
+    context = meta["extra"] + " " + " ".join(
+        str(x.get("url") or "")
         for x in (
             (info.get("websites") or [])
             + (info.get("socials") or [])
         )
     )
 
-    primary = f"{name} {symbol}"
-    context = meta["extra"] + " " + links
+    headline = name + " " + symbol
 
     score = (
-        100 if matches(primary, STRONG)
-        else 65 if matches(primary, RELATED)
-        else 75 if matches(context, STRONG)
-        else 35 if matches(context, RELATED)
+        100 if contains(headline, STRONG)
+        else 65 if contains(headline, RELATED)
+        else 75 if contains(context, STRONG)
+        else 35 if contains(context, RELATED)
         else 0
     )
 
-    # Continue tracking historical tokens.
-    if (
-        score == 0
-        and "Historisch gevolgd" not in meta["sources"]
-    ):
-        return None
-
-    created = numeric(pair.get("pairCreatedAt"))
+    created = number(pair.get("pairCreatedAt"))
 
     age = (
         max(
@@ -598,71 +534,76 @@ def analyze(address, pair, meta, stamp):
         if created else None
     )
 
-    liquidity = numeric(
+    price = number(pair.get("priceUsd"))
+
+    liquidity = number(
         (pair.get("liquidity") or {}).get("usd")
     )
 
-    price = numeric(pair.get("priceUsd"))
-
-    volume = numeric(
+    volume = number(
         (pair.get("volume") or {}).get("m5")
     )
 
-    tx = (pair.get("txns") or {}).get("m5") or {}
+    tx = (
+        (pair.get("txns") or {}).get("m5") or {}
+    )
 
     buys = int(n(tx.get("buys")))
     sells = int(n(tx.get("sells")))
 
-    momentum, evidence = trend(
-        address, stamp, price, volume
+    strength, evidence = momentum(
+        address,
+        stamp,
+        price,
+        volume
     )
 
     warnings = []
 
     if liquidity is None:
-        warnings.append(
-            "Liquiditeit ontbreekt (NIET gelijk aan $0)"
-        )
+        warnings.append("Liquiditeit ontbreekt")
+
     elif liquidity < 10000:
-        warnings.append(
-            "Liquiditeit onder $10.000"
-        )
+        warnings.append("Liquiditeit < $10.000")
 
     if (
-        buys + sells >= 100
-        and volume is not None
+        volume is not None
+        and buys + sells >= 100
         and volume / (buys + sells) < 3
     ):
         warnings.append(
-            "Veel kleine transacties; automatisering mogelijk"
+            "Veel kleine transacties: mogelijk bots"
         )
 
     warnings.append(
-        "Contract, holders en verkoopbaarheid niet geverifieerd"
+        "Holders, mint/freeze en verkoopbaarheid "
+        "niet gecontroleerd"
     )
 
-    phase = (
-        "MOMENTUM TER CONTROLE"
-        if (
-            momentum == 80
-            and liquidity is not None
-            and liquidity >= 10000
-        )
-        else "PRE-TREND KANDIDAAT"
-        if age is not None and age < 24
-        else "MONITOREN"
-    )
+    if (
+        strength == 80
+        and liquidity is not None
+        and liquidity >= 10000
+        and score >= 65
+    ):
+        phase = "MOMENTUM TER CONTROLE"
+
+    elif (
+        age is not None
+        and age < 24
+        and score >= 65
+    ):
+        phase = "PRE-TREND KANDIDAAT"
+
+    else:
+        phase = "MONITOREN"
 
     return {
         "Adres": address,
         "Naam": name,
         "Ticker": symbol,
         "Bron": ", ".join(sorted(meta["sources"])),
-        "Status": "ACTIEF",
-        "Fase": phase,
         "Narrative": score,
-        "Momentum": momentum,
-        "Bewijs": evidence,
         "Leeftijd": (
             round(age, 2)
             if age is not None else None
@@ -672,32 +613,35 @@ def analyze(address, pair, meta, stamp):
         "Volume5m": volume,
         "Kopen5m": buys,
         "Verkopen5m": sells,
+        "Momentum": strength,
+        "Bewijs": evidence,
+        "Fase": phase,
         "Risico": "; ".join(warnings),
         "Pair": pair.get("pairAddress") or ""
     }
 
 
 # ==================================================
-# SAVE RESULTS
+# SAVE SCAN RESULTS
 # ==================================================
 
-def save_scan(rows, missing, stamp):
-    with db() as con:
-        for r in rows:
-            a = r["Adres"]
+def store_scan(results, missing, stamp):
+    with database() as con:
+        for r in results:
+            address = r["Adres"]
 
             con.execute(
                 """
                 INSERT INTO discovered
                 (address,name,symbol,first_seen,last_seen)
-                VALUES (?,?,?,?,?)
+                VALUES(?,?,?,?,?)
                 ON CONFLICT(address) DO UPDATE SET
-                    name=excluded.name,
-                    symbol=excluded.symbol,
-                    last_seen=excluded.last_seen
+                name=excluded.name,
+                symbol=excluded.symbol,
+                last_seen=excluded.last_seen
                 """,
                 (
-                    a,
+                    address,
                     r["Naam"],
                     r["Ticker"],
                     stamp,
@@ -712,274 +656,598 @@ def save_scan(rows, missing, stamp):
                  last_found,missed_scans,status)
                 VALUES(?,?,?,?,0,'ACTIEF')
                 ON CONFLICT(address) DO UPDATE SET
-                    last_checked=excluded.last_checked,
-                    last_found=excluded.last_found,
-                    missed_scans=0,
-                    status='ACTIEF'
+                last_checked=excluded.last_checked,
+                last_found=excluded.last_found,
+                missed_scans=0,
+                status='ACTIEF'
                 """,
-                (a, stamp, stamp, stamp)
+                (
+                    address,
+                    stamp,
+                    stamp,
+                    stamp
+                )
             )
 
             con.execute(
                 """
-                INSERT INTO radar_v53
-                (address,scanned_at,name,symbol,source,
-                 status,pair_address,age_hours,price,
-                 liquidity,volume_m5,buys_m5,sells_m5,
-                 narrative,momentum,phase,warnings)
+                INSERT OR REPLACE INTO radar_v54
+                (address,scanned_at,name,symbol,
+                 pair_address,source,price,liquidity,
+                 volume_m5,buys_m5,sells_m5,age_hours,
+                 narrative,momentum,evidence,phase,warnings)
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 """,
                 (
-                    a,
+                    address,
                     stamp,
                     r["Naam"],
                     r["Ticker"],
-                    r["Bron"],
-                    "ACTIEF",
                     r["Pair"],
-                    r["Leeftijd"],
+                    r["Bron"],
                     r["Prijs"],
                     r["Liquiditeit"],
                     r["Volume5m"],
                     r["Kopen5m"],
                     r["Verkopen5m"],
+                    r["Leeftijd"],
                     r["Narrative"],
                     r["Momentum"],
+                    r["Bewijs"],
                     r["Fase"],
                     r["Risico"]
                 )
             )
 
-            if r["Fase"] == "MOMENTUM TER CONTROLE":
-                con.execute(
-                    """
-                    INSERT OR IGNORE INTO token_signals
-                    (address,scanned_at,signal,detail)
-                    VALUES(?,?,?,?)
-                    """,
-                    (
-                        a,
-                        stamp,
-                        "V53_MOMENTUM",
-                        r["Bewijs"]
-                    )
-                )
-
         for address in missing:
             con.execute(
                 """
-                INSERT INTO tracking_state
-                (address,first_seen,last_checked,
-                 missed_scans,status)
-                VALUES(?,?,?,1,'NIET_GEVONDEN')
-                ON CONFLICT(address) DO UPDATE SET
-                    last_checked=excluded.last_checked,
+                UPDATE tracking_state
+                SET last_checked=?,
                     missed_scans=missed_scans+1,
                     status='NIET_GEVONDEN'
+                WHERE address=?
                 """,
-                (address, stamp, stamp)
+                (stamp, address)
             )
 
 
 # ==================================================
-# MAIN SCAN
+# PAPER TRADING SETTINGS
 # ==================================================
 
-def scan():
-    stamp = now()
+def default_settings():
+    return {
+        "amount": 25.0,
+        "fee": 0.01,
+        "slip": 0.02,
+        "minimum": 10000.0,
+        "take": 0.30,
+        "stop": 0.15,
+        "hours": 4.0
+    }
 
-    found, errors = discover()
 
-    addresses = pending_addresses(found)
+# ==================================================
+# AUTO PAPER TRADING ENGINE
+# ==================================================
 
-    pairs, successful, market_errors = market_data(
+def paper_step(observations, stamp, enabled, config):
+    by_address = {
+        r["Adres"]: r
+        for r in observations
+    }
+
+    entries = 0
+    exits = 0
+
+    with database() as con:
+        opened = con.execute(
+            """
+            SELECT id,address,entry_market,quantity,
+                   amount_usd,fee_rate,slippage_rate,
+                   opened_at,peak_mark
+            FROM paper_v54
+            WHERE status='OPEN'
+            """
+        ).fetchall()
+
+        open_addresses = {
+            trade[1] for trade in opened
+        }
+
+        # ------------------------------------------
+        # VIRTUAL EXITS
+        # ------------------------------------------
+
+        for trade in opened:
+            (
+                trade_id,
+                address,
+                entry,
+                qty,
+                amount,
+                fee,
+                slip,
+                opened_at,
+                peak
+            ) = trade
+
+            r = by_address.get(address)
+
+            # Never use an old price for a new exit.
+            if (
+                not r
+                or not r["Prijs"]
+                or r["Prijs"] <= 0
+            ):
+                continue
+
+            price = r["Prijs"]
+            peak = max(n(peak), price)
+
+            con.execute(
+                """
+                UPDATE paper_v54
+                SET last_mark=?,
+                    last_mark_at=?,
+                    peak_mark=?
+                WHERE id=?
+                """,
+                (
+                    price,
+                    stamp,
+                    peak,
+                    trade_id
+                )
+            )
+
+            elapsed = (
+                datetime.fromisoformat(stamp)
+                - datetime.fromisoformat(opened_at)
+            ).total_seconds() / 3600
+
+            change = price / entry - 1
+
+            if change >= config["take"]:
+                reason = "TAKE_PROFIT"
+
+            elif change <= -config["stop"]:
+                reason = "STOP_LOSS"
+
+            elif elapsed >= config["hours"]:
+                reason = "TIME_EXIT"
+
+            else:
+                reason = None
+
+            if reason is None:
+                continue
+
+            # Do not invent a sell fill without liquidity.
+            if (
+                r["Liquiditeit"] is None
+                or r["Liquiditeit"] < config["minimum"]
+            ):
+                con.execute(
+                    """
+                    UPDATE paper_v54
+                    SET exit_reason=?
+                    WHERE id=?
+                    """,
+                    (
+                        "EXIT_BLOCKED_LIQUIDITY",
+                        trade_id
+                    )
+                )
+
+                continue
+
+            effective = price * (1 - slip)
+            proceeds = qty * effective * (1 - fee)
+
+            con.execute(
+                """
+                UPDATE paper_v54
+                SET status='CLOSED',
+                    closed_at=?,
+                    exit_market=?,
+                    exit_effective=?,
+                    pnl_usd=?,
+                    exit_reason=?
+                WHERE id=? AND status='OPEN'
+                """,
+                (
+                    stamp,
+                    price,
+                    effective,
+                    proceeds - amount,
+                    reason,
+                    trade_id
+                )
+            )
+
+            exits += 1
+
+        # ------------------------------------------
+        # AUTOMATIC VIRTUAL ENTRIES
+        # ------------------------------------------
+
+        if enabled:
+            for r in observations:
+                address = r["Adres"]
+
+                if (
+                    address in open_addresses
+                    or r["Fase"] != "MOMENTUM TER CONTROLE"
+                ):
+                    continue
+
+                if (
+                    r["Narrative"] < 65
+                    or not r["Prijs"]
+                    or r["Prijs"] <= 0
+                    or r["Liquiditeit"] is None
+                    or r["Liquiditeit"] < config["minimum"]
+                ):
+                    continue
+
+                # One auto-paper position per token.
+                exists = con.execute(
+                    """
+                    SELECT 1 FROM paper_v54
+                    WHERE address=?
+                    LIMIT 1
+                    """,
+                    (address,)
+                ).fetchone()
+
+                if exists:
+                    continue
+
+                # Filter possible bot-heavy micro-trading.
+                txcount = (
+                    r["Kopen5m"]
+                    + r["Verkopen5m"]
+                )
+
+                if (
+                    txcount >= 100
+                    and r["Volume5m"] is not None
+                    and r["Volume5m"] / txcount < 3
+                ):
+                    continue
+
+                effective = (
+                    r["Prijs"]
+                    * (1 + config["slip"])
+                )
+
+                qty = (
+                    config["amount"]
+                    * (1 - config["fee"])
+                    / effective
+                )
+
+                con.execute(
+                    """
+                    INSERT INTO paper_v54
+                    (address,name,pair_address,opened_at,
+                     entry_market,entry_effective,
+                     amount_usd,quantity,fee_rate,
+                     slippage_rate,status,last_mark,
+                     last_mark_at,peak_mark)
+                    VALUES(
+                        ?,?,?,?,?,?,?,?,?,?,
+                        'OPEN',?,?,?
+                    )
+                    """,
+                    (
+                        address,
+                        r["Naam"],
+                        r["Pair"],
+                        stamp,
+                        r["Prijs"],
+                        effective,
+                        config["amount"],
+                        qty,
+                        config["fee"],
+                        config["slip"],
+                        r["Prijs"],
+                        stamp,
+                        r["Prijs"]
+                    )
+                )
+
+                open_addresses.add(address)
+                entries += 1
+
+    return entries, exits
+
+
+# ==================================================
+# COMPLETE SCAN
+# ==================================================
+
+def scan(enabled, config):
+    stamp = utcnow()
+
+    discovered, errors = discover()
+
+    addresses = list(discovered)
+
+    # Open positions always have tracking priority.
+    paper_addresses = [
+        r[0] for r in rows(
+            """
+            SELECT address FROM paper_v54
+            WHERE status='OPEN'
+            """
+        )
+    ]
+
+    addresses = list(
+        dict.fromkeys(
+            paper_addresses + addresses
+        )
+    )
+
+    market, queried, market_errors = fetch_pairs(
         addresses
     )
 
     errors.extend(market_errors)
 
-    rows = []
+    results = []
 
-    for address, pair in pairs.items():
+    for address, pair in market.items():
         try:
-            row = analyze(
+            r = assess(
                 address,
                 pair,
-                found[address],
+                discovered[address],
                 stamp
             )
 
-            if row:
-                rows.append(row)
+            if (
+                r["Narrative"] >= 65
+                or address in paper_addresses
+            ):
+                results.append(r)
 
         except (
-            ValueError,
             KeyError,
+            ValueError,
             TypeError
-        ) as error:
+        ) as exc:
             errors.append(
-                f"Analyse {address[:10]}: {error}"
+                f"Analyse {address[:9]}: {exc}"
             )
 
-    # API failures are not counted as missing.
     missing = [
-        a for a in successful
-        if a not in pairs
-        and read(
-            "SELECT 1 FROM discovered WHERE address=?",
-            (a,)
+        address
+        for address in queried - set(market)
+        if rows(
+            """
+            SELECT 1 FROM tracking_state
+            WHERE address=?
+            """,
+            (address,)
         )
     ]
 
-    save_scan(rows, missing, stamp)
+    store_scan(
+        results,
+        missing,
+        stamp
+    )
+
+    entries, exits = paper_step(
+        results,
+        stamp,
+        enabled,
+        config
+    )
+
+    with database() as con:
+        con.execute(
+            """
+            INSERT OR REPLACE INTO v54_runs
+            (scanned_at,discovered_count,fetched_count,
+             errors,entries,exits)
+            VALUES(?,?,?,?,?,?)
+            """,
+            (
+                stamp,
+                len(discovered),
+                len(results),
+                len(errors),
+                entries,
+                exits
+            )
+        )
 
     return (
-        pd.DataFrame(rows),
+        pd.DataFrame(results),
         errors,
         stamp,
-        len(missing)
+        entries,
+        exits
     )
 
 
 # ==================================================
-# PAPER TRADING
+# LOAD SAVED DATA
 # ==================================================
 
-def paper_open(address, name, usd, price, fee, slip):
-    # Simulated budget includes entry fee.
-    effective = price * (1 + slip)
-
-    units = usd * (1 - fee) / effective
-
-    with db() as con:
-        con.execute(
-            """
-            INSERT INTO paper_trades
-            (address,name,opened_at,entry_market,
-             entry_effective,usd_amount,tokens,
-             fee_rate,slippage_rate,status)
-            VALUES(?,?,?,?,?,?,?,?,?,'OPEN')
-            """,
-            (
-                address,
-                name,
-                now(),
-                price,
-                effective,
-                usd,
-                units,
-                fee,
-                slip
-            )
-        )
-
-
-def paper_close(trade_id, price):
-    records = read(
+def latest_saved():
+    last = rows(
         """
-        SELECT tokens,usd_amount,fee_rate,slippage_rate
-        FROM paper_trades
-        WHERE id=? AND status='OPEN'
-        """,
-        (trade_id,)
+        SELECT scanned_at
+        FROM radar_v54
+        ORDER BY scanned_at DESC
+        LIMIT 1
+        """
     )
 
-    if not records:
-        raise ValueError(
-            "Virtuele positie is al gesloten"
-        )
+    if not last:
+        return pd.DataFrame()
 
-    units, spent, fee, slip = records[0]
+    saved = rows(
+        """
+        SELECT address,name,symbol,source,
+               narrative,age_hours,price,
+               liquidity,volume_m5,buys_m5,
+               sells_m5,momentum,evidence,
+               phase,warnings,pair_address
+        FROM radar_v54
+        WHERE scanned_at=?
+        """,
+        (last[0][0],)
+    )
 
-    effective = price * (1 - slip)
-
-    proceeds = units * effective * (1 - fee)
-
-    with db() as con:
-        con.execute(
-            """
-            UPDATE paper_trades
-            SET status='CLOSED',
-                closed_at=?,
-                exit_market=?,
-                exit_effective=?,
-                net_pnl=?
-            WHERE id=? AND status='OPEN'
-            """,
-            (
-                now(),
-                price,
-                effective,
-                proceeds - spent,
-                trade_id
-            )
-        )
+    return pd.DataFrame(
+        saved,
+        columns=[
+            "Adres",
+            "Naam",
+            "Ticker",
+            "Bron",
+            "Narrative",
+            "Leeftijd",
+            "Prijs",
+            "Liquiditeit",
+            "Volume5m",
+            "Kopen5m",
+            "Verkopen5m",
+            "Momentum",
+            "Bewijs",
+            "Fase",
+            "Risico",
+            "Pair"
+        ]
+    )
 
 
 # ==================================================
 # STREAMLIT DASHBOARD
 # ==================================================
 
-setup()
+initialize()
 
-st.title("🎮 GTA 6 Narrative Radar V5.3")
+st.title("🎮 GTA 6 Narrative Trading Radar V5.4")
 
 st.caption(
-    "Persistent token tracking • Momentum • "
-    "Handmatige paper trading • Geen echte orders"
+    "Solana | Persistent Tracking | "
+    "Momentum | Automatische PAPER trading"
 )
 
 st.warning(
-    "Onderzoeksinstrument: lage of ontbrekende liquiditeit "
-    "en ongeteste contracten maken veel tokens ongeschikt "
-    "om te verhandelen. Virtuele prijzen garanderen geen "
-    "uitvoerbare transacties."
+    "Uitsluitend virtuele transacties. "
+    "DexScreener-prijzen zijn geen uitvoerbare offertes. "
+    "Rug pulls, wash trading en verkopen die mislukken "
+    "kunnen in deze simulatie onvoldoende zichtbaar zijn."
 )
 
-auto = st.sidebar.toggle(
-    "Auto-scan (actieve sessie, 5 minuten)",
-    False
+st.sidebar.header("⚙️ Instellingen")
+
+auto_scan = st.sidebar.toggle(
+    "Scannen elke 5 min (actieve browser)",
+    value=False
+)
+
+auto_paper = st.sidebar.toggle(
+    "Automatische PAPER trading",
+    value=False
 )
 
 min_liq = st.sidebar.number_input(
-    "Minimum liquiditeit voor paper trading ($)",
-    min_value=1000,
-    value=10000,
-    step=1000
+    "Minimum liquiditeit ($)",
+    min_value=1000.0,
+    max_value=1000000.0,
+    value=10000.0,
+    step=1000.0
 )
 
-fee_pct = st.sidebar.number_input(
-    "Gesimuleerde fee per zijde (%)",
+amount = st.sidebar.number_input(
+    "Virtuele inzet ($)",
+    min_value=5.0,
+    max_value=1000.0,
+    value=25.0,
+    step=5.0
+)
+
+fee = st.sidebar.number_input(
+    "Fee per zijde (%)",
     min_value=0.0,
+    max_value=10.0,
     value=1.0,
     step=0.25
 )
 
-slip_pct = st.sidebar.number_input(
-    "Gesimuleerde slippage per zijde (%)",
+slip = st.sidebar.number_input(
+    "Slippage per zijde (%)",
     min_value=0.0,
+    max_value=30.0,
     value=2.0,
     step=0.5
 )
 
+take = st.sidebar.number_input(
+    "Virtuele take profit (%)",
+    min_value=5,
+    max_value=500,
+    value=30,
+    step=5
+)
+
+stop = st.sidebar.number_input(
+    "Virtuele stop loss (%)",
+    min_value=5,
+    max_value=95,
+    value=15,
+    step=5
+)
+
+hours = st.sidebar.number_input(
+    "Tijdslimiet (uren)",
+    min_value=1,
+    max_value=72,
+    value=4,
+    step=1
+)
+
+config = {
+    "amount": amount,
+    "fee": fee / 100,
+    "slip": slip / 100,
+    "minimum": min_liq,
+    "take": take / 100,
+    "stop": stop / 100,
+    "hours": float(hours)
+}
+
 st.sidebar.caption(
-    "Community Cloud biedt geen gegarandeerde 24/7-scans "
-    "of permanente SQLite-data. Gebruik later een externe "
-    "database en worker."
+    "De instellingen gelden voor nieuwe posities. "
+    "Bestaande posities behouden hun instapkosten. "
+    "Exitdrempels volgen de huidige instellingen."
 )
 
 defaults = {
-    "scan_df": pd.DataFrame(),
-    "scan_time": "Nog niet",
-    "scan_errors": [],
-    "misses": 0,
-    "last_attempt": 0.0
+    "v54_last_attempt": 0.0,
+    "v54_df": pd.DataFrame(),
+    "v54_time": "Nog niet",
+    "v54_errors": []
 }
 
-for key, value in defaults.items():
+for key, initial in defaults.items():
     if key not in st.session_state:
-        st.session_state[key] = value
+        st.session_state[key] = initial
 
+
+# ==================================================
+# LIVE DASHBOARD
+# ==================================================
 
 @st.fragment(run_every="300s")
 def dashboard():
@@ -989,24 +1257,37 @@ def dashboard():
     )
 
     due = (
-        auto
+        auto_scan
         and time.monotonic()
-        - st.session_state.last_attempt >= 300
+        - st.session_state.v54_last_attempt >= 300
     )
 
     if manual or due:
-        st.session_state.last_attempt = time.monotonic()
+        st.session_state.v54_last_attempt = (
+            time.monotonic()
+        )
 
         with st.spinner(
-            "Nieuwe én eerder ontdekte tokens controleren..."
+            "Nieuwe en historische tokens onderzoeken..."
         ):
             try:
-                data, errors, stamp, missing_count = scan()
+                (
+                    data,
+                    errors,
+                    stamp,
+                    entries,
+                    exits
+                ) = scan(auto_paper, config)
 
-                st.session_state.scan_df = data
-                st.session_state.scan_errors = errors
-                st.session_state.scan_time = stamp
-                st.session_state.misses = missing_count
+                st.session_state.v54_df = data
+                st.session_state.v54_time = stamp
+                st.session_state.v54_errors = errors
+
+                st.success(
+                    f"Scan afgerond: {len(data)} tokens, "
+                    f"{entries} virtuele instappen, "
+                    f"{exits} virtuele uitstappen"
+                )
 
             except (
                 requests.RequestException,
@@ -1015,37 +1296,51 @@ def dashboard():
             ) as exc:
                 st.error(f"Scanfout: {exc}")
 
+    df = st.session_state.v54_df
+
+    if df.empty:
+        df = latest_saved()
+
     st.caption(
-        f"Laatste scan (UTC): {st.session_state.scan_time}"
+        "Laatste scan van deze sessie (UTC): "
+        f"{st.session_state.v54_time}"
     )
 
-    df = st.session_state.scan_df
+    a, b, c, d = st.columns(4)
 
-    tracked = read(
-        """
-        SELECT address,status,missed_scans,last_found
-        FROM tracking_state
-        ORDER BY COALESCE(last_checked,first_seen) DESC
-        LIMIT 300
-        """
-    )
-
-    c1, c2, c3 = st.columns(3)
-
-    c1.metric(
-        "Actief in laatste scan",
+    a.metric(
+        "Tokens in overzicht",
         len(df)
     )
 
-    c2.metric(
-        "Bewaarde tokens",
-        read("SELECT COUNT(*) FROM discovered")[0][0]
+    b.metric(
+        "Momentum 80",
+        int((df["Momentum"] == 80).sum())
+        if not df.empty else 0
     )
 
-    c3.metric(
-        "Niet gevonden deze scan",
-        st.session_state.misses
+    c.metric(
+        "Gevolgde tokens",
+        rows(
+            "SELECT COUNT(*) FROM discovered"
+        )[0][0]
     )
+
+    d.metric(
+        "Open paper trades",
+        rows(
+            """
+            SELECT COUNT(*) FROM paper_v54
+            WHERE status='OPEN'
+            """
+        )[0][0]
+    )
+
+    # ------------------------------------------
+    # EARLY DISCOVERY
+    # ------------------------------------------
+
+    st.subheader("🚀 Nieuwe GTA-paren")
 
     if not df.empty:
         young = df[
@@ -1053,18 +1348,18 @@ def dashboard():
             & (df["Leeftijd"] < 24)
         ]
 
-        st.subheader(
-            "🚀 Nieuwe paren (jonger dan 24 uur)"
-        )
-
         st.dataframe(
             young.sort_values("Leeftijd"),
-            hide_index=True,
-            use_container_width=True
+            use_container_width=True,
+            hide_index=True
         )
 
+        # --------------------------------------
+        # MOMENTUM DASHBOARD
+        # --------------------------------------
+
         st.subheader(
-            "📈 Momentum en opvolging"
+            "📈 Alle relevante GTA-tokens"
         )
 
         st.dataframe(
@@ -1072,8 +1367,8 @@ def dashboard():
                 ["Momentum", "Volume5m"],
                 ascending=False
             ),
-            hide_index=True,
-            use_container_width=True
+            use_container_width=True,
+            hide_index=True
         )
 
         options = {
@@ -1083,37 +1378,36 @@ def dashboard():
 
         choice = st.selectbox(
             "Token bekijken",
-            options
+            list(options)
         )
 
         address = options[choice]
 
-        selected = df[
+        token = df[
             df["Adres"] == address
         ].iloc[0]
 
-        st.code(address)
+        st.code(address, language="text")
 
         st.write(
             "**Trendsignaal:**",
-            selected["Bewijs"]
+            token["Bewijs"]
         )
 
         st.write(
-            "**Risicocontrole:**",
-            selected["Risico"]
+            "**Risico:**",
+            token["Risico"]
         )
+
+        pair = token["Pair"] or address
 
         st.link_button(
-            "Bekijk op DexScreener",
-            "https://dexscreener.com/solana/"
-            + (selected["Pair"] or address)
+            "Open DexScreener",
+            "https://dexscreener.com/solana/" + pair
         )
 
-        if st.button(
-            "⭐ Toevoegen aan watchlist"
-        ):
-            with db() as con:
+        if st.button("⭐ Watchlist"):
+            with database() as con:
                 con.execute(
                     """
                     INSERT OR IGNORE INTO watchlist
@@ -1122,18 +1416,24 @@ def dashboard():
                     """,
                     (
                         address,
-                        selected["Naam"],
-                        now()
+                        token["Naam"],
+                        utcnow()
                     )
                 )
 
-            st.success("Toegevoegd")
+            st.success(
+                "Aan watchlist toegevoegd"
+            )
 
-        history = read(
+        # --------------------------------------
+        # PRICE AND VOLUME CHARTS
+        # --------------------------------------
+
+        history = rows(
             """
-            SELECT scanned_at,price,volume_m5,liquidity
-            FROM radar_v53
-            WHERE address=? AND status='ACTIEF'
+            SELECT scanned_at,price,volume_m5
+            FROM radar_v54
+            WHERE address=?
             ORDER BY scanned_at DESC
             LIMIT 100
             """,
@@ -1141,197 +1441,135 @@ def dashboard():
         )
 
         if len(history) > 1:
-            h = pd.DataFrame(
+            chart = pd.DataFrame(
                 history,
                 columns=[
-                    "UTC",
+                    "Tijd",
                     "Prijs",
-                    "Volume5m",
-                    "Liquiditeit"
+                    "Volume5m"
                 ]
             )
 
-            h["UTC"] = pd.to_datetime(
-                h["UTC"],
+            chart["Tijd"] = pd.to_datetime(
+                chart["Tijd"],
                 utc=True
             )
 
-            h = h.sort_values("UTC").set_index("UTC")
-
-            st.line_chart(h[["Prijs"]])
-
-            st.line_chart(h[["Volume5m"]])
-
-        # Manual paper trading
-        st.subheader(
-            "🧪 Open handmatige paper trade"
-        )
-
-        budget = st.number_input(
-            "Virtueel budget ($)",
-            min_value=5.0,
-            value=25.0,
-            step=5.0
-        )
-
-        ok = (
-            selected["Prijs"] is not None
-            and selected["Prijs"] > 0
-            and selected["Liquiditeit"] is not None
-            and selected["Liquiditeit"] >= min_liq
-        )
-
-        if not ok:
-            st.info(
-                "Paper-entry geblokkeerd: prijs ontbreekt "
-                "of liquiditeit is onder de ingestelde grens."
+            chart = (
+                chart.sort_values("Tijd")
+                .set_index("Tijd")
             )
 
-        if st.button(
-            "Virtueel kopen",
-            disabled=not ok
-        ):
-            paper_open(
-                address,
-                selected["Naam"],
-                budget,
-                float(selected["Prijs"]),
-                fee_pct / 100,
-                slip_pct / 100
+            st.line_chart(
+                chart[["Prijs"]]
             )
 
-            st.success(
-                "Virtuele positie geopend — er is niets "
-                "op de blockchain gekocht."
+            st.line_chart(
+                chart[["Volume5m"]]
             )
 
         st.download_button(
-            "📥 CSV scan",
-            df.to_csv(index=False).encode("utf-8"),
-            "gta6_v53.csv",
-            "text/csv"
+            "📥 CSV-export",
+            df.to_csv(index=False).encode(),
+            "gta6_v54.csv",
+            mime="text/csv"
         )
 
-    # Tracking dashboard
-    st.subheader("🗂️ Persistent tracking")
-
-    if tracked:
-        st.dataframe(
-            pd.DataFrame(
-                tracked,
-                columns=[
-                    "Adres",
-                    "Status",
-                    "Gemiste scans",
-                    "Laatst gevonden"
-                ]
-            ),
-            hide_index=True,
-            use_container_width=True
+    else:
+        st.info(
+            "Klik op Scan nu om te beginnen."
         )
 
-    # Paper positions
-    st.subheader("📊 Virtuele posities")
+    # ------------------------------------------
+    # PAPER TRADING RESULTS
+    # ------------------------------------------
 
-    trades = read(
+    st.subheader(
+        "🧪 Automatische paper trading"
+    )
+
+    trades = rows(
         """
-        SELECT id,name,address,opened_at,usd_amount,
-               entry_market,tokens,status,net_pnl
-        FROM paper_trades
+        SELECT id,name,address,opened_at,
+               amount_usd,entry_market,last_mark,
+               status,pnl_usd,exit_reason
+        FROM paper_v54
         ORDER BY id DESC
-        LIMIT 100
+        LIMIT 200
         """
     )
 
     if trades:
+        all_trades = pd.DataFrame(
+            trades,
+            columns=[
+                "ID",
+                "Token",
+                "Adres",
+                "Geopend",
+                "Inzet $",
+                "Instapprijs",
+                "Laatste prijs",
+                "Status",
+                "Resultaat $",
+                "Exitreden"
+            ]
+        )
+
         st.dataframe(
-            pd.DataFrame(
-                trades,
-                columns=[
-                    "ID",
-                    "Token",
-                    "Adres",
-                    "Start",
-                    "Inzet $",
-                    "Instapprijs",
-                    "Aantal",
-                    "Status",
-                    "Netto resultaat $"
-                ]
-            ),
+            all_trades,
             hide_index=True,
             use_container_width=True
         )
 
-        open_trades = [
-            r for r in trades
-            if r[7] == "OPEN"
+        closed = all_trades[
+            all_trades["Status"] == "CLOSED"
         ]
 
-        if open_trades:
-            options = {
-                f"#{r[0]} {r[1]}": r
-                for r in open_trades
-            }
+        if not closed.empty:
+            x, y, z = st.columns(3)
 
-            label = st.selectbox(
-                "Virtuele positie sluiten",
-                list(options)
+            x.metric(
+                "Afgesloten",
+                len(closed)
             )
 
-            trade = options[label]
-
-            prices = read(
-                """
-                SELECT price
-                FROM radar_v53
-                WHERE address=?
-                  AND status='ACTIEF'
-                  AND price>0
-                ORDER BY scanned_at DESC
-                LIMIT 1
-                """,
-                (trade[2],)
+            y.metric(
+                "Netto P/L",
+                f"${closed['Resultaat $'].sum():,.2f}"
             )
 
-            price = prices[0][0] if prices else None
+            z.metric(
+                "Winstpercentage trades",
+                f"{100 * (closed['Resultaat $'] > 0).mean():.1f}%"
+            )
 
-            if price is not None:
-                st.caption(
-                    f"Laatste opgeslagen marktprijs: "
-                    f"${price:.10g}. "
-                    "Niet gegarandeerd uitvoerbaar."
-                )
+    else:
+        st.info(
+            "Nog geen automatische virtuele "
+            "posities geregistreerd."
+        )
 
-            if st.button(
-                "Virtueel verkopen",
-                disabled=price is None
-            ):
-                paper_close(
-                    trade[0],
-                    price
-                )
+    # ------------------------------------------
+    # API ERRORS
+    # ------------------------------------------
 
-                st.success(
-                    "Virtuele positie gesloten. "
-                    "Ververs de pagina om de tabel bij te werken."
-                )
-
-    if st.session_state.scan_errors:
+    if st.session_state.v54_errors:
         with st.expander(
-            f"⚠️ API-meldingen "
-            f"({len(st.session_state.scan_errors)})"
+            "⚠️ API-meldingen "
+            f"({len(st.session_state.v54_errors)})"
         ):
             st.write(
-                st.session_state.scan_errors[:25]
+                st.session_state.v54_errors[:30]
             )
 
 
 dashboard()
 
 st.caption(
-    "Momentum vereist drie vergelijkbare "
-    "vijfminutenmetingen. 'Niet gevonden' betekent "
-    "alleen dat een geslaagde API-query het token "
-    "niet retourneerde."
+    "Streamlit Community Cloud kan pauzeren. "
+    "SQLite is op deze hosting niet gegarandeerd "
+    "permanent. Voor continue scans is een aparte "
+    "worker met externe database noodzakelijk. "
+    "Er worden geen echte orders uitgevoerd."
 )
