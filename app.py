@@ -1,5 +1,4 @@
 
-"""GTA6 Radar V5.4.2 — A/B paper trading only."""
 import os
 import re
 import sqlite3
@@ -10,8 +9,12 @@ import pandas as pd
 import requests
 import streamlit as st
 
+# ==========================================================
+# GTA 6 RADAR V5.4.3 — A/B PAPER TRADING + DATABASE HERSTEL
+# ==========================================================
+
 st.set_page_config(
-    page_title="GTA 6 Radar V5.4.2",
+    page_title="GTA 6 Radar V5.4.3",
     page_icon="🎮",
     layout="wide",
 )
@@ -19,23 +22,27 @@ st.set_page_config(
 DB = os.getenv("GTA6_RADAR_DB", "gta6_radar.db")
 API = "https://api.dexscreener.com"
 LOCAL = ZoneInfo("Europe/Brussels")
+
 SEARCHES = [
     "GTA6", "GTA VI", "Grand Theft Auto", "Vice City",
     "Leonida", "Lucia Camino", "Jason Duval", "Port Gellhorn"
 ]
+
 STRONG = [
-    "gta6", "gta 6", "gta vi", "grand theft auto",
-    "grandtheftauto", "gtavi"
+    "gta6", "gta 6", "gta vi", "gtavi",
+    "grand theft auto", "grandtheftauto"
 ]
+
 RELATED = [
     "vice city", "leonida", "lucia camino",
     "jason duval", "port gellhorn", "raul bautista"
 ]
+
 ADDRESS = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
 
 HTTP = requests.Session()
 HTTP.headers.update({
-    "User-Agent": "GTA6RadarResearch/5.4.2",
+    "User-Agent": "GTA6RadarResearch/5.4.3",
     "Accept": "application/json",
 })
 
@@ -45,180 +52,289 @@ def utcnow():
 
 
 def parse_time(value):
-    value = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
-    return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
 def be_time(value):
     if not value:
         return "-"
-    return parse_time(value).astimezone(LOCAL).strftime("%d-%m-%Y %H:%M:%S")
-
-
-def number(value):
-    try:
-        return float(value) if value is not None else None
-    except (TypeError, ValueError):
-        return None
-
-
-def zero(value):
-    return number(value) or 0.0
-
-
-def matches(text, patterns):
-    text = str(text or "").lower()
-    return any(
-        re.search(r"(?<![a-z0-9])" + re.escape(t) + r"(?![a-z0-9])", text)
-        for t in patterns
+    return parse_time(value).astimezone(LOCAL).strftime(
+        "%d-%m-%Y %H:%M:%S"
     )
 
 
+def num(value):
+    try:
+        return float(value) if value is not None else None
+    except (ValueError, TypeError):
+        return None
+
+
+def val(value):
+    return num(value) or 0.0
+
+
+def matches(text, words):
+    text = str(text or "").lower()
+    return any(word in text for word in words)
+
+
 def db():
-    connection = sqlite3.connect(DB, timeout=30)
-    connection.execute("PRAGMA busy_timeout=30000")
-    return connection
+    conn = sqlite3.connect(DB, timeout=30)
+    conn.execute("PRAGMA busy_timeout=30000")
+    return conn
 
 
-def select(sql, args=()):
-    with db() as c:
-        return c.execute(sql, args).fetchall()
+def read(sql, args=()):
+    with db() as conn:
+        return conn.execute(sql, args).fetchall()
 
+
+# ==========================================================
+# DATABASE: BESTAANDE GEGEVENS BEHOUDEN
+# ==========================================================
 
 def initialize():
-    statements = [
-        """CREATE TABLE IF NOT EXISTS discovered (
-            address TEXT PRIMARY KEY, name TEXT, symbol TEXT,
+    definitions = {
+        "discovered": """
+            address TEXT PRIMARY KEY,
+            name TEXT, symbol TEXT,
             first_seen TEXT, last_seen TEXT
-        )""",
-        """CREATE TABLE IF NOT EXISTS watchlist (
-            address TEXT PRIMARY KEY, name TEXT, added_at TEXT
-        )""",
-        """CREATE TABLE IF NOT EXISTS tracking_state (
-            address TEXT PRIMARY KEY, first_seen TEXT,
-            last_checked TEXT, last_found TEXT,
-            missed_scans INTEGER DEFAULT 0, status TEXT
-        )""",
-        """CREATE TABLE IF NOT EXISTS radar_v54 (
-            address TEXT NOT NULL, scanned_at TEXT NOT NULL,
-            name TEXT, symbol TEXT, pair_address TEXT,
-            source TEXT, price REAL, liquidity REAL,
-            volume_m5 REAL, buys_m5 INTEGER, sells_m5 INTEGER,
-            age_hours REAL, narrative INTEGER, momentum INTEGER,
+        """,
+        "watchlist": """
+            address TEXT PRIMARY KEY,
+            name TEXT, added_at TEXT
+        """,
+        "tracking_state": """
+            address TEXT PRIMARY KEY,
+            first_seen TEXT, last_checked TEXT,
+            last_found TEXT, missed_scans INTEGER,
+            status TEXT
+        """,
+        "radar_v54": """
+            address TEXT NOT NULL,
+            scanned_at TEXT NOT NULL,
+            name TEXT, symbol TEXT,
+            pair_address TEXT, source TEXT,
+            price REAL, liquidity REAL,
+            volume_m5 REAL, buys_m5 INTEGER,
+            sells_m5 INTEGER, age_hours REAL,
+            narrative INTEGER, momentum INTEGER,
             evidence TEXT, phase TEXT, warnings TEXT,
-            PRIMARY KEY(address,scanned_at)
-        )""",
-        """CREATE TABLE IF NOT EXISTS paper_v54 (
+            PRIMARY KEY(address, scanned_at)
+        """,
+        "paper_v54": """
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            address TEXT NOT NULL, name TEXT, pair_address TEXT,
-            opened_at TEXT NOT NULL,
-            entry_market REAL NOT NULL,
-            entry_effective REAL NOT NULL,
-            amount_usd REAL NOT NULL,
-            quantity REAL NOT NULL,
-            fee_rate REAL NOT NULL,
-            slippage_rate REAL NOT NULL,
+            address TEXT NOT NULL,
+            name TEXT, pair_address TEXT,
+            opened_at TEXT,
+            entry_market REAL, entry_effective REAL,
+            amount_usd REAL, quantity REAL,
+            fee_rate REAL, slippage_rate REAL,
             status TEXT DEFAULT 'OPEN',
             closed_at TEXT, exit_market REAL,
             exit_effective REAL, pnl_usd REAL,
             exit_reason TEXT, last_mark REAL,
             last_mark_at TEXT, peak_mark REAL
-        )""",
-        """CREATE TABLE IF NOT EXISTS v541_runs (
-            scanned_at TEXT PRIMARY KEY,
-            finished_at TEXT, fetched INTEGER,
-            errors INTEGER, entries INTEGER,
-            exits INTEGER, cause TEXT
-        )""",
-        """CREATE TABLE IF NOT EXISTS v541_decisions (
-            scan_at TEXT, address TEXT, name TEXT,
-            outcome TEXT, reason TEXT,
-            price REAL, liquidity REAL,
-            PRIMARY KEY(scan_at,address)
-        )""",
-        """CREATE TABLE IF NOT EXISTS v541_config (
-            name TEXT PRIMARY KEY, value TEXT
-        )""",
-        """CREATE TABLE IF NOT EXISTS paper_v542_b (
+        """,
+        "paper_v542_b": """
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            address TEXT NOT NULL, name TEXT, pair_address TEXT,
-            opened_at TEXT NOT NULL,
-            entry_market REAL NOT NULL,
-            entry_effective REAL NOT NULL,
-            amount_usd REAL NOT NULL,
-            quantity REAL NOT NULL,
-            fee_rate REAL NOT NULL,
-            slippage_rate REAL NOT NULL,
-            status TEXT NOT NULL DEFAULT 'OPEN',
+            address TEXT NOT NULL,
+            name TEXT, pair_address TEXT,
+            opened_at TEXT,
+            entry_market REAL, entry_effective REAL,
+            amount_usd REAL, quantity REAL,
+            fee_rate REAL, slippage_rate REAL,
+            status TEXT DEFAULT 'OPEN',
             closed_at TEXT, exit_market REAL,
             exit_effective REAL, pnl_usd REAL,
             exit_reason TEXT, last_mark REAL,
             last_mark_at TEXT, peak_mark REAL
-        )""",
-        """CREATE TABLE IF NOT EXISTS v542_decisions (
-            scan_at TEXT NOT NULL, address TEXT NOT NULL,
-            name TEXT, strategy TEXT NOT NULL,
+        """,
+        "v541_config": """
+            name TEXT PRIMARY KEY, value TEXT
+        """,
+        "v542_decisions": """
+            scan_at TEXT, address TEXT,
+            name TEXT, strategy TEXT,
             outcome TEXT, reason TEXT,
             price REAL, liquidity REAL,
-            PRIMARY KEY(scan_at,address,strategy)
-        )""",
-        """CREATE TABLE IF NOT EXISTS v542_runs (
-            started_at TEXT PRIMARY KEY, finished_at TEXT,
-            cause TEXT, tokens INTEGER, api_errors INTEGER,
+            PRIMARY KEY(scan_at, address, strategy)
+        """,
+        "v542_runs": """
+            started_at TEXT PRIMARY KEY,
+            finished_at TEXT, cause TEXT,
+            tokens INTEGER, api_errors INTEGER,
             a_entries INTEGER, b_entries INTEGER,
             a_exits INTEGER, b_exits INTEGER
-        )""",
-        """CREATE INDEX IF NOT EXISTS idx_v54_history
-           ON radar_v54(address,scanned_at)""",
-        """CREATE INDEX IF NOT EXISTS idx_v54_paper_status
-           ON paper_v54(status)""",
-        """CREATE INDEX IF NOT EXISTS idx_v542_paper_status
-           ON paper_v542_b(status)""",
-    ]
-    with db() as c:
-        for sql in statements:
-            c.execute(sql)
+        """,
+    }
+
+    migrations = {
+        "v542_runs": {
+            "started_at": "TEXT",
+            "finished_at": "TEXT",
+            "cause": "TEXT",
+            "tokens": "INTEGER",
+            "api_errors": "INTEGER",
+            "a_entries": "INTEGER",
+            "b_entries": "INTEGER",
+            "a_exits": "INTEGER",
+            "b_exits": "INTEGER",
+        },
+        "v542_decisions": {
+            "scan_at": "TEXT",
+            "address": "TEXT",
+            "name": "TEXT",
+            "strategy": "TEXT",
+            "outcome": "TEXT",
+            "reason": "TEXT",
+            "price": "REAL",
+            "liquidity": "REAL",
+        },
+        "radar_v54": {
+            "address": "TEXT",
+            "scanned_at": "TEXT",
+            "name": "TEXT",
+            "symbol": "TEXT",
+            "pair_address": "TEXT",
+            "source": "TEXT",
+            "price": "REAL",
+            "liquidity": "REAL",
+            "volume_m5": "REAL",
+            "buys_m5": "INTEGER",
+            "sells_m5": "INTEGER",
+            "age_hours": "REAL",
+            "narrative": "INTEGER",
+            "momentum": "INTEGER",
+            "evidence": "TEXT",
+            "phase": "TEXT",
+            "warnings": "TEXT",
+        },
+    }
+
+    paper_columns = {
+        "address": "TEXT",
+        "name": "TEXT",
+        "pair_address": "TEXT",
+        "opened_at": "TEXT",
+        "entry_market": "REAL",
+        "entry_effective": "REAL",
+        "amount_usd": "REAL",
+        "quantity": "REAL",
+        "fee_rate": "REAL",
+        "slippage_rate": "REAL",
+        "status": "TEXT",
+        "closed_at": "TEXT",
+        "exit_market": "REAL",
+        "exit_effective": "REAL",
+        "pnl_usd": "REAL",
+        "exit_reason": "TEXT",
+        "last_mark": "REAL",
+        "last_mark_at": "TEXT",
+        "peak_mark": "REAL",
+    }
+
+    migrations["paper_v54"] = paper_columns
+    migrations["paper_v542_b"] = paper_columns
+
+    with db() as conn:
+        for table, columns in definitions.items():
+            conn.execute(
+                f"CREATE TABLE IF NOT EXISTS {table} ({columns})"
+            )
+
+        for table, required in migrations.items():
+            existing = {
+                row[1] for row in conn.execute(
+                    f"PRAGMA table_info({table})"
+                )
+            }
+
+            for column, kind in required.items():
+                if column not in existing:
+                    conn.execute(
+                        f"ALTER TABLE {table} "
+                        f"ADD COLUMN {column} {kind}"
+                    )
+
+        existing_runs = {
+            row[1] for row in conn.execute(
+                "PRAGMA table_info(v542_runs)"
+            )
+        }
+
+        if "scan_at" in existing_runs:
+            conn.execute("""
+                UPDATE v542_runs
+                SET started_at = scan_at
+                WHERE started_at IS NULL
+            """)
+
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_radar_history
+            ON radar_v54(address, scanned_at)
+        """)
 
 
-def get_bool(key, default):
-    rows = select("SELECT value FROM v541_config WHERE name=?", (key,))
+def config_get(name, default):
+    rows = read(
+        "SELECT value FROM v541_config WHERE name=?",
+        (name,),
+    )
     return rows[0][0] == "1" if rows else default
 
 
-def set_bool(key, state):
-    with db() as c:
-        c.execute(
-            """INSERT INTO v541_config(name,value)
-               VALUES(?,?)
-               ON CONFLICT(name)
-               DO UPDATE SET value=excluded.value""",
-            (key, "1" if state else "0"),
-        )
+def config_set(name, enabled):
+    with db() as conn:
+        conn.execute("""
+            INSERT INTO v541_config(name, value)
+            VALUES(?, ?)
+            ON CONFLICT(name)
+            DO UPDATE SET value=excluded.value
+        """, (name, "1" if enabled else "0"))
 
+
+# ==========================================================
+# DEXSCREENER: TOKENS ONTDEKKEN
+# ==========================================================
 
 def api_get(path, params=None):
-    response = HTTP.get(API + path, params=params, timeout=20)
+    response = HTTP.get(
+        API + path,
+        params=params,
+        timeout=20,
+    )
     response.raise_for_status()
     return response.json()
 
 
 def discover():
-    addresses, errors = {}, []
+    found = {}
+    errors = []
 
-    def add(addr, source):
-        if isinstance(addr, str) and ADDRESS.fullmatch(addr):
-            addresses.setdefault(addr, set()).add(source)
+    def add(address, source):
+        if isinstance(address, str) and ADDRESS.fullmatch(address):
+            found.setdefault(address, set()).add(source)
 
     for term in SEARCHES:
         try:
-            payload = api_get("/latest/dex/search", {"q": term})
+            payload = api_get(
+                "/latest/dex/search",
+                {"q": term},
+            )
+
             for pair in payload.get("pairs") or []:
                 if pair.get("chainId") != "solana":
                     continue
-                base = pair.get("baseToken") or {}
-                title = f"{base.get('name', '')} {base.get('symbol', '')}"
-                if matches(title, STRONG + RELATED):
-                    add(base.get("address"), "DEX search")
+
+                token = pair.get("baseToken") or {}
+                name = f"{token.get('name','')} {token.get('symbol','')}"
+
+                if matches(name, STRONG + RELATED):
+                    add(token.get("address"), "Search")
+
         except (requests.RequestException, ValueError, TypeError) as exc:
             errors.append(f"Search {term}: {exc}")
 
@@ -229,288 +345,361 @@ def discover():
     ]:
         try:
             payload = api_get(path)
+
             for item in payload if isinstance(payload, list) else []:
                 if item.get("chainId") != "solana":
                     continue
-                links = " ".join(
-                    str(link.get("url", ""))
-                    for link in item.get("links") or []
-                    if isinstance(link, dict)
-                )
-                context = str(item.get("description") or "") + " " + links
+
+                context = str(item.get("description") or "")
+                links = item.get("links") or []
+
+                for link in links:
+                    if isinstance(link, dict):
+                        context += " " + str(link.get("url") or "")
+
                 if matches(context, STRONG + RELATED):
-                    add(item.get("tokenAddress"), "DEX profile")
+                    add(item.get("tokenAddress"), "Profile")
+
         except (requests.RequestException, ValueError, TypeError) as exc:
-            errors.append(f"Profile {path}: {exc}")
+            errors.append(f"Profile: {exc}")
 
-    queries = [
-        "SELECT address FROM paper_v54 WHERE status='OPEN'",
-        "SELECT address FROM paper_v542_b WHERE status='OPEN'",
-        "SELECT address FROM watchlist ORDER BY added_at DESC",
-        """SELECT address FROM tracking_state
-           ORDER BY COALESCE(last_checked,first_seen) ASC LIMIT 200""",
-        "SELECT address FROM discovered ORDER BY last_seen ASC LIMIT 200",
-    ]
-    for sql in queries:
-        for (address,) in select(sql):
-            add(address, "Gevolgd")
-    return addresses, errors
+    for table in ("paper_v54", "paper_v542_b"):
+        for (address,) in read(
+            f"SELECT address FROM {table} WHERE status='OPEN'"
+        ):
+            add(address, "Open paperpositie")
+
+    for (address,) in read("SELECT address FROM watchlist"):
+        add(address, "Watchlist")
+
+    for (address,) in read("""
+        SELECT address FROM discovered
+        ORDER BY last_seen ASC LIMIT 200
+    """):
+        add(address, "Historiek")
+
+    return found, errors
 
 
-def market_pairs(addresses):
-    results, errors = {}, []
+def fetch_pairs(addresses):
+    pairs = {}
+    errors = []
+
     for offset in range(0, len(addresses), 30):
-        batch = addresses[offset:offset + 30]
+        group = addresses[offset:offset + 30]
+
         try:
             payload = api_get(
-                "/tokens/v1/solana/" + ",".join(batch)
+                "/tokens/v1/solana/" + ",".join(group)
             )
+
             if not isinstance(payload, list):
-                raise ValueError("Onverwacht marktdataformaat")
+                raise ValueError("Ongeldig API-antwoord")
+
             for pair in payload:
                 if pair.get("chainId") != "solana":
                     continue
+
                 address = (pair.get("baseToken") or {}).get("address")
-                if address not in batch:
+
+                if address not in group:
                     continue
-                current = results.get(address)
-                liquidity = zero((pair.get("liquidity") or {}).get("usd"))
-                previous = (
-                    zero((current.get("liquidity") or {}).get("usd"))
+
+                current = pairs.get(address)
+                liquidity = val(
+                    (pair.get("liquidity") or {}).get("usd")
+                )
+
+                old_liquidity = (
+                    val((current.get("liquidity") or {}).get("usd"))
                     if current else -1
                 )
-                if liquidity > previous:
-                    results[address] = pair
+
+                if liquidity > old_liquidity:
+                    pairs[address] = pair
+
         except (requests.RequestException, ValueError, TypeError) as exc:
-            errors.append(f"Marktdata batch {offset // 30 + 1}: {exc}")
-    return results, errors
+            errors.append(f"Marktdata: {exc}")
+
+    return pairs, errors
 
 
-def history(address, stamp):
-    rows = select(
-        """SELECT scanned_at,price,volume_m5,pair_address
-           FROM radar_v54
-           WHERE address=? AND scanned_at<?
-           ORDER BY scanned_at DESC LIMIT 16""",
-        (address, stamp),
-    )
-    return [(t, number(p), number(v), pair) for t, p, v, pair in rows]
+# ==========================================================
+# MOMENTUM EN A/B-STRATEGIE
+# ==========================================================
+
+def history(address, pair, stamp):
+    return read("""
+        SELECT scanned_at, price, volume_m5
+        FROM radar_v54
+        WHERE address=?
+          AND pair_address=?
+          AND scanned_at<?
+        ORDER BY scanned_at DESC
+        LIMIT 40
+    """, (address, pair, stamp))
 
 
-def signals(address, stamp, price, volume, pair):
-    if price is None or price <= 0 or volume is None or volume <= 0:
-        return 0, False, "Prijs of 5m-volume ontbreekt", "ONVOLLEDIGE_DATA"
+def momentum(address, pair, stamp, price, volume):
+    if not price or volume is None or volume <= 0:
+        return False, False, "ONVOLLEDIGE_DATA"
 
     previous = [
-        x for x in history(address, stamp)
-        if x[1] is not None and x[1] > 0
-        and x[2] is not None and x[2] > 0
-        and x[3] == pair
+        row for row in history(address, pair, stamp)
+        if num(row[1]) and num(row[2]) and num(row[2]) > 0
     ]
+
     if len(previous) < 2:
         return (
-            0, False,
-            f"{len(previous) + 1}/3 geldige metingen van dit handelspaar",
-            "TE_WEINIG_METINGEN",
+            False, False,
+            f"TE_WEINIG_METINGEN: {len(previous)+1}/3"
         )
 
-    recent, old = previous[0], previous[1]
-    gap1 = (
-        parse_time(stamp) - parse_time(recent[0])
-    ).total_seconds() / 60
-    gap2 = (
-        parse_time(recent[0]) - parse_time(old[0])
-    ).total_seconds() / 60
-    span = f"Intervallen {gap2:.1f}m + {gap1:.1f}m"
+    current_time = parse_time(stamp)
 
-    if not (3.5 <= gap1 <= 20 and 3.5 <= gap2 <= 20):
-        return 0, False, span + "; meetreeks te onregelmatig", "ONGELDIG_INTERVAL"
-
-    rising_price = (
-        old[1] < recent[1] < price
-        and price >= old[1] * 1.02
+    recent = next(
+        (
+            row for row in previous
+            if 3.5 <= (
+                current_time - parse_time(row[0])
+            ).total_seconds() / 60 <= 20
+        ),
+        None,
     )
-    rising_volume = (
-        old[2] < recent[2] < volume
+
+    old = next(
+        (
+            row for row in previous
+            if recent and 3.5 <= (
+                parse_time(recent[0]) -
+                parse_time(row[0])
+            ).total_seconds() / 60 <= 20
+        ),
+        None,
+    )
+
+    if not recent or not old:
+        return False, False, "ONGELDIG_INTERVAL"
+
+    old_price = float(old[1])
+    recent_price = float(recent[1])
+    old_volume = float(old[2])
+    recent_volume = float(recent[2])
+
+    change = price / old_price - 1
+
+    strategy_a = (
+        old_price < recent_price < price
+        and old_volume < recent_volume < volume
+        and change >= 0.02
         and volume >= 250
     )
-    a_score = (
-        80 if rising_price and rising_volume
-        else 30 if rising_price or rising_volume
-        else 0
-    )
-    gain = price / old[1] - 1
-    b_signal = gain >= 0.05 and price > recent[1] and volume >= 250
 
-    return (
-        a_score, b_signal,
-        f"{span}; prijs {gain:+.1%}; 5m-volume ${volume:,.0f}",
-        "GEMETEN",
+    strategy_b = (
+        change >= 0.05
+        and price > recent_price
+        and volume >= 250
     )
 
-
-def analyze(addr, pair, origins, stamp):
-    base = pair.get("baseToken") or {}
-    name = str(base.get("name") or "Onbekend")
-    symbol = str(base.get("symbol") or "?")
-    title = f"{name} {symbol}"
-    narrative = (
-        100 if matches(title, STRONG)
-        else 65 if matches(title, RELATED)
-        else 0
+    details = (
+        f"GEMETEN: prijs {change:+.1%}; "
+        f"5m-volume ${volume:,.0f}"
     )
-    created = number(pair.get("pairCreatedAt"))
+
+    return strategy_a, strategy_b, details
+
+
+def analyze(address, pair, sources, stamp):
+    token = pair.get("baseToken") or {}
+
+    name = str(token.get("name") or "Onbekend")
+    symbol = str(token.get("symbol") or "")
+
+    price = num(pair.get("priceUsd"))
+    liquidity = num(
+        (pair.get("liquidity") or {}).get("usd")
+    )
+    volume = num(
+        (pair.get("volume") or {}).get("m5")
+    )
+
+    transactions = (pair.get("txns") or {}).get("m5") or {}
+    buys = int(val(transactions.get("buys")))
+    sells = int(val(transactions.get("sells")))
+
+    created = num(pair.get("pairCreatedAt"))
     age = (
-        max(0.0, (parse_time(stamp).timestamp() * 1000 - created) / 3600000)
+        max(
+            0,
+            (parse_time(stamp).timestamp() * 1000 - created)
+            / 3600000,
+        )
         if created else None
     )
-    price = number(pair.get("priceUsd"))
-    liquidity = number((pair.get("liquidity") or {}).get("usd"))
-    volume = number((pair.get("volume") or {}).get("m5"))
-    tx = (pair.get("txns") or {}).get("m5") or {}
-    buys = int(zero(tx.get("buys")))
-    sells = int(zero(tx.get("sells")))
-    pair_id = str(pair.get("pairAddress") or "")
 
-    a_score, b_signal, evidence, diagnostic = signals(
-        addr, stamp, price, volume, pair_id
-    )
-    transactions = buys + sells
-    avg = volume / transactions if transactions and volume is not None else None
-    micro = transactions >= 100 and avg is not None and avg < 3
+    pair_address = str(pair.get("pairAddress") or "")
+    name_text = f"{name} {symbol}"
 
-    warnings = []
-    if liquidity is None or liquidity < 10000:
-        warnings.append("Liquiditeit onbekend of < $10.000")
-    if micro:
-        warnings.append("Microtransacties; mogelijke bots")
-    warnings.append("Geen controle op mint/freeze, houders of verkoopbaarheid")
-
-    return dict(
-        address=addr, name=name, symbol=symbol,
-        pair=pair_id, source=", ".join(sorted(origins)),
-        narrative=narrative, age=age,
-        price=price, liquidity=liquidity, volume=volume,
-        buys=buys, sells=sells, micro=micro, avg=avg,
-        a_score=a_score, b_signal=b_signal,
-        evidence=evidence, diagnostic=diagnostic,
-        warnings="; ".join(warnings),
+    narrative = (
+        100 if matches(name_text, STRONG)
+        else 65 if matches(name_text, RELATED)
+        else 0
     )
 
+    a_signal, b_signal, reason = momentum(
+        address, pair_address, stamp, price, volume
+    )
 
-def record_observations(records, stamp):
-    with db() as c:
+    tx_count = buys + sells
+    average = volume / tx_count if volume is not None and tx_count else None
+    micro = bool(tx_count >= 100 and average is not None and average < 3)
+
+    return {
+        "address": address,
+        "name": name,
+        "symbol": symbol,
+        "pair": pair_address,
+        "price": price,
+        "liquidity": liquidity,
+        "volume": volume,
+        "buys": buys,
+        "sells": sells,
+        "age": age,
+        "narrative": narrative,
+        "a_signal": a_signal,
+        "b_signal": b_signal,
+        "reason": reason,
+        "micro": micro,
+        "source": ", ".join(sorted(sources)),
+    }
+
+
+# ==========================================================
+# SCANRESULTATEN BEWAREN
+# ==========================================================
+
+def save_observations(records, stamp):
+    with db() as conn:
         for r in records:
-            c.execute(
-                """INSERT INTO discovered(
+            conn.execute("""
+                INSERT INTO discovered(
                     address,name,symbol,first_seen,last_seen
-                ) VALUES(?,?,?,?,?)
+                )
+                VALUES(?,?,?,?,?)
                 ON CONFLICT(address)
-                DO UPDATE SET name=excluded.name,
-                              symbol=excluded.symbol,
-                              last_seen=excluded.last_seen""",
-                (r["address"], r["name"], r["symbol"], stamp, stamp),
-            )
-            c.execute(
-                """INSERT INTO tracking_state(
-                    address,first_seen,last_checked,
-                    last_found,missed_scans,status
-                ) VALUES(?,?,?,?,0,'ACTIEF')
-                ON CONFLICT(address)
-                DO UPDATE SET last_checked=excluded.last_checked,
-                              last_found=excluded.last_found,
-                              missed_scans=0,status='ACTIEF'""",
-                (r["address"], stamp, stamp, stamp),
-            )
-            phase = (
-                "MOMENTUM TER CONTROLE"
-                if r["a_score"] == 80
-                else "PRE-TREND KANDIDAAT"
-                if r["age"] is not None and r["age"] < 24
-                else "MONITOREN"
-            )
-            c.execute(
-                """INSERT OR REPLACE INTO radar_v54(
+                DO UPDATE SET
+                    name=excluded.name,
+                    symbol=excluded.symbol,
+                    last_seen=excluded.last_seen
+            """, (
+                r["address"], r["name"],
+                r["symbol"], stamp, stamp,
+            ))
+
+            conn.execute("""
+                INSERT OR REPLACE INTO radar_v54(
                     address,scanned_at,name,symbol,
                     pair_address,source,price,liquidity,
-                    volume_m5,buys_m5,sells_m5,age_hours,
-                    narrative,momentum,evidence,phase,warnings
-                ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                (
-                    r["address"], stamp, r["name"],
-                    r["symbol"], r["pair"], r["source"],
-                    r["price"], r["liquidity"], r["volume"],
-                    r["buys"], r["sells"], r["age"],
-                    r["narrative"], r["a_score"],
-                    r["evidence"], phase, r["warnings"],
-                ),
-            )
+                    volume_m5,buys_m5,sells_m5,
+                    age_hours,narrative,momentum,
+                    evidence,phase,warnings
+                )
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """, (
+                r["address"], stamp,
+                r["name"], r["symbol"],
+                r["pair"], r["source"],
+                r["price"], r["liquidity"],
+                r["volume"], r["buys"], r["sells"],
+                r["age"], r["narrative"],
+                80 if r["a_signal"] else 0,
+                r["reason"], "MONITOREN",
+                "Contractveiligheid en verkoopbaarheid onbekend",
+            ))
 
 
-def decide(r, strategy, cfg, used):
+def eligible(r, strategy, used, settings):
     if r["address"] in used:
-        return "GEEN_INSTAP", "Deze token werd in deze strategie al eens virtueel verhandeld"
-    if r["narrative"] < 65:
-        return "GEEN_INSTAP", "Geen duidelijke GTA-narrative"
-    if r["diagnostic"] != "GEMETEN":
-        return "GEEN_INSTAP", r["diagnostic"] + ": " + r["evidence"]
-    if strategy == "A" and r["a_score"] != 80:
-        return "GEEN_INSTAP", "Streng momentum vereist prijs én stijgend 5m-volume: " + r["evidence"]
-    if strategy == "B" and not r["b_signal"]:
-        return "GEEN_INSTAP", "Experimenteel momentum vereist +5% prijs, laatste prijs stijgend en 5m-volume >= $250: " + r["evidence"]
-    if r["price"] is None or r["price"] <= 0:
-        return "GEBLOKKEERD", "Prijs ongeldig"
-    if r["liquidity"] is None or r["liquidity"] < cfg["min_liq"]:
-        return "GEBLOKKEERD", "Onvoldoende geverifieerde liquiditeit"
+        return "GEEN_INSTAP", "Al eerder virtueel verhandeld"
+
+    signal = (
+        r["a_signal"] if strategy == "A"
+        else r["b_signal"]
+    )
+
+    if not signal:
+        return "GEEN_INSTAP", r["reason"]
+
+    if not r["price"] or r["price"] <= 0:
+        return "GEBLOKKEERD", "Ongeldige prijs"
+
+    if not r["liquidity"] or r["liquidity"] < settings["min_liq"]:
+        return "GEBLOKKEERD", "Liquiditeit te laag"
+
     if r["age"] is None or r["age"] > 24:
-        return "GEBLOKKEERD", "Handelspaar ouder dan 24 uur of leeftijd onbekend"
-    if r["volume"] is None or r["volume"] < 250:
-        return "GEBLOKKEERD", "Onvoldoende 5m-volume"
+        return "GEBLOKKEERD", "Handelspaar te oud of leeftijd onbekend"
+
     if r["buys"] <= r["sells"]:
-        return "GEBLOKKEERD", "Kooptransacties niet groter in aantal dan verkooptransacties"
+        return "GEBLOKKEERD", "Onvoldoende koopdruk"
+
     if strategy == "A" and r["micro"]:
-        return "GEBLOKKEERD", "Gemiddelde transactie onder $3 bij minstens 100 transacties"
-    if strategy == "B" and r["micro"]:
-        return "KANDIDAAT", "EXPERIMENTEEL: microtransacties toegestaan; contractrisico blijft onbekend"
-    return "KANDIDAAT", "Kwantitatieve voorwaarden gehaald; contractveiligheid niet gecontroleerd"
+        return "GEBLOKKEERD", "Verdachte microtransacties"
+
+    return "KANDIDAAT", "Kwantitatieve voorwaarden voldaan"
 
 
-def paper_run(records, stamp, cfg, active_a, active_b):
+# ==========================================================
+# VIRTUELE POSITIES
+# ==========================================================
+
+def process_paper(records, stamp, settings, enabled):
     by_address = {r["address"]: r for r in records}
-    results = {"A": [0, 0], "B": [0, 0]}
+    counts = {"A": [0, 0], "B": [0, 0]}
 
-    for strategy, table in [
+    for strategy, table in (
         ("A", "paper_v54"),
         ("B", "paper_v542_b"),
-    ]:
-        enabled = active_a if strategy == "A" else active_b
-
-        with db() as c:
-            open_trades = c.execute(
-                f"""SELECT id,address,opened_at,entry_market,
-                           quantity,amount_usd,fee_rate,slippage_rate
-                    FROM {table} WHERE status='OPEN'"""
-            ).fetchall()
+    ):
+        with db() as conn:
+            trades = conn.execute(f"""
+                SELECT id,address,pair_address,opened_at,
+                       entry_market,quantity,amount_usd,
+                       fee_rate,slippage_rate
+                FROM {table}
+                WHERE status='OPEN'
+            """).fetchall()
 
             used = {
-                row[0] for row in c.execute(
+                row[0] for row in conn.execute(
                     f"SELECT DISTINCT address FROM {table}"
                 )
             }
 
             for (
-                trade_id, addr, opened, entry,
-                quantity, amount, fee, slip
-            ) in open_trades:
-                r = by_address.get(addr)
-                if not r or not r["price"] or r["price"] <= 0:
+                trade_id, address, original_pair,
+                opened, entry, quantity, amount, fee, slip
+            ) in trades:
+
+                r = by_address.get(address)
+
+                if not r or not r["price"]:
+                    continue
+
+                if original_pair and r["pair"] != original_pair:
+                    conn.execute(
+                        f"""UPDATE {table}
+                            SET exit_reason='PAIR_CHANGED_CHECK_REQUIRED'
+                            WHERE id=?""",
+                        (trade_id,),
+                    )
                     continue
 
                 price = r["price"]
-                c.execute(
+
+                conn.execute(
                     f"""UPDATE {table}
                         SET last_mark=?,last_mark_at=?,
-                        peak_mark=MAX(COALESCE(peak_mark,0),?)
+                            peak_mark=MAX(COALESCE(peak_mark,0),?)
                         WHERE id=?""",
                     (price, stamp, price, trade_id),
                 )
@@ -519,17 +708,25 @@ def paper_run(records, stamp, cfg, active_a, active_b):
                 hours = (
                     parse_time(stamp) - parse_time(opened)
                 ).total_seconds() / 3600
+
                 reason = (
-                    "TAKE_PROFIT" if change >= cfg["take"]
-                    else "STOP_LOSS" if change <= -cfg["stop"]
-                    else "TIME_EXIT" if hours >= cfg["max_hours"]
+                    "TAKE_PROFIT"
+                    if change >= settings["take"]
+                    else "STOP_LOSS"
+                    if change <= -settings["stop"]
+                    else "TIME_EXIT"
+                    if hours >= settings["max_hours"]
                     else None
                 )
+
                 if not reason:
                     continue
 
-                if r["liquidity"] is None or r["liquidity"] < cfg["min_liq"]:
-                    c.execute(
+                if (
+                    r["liquidity"] is None
+                    or r["liquidity"] < settings["min_liq"]
+                ):
+                    conn.execute(
                         f"""UPDATE {table}
                             SET exit_reason='EXIT_BLOCKED_LIQUIDITY'
                             WHERE id=?""",
@@ -537,483 +734,529 @@ def paper_run(records, stamp, cfg, active_a, active_b):
                     )
                     continue
 
-                effective_exit = price * (1 - slip)
-                pnl = quantity * effective_exit * (1 - fee) - amount
-                c.execute(
-                    f"""UPDATE {table}
-                        SET status='CLOSED',closed_at=?,
-                            exit_market=?,exit_effective=?,
-                            pnl_usd=?,exit_reason=?
-                        WHERE id=? AND status='OPEN'""",
-                    (stamp, price, effective_exit, pnl, reason, trade_id),
+                exit_effective = price * (1 - slip)
+                pnl = (
+                    quantity * exit_effective * (1 - fee)
+                    - amount
                 )
-                results[strategy][1] += 1
 
-            current_open = c.execute(
+                conn.execute(
+                    f"""UPDATE {table}
+                        SET status='CLOSED',
+                            closed_at=?,
+                            exit_market=?,
+                            exit_effective=?,
+                            pnl_usd=?,
+                            exit_reason=?
+                        WHERE id=? AND status='OPEN'""",
+                    (
+                        stamp, price, exit_effective,
+                        pnl, reason, trade_id,
+                    ),
+                )
+
+                counts[strategy][1] += 1
+
+            open_count = conn.execute(
                 f"SELECT COUNT(*) FROM {table} WHERE status='OPEN'"
             ).fetchone()[0]
 
             for r in records:
-                outcome, reason = decide(r, strategy, cfg, used)
+                outcome, reason = eligible(
+                    r, strategy, used, settings
+                )
 
-                if outcome == "KANDIDAAT" and not enabled:
-                    outcome = "UITGESCHAKELD"
-                    reason = f"Strategie {strategy} paper trading staat uit; " + reason
+                if outcome == "KANDIDAAT":
+                    if not enabled[strategy]:
+                        outcome = "UITGESCHAKELD"
+                        reason = "Paperstrategie uitgeschakeld"
 
-                elif outcome == "KANDIDAAT" and current_open >= cfg["max_positions"]:
-                    outcome = "GEBLOKKEERD"
-                    reason = f"Maximaal {cfg['max_positions']} gelijktijdige posities bereikt"
+                    elif open_count >= settings["max_positions"]:
+                        outcome = "GEBLOKKEERD"
+                        reason = "Maximum open posities bereikt"
 
-                elif outcome == "KANDIDAAT":
-                    entry_effective = r["price"] * (1 + cfg["slip"])
-                    qty = (
-                        cfg["amount"] * (1 - cfg["fee"])
-                        / entry_effective
-                    )
-                    c.execute(
-                        f"""INSERT INTO {table}(
-                            address,name,pair_address,opened_at,
-                            entry_market,entry_effective,amount_usd,
-                            quantity,fee_rate,slippage_rate,status,
-                            last_mark,last_mark_at,peak_mark
-                        ) VALUES(?,?,?,?,?,?,?,?,?,?,'OPEN',?,?,?)""",
-                        (
-                            r["address"], r["name"], r["pair"],
-                            stamp, r["price"], entry_effective,
-                            cfg["amount"], qty, cfg["fee"], cfg["slip"],
-                            r["price"], stamp, r["price"],
-                        ),
-                    )
-                    used.add(r["address"])
-                    current_open += 1
-                    results[strategy][0] += 1
-                    outcome = "PAPER_ENTRY"
-                    reason = "Virtuele order geregistreerd; uitvoering niet geverifieerd"
+                    else:
+                        market_price = r["price"]
+                        effective_price = (
+                            market_price * (1 + settings["slip"])
+                        )
 
-                c.execute(
-                    """INSERT OR REPLACE INTO v542_decisions(
+                        quantity = (
+                            settings["amount"] * (1 - settings["fee"])
+                            / effective_price
+                        )
+
+                        conn.execute(
+                            f"""INSERT INTO {table}(
+                                address,name,pair_address,
+                                opened_at,entry_market,
+                                entry_effective,amount_usd,
+                                quantity,fee_rate,slippage_rate,
+                                status,last_mark,last_mark_at,peak_mark
+                            )
+                            VALUES(?,?,?,?,?,?,?,?,?,?,'OPEN',?,?,?)""",
+                            (
+                                r["address"], r["name"],
+                                r["pair"], stamp,
+                                market_price, effective_price,
+                                settings["amount"], quantity,
+                                settings["fee"], settings["slip"],
+                                market_price, stamp, market_price,
+                            ),
+                        )
+
+                        open_count += 1
+                        used.add(r["address"])
+                        counts[strategy][0] += 1
+
+                        outcome = "PAPER_ENTRY"
+                        reason = "Virtuele instap; verkoopbaarheid niet bewezen"
+
+                conn.execute("""
+                    INSERT OR REPLACE INTO v542_decisions(
                         scan_at,address,name,strategy,
                         outcome,reason,price,liquidity
-                    ) VALUES(?,?,?,?,?,?,?,?)""",
-                    (
-                        stamp, r["address"], r["name"],
-                        strategy, outcome, reason,
-                        r["price"], r["liquidity"],
-                    ),
-                )
-    return results
+                    )
+                    VALUES(?,?,?,?,?,?,?,?)
+                """, (
+                    stamp, r["address"], r["name"],
+                    strategy, outcome, reason,
+                    r["price"], r["liquidity"],
+                ))
+
+    return counts
 
 
-def scan(trigger, cfg, active_a, active_b):
-    start = utcnow()
+# ==========================================================
+# VOLLEDIGE SCAN
+# ==========================================================
+
+def scan(trigger, settings, enabled):
+    stamp = utcnow()
+
     addresses, errors = discover()
-    pairs, pair_errors = market_pairs(list(addresses))
-    errors.extend(pair_errors)
+    pairs, fetch_errors = fetch_pairs(list(addresses))
+    errors.extend(fetch_errors)
 
-    observed = []
-    open_addresses = {
-        row[0] for row in select(
-            "SELECT address FROM paper_v54 WHERE status='OPEN'"
-        )
-    }
-    open_addresses |= {
-        row[0] for row in select(
-            "SELECT address FROM paper_v542_b WHERE status='OPEN'"
-        )
-    }
+    records = []
 
-    for addr, pair in pairs.items():
+    for address, pair in pairs.items():
         try:
-            r = analyze(addr, pair, addresses[addr], start)
-            if r["narrative"] >= 65 or addr in open_addresses:
-                observed.append(r)
-        except (ValueError, KeyError, TypeError) as exc:
-            errors.append(f"Analyse {addr[:10]}: {exc}")
+            r = analyze(
+                address,
+                pair,
+                addresses[address],
+                stamp,
+            )
 
-    record_observations(observed, start)
-    results = paper_run(observed, start, cfg, active_a, active_b)
-    end = utcnow()
+            if r["narrative"] >= 65 or "Open paperpositie" in addresses[address]:
+                records.append(r)
 
-    with db() as c:
-        c.execute(
-            "INSERT OR REPLACE INTO v542_runs VALUES(?,?,?,?,?,?,?,?,?)",
-            (
-                start, end, trigger, len(observed), len(errors),
-                results["A"][0], results["B"][0],
-                results["A"][1], results["B"][1],
-            ),
-        )
-    return len(observed), results, errors
+        except (ValueError, TypeError, KeyError) as exc:
+            errors.append(f"Analyse {address[:10]}: {exc}")
 
+    save_observations(records, stamp)
+    counts = process_paper(records, stamp, settings, enabled)
 
-def latest_tokens():
-    row = select(
-        "SELECT started_at FROM v542_runs ORDER BY started_at DESC LIMIT 1"
-    )
-    if not row:
-        return pd.DataFrame()
-    data = select(
-        """SELECT name,symbol,address,pair_address,age_hours,
-                  price,liquidity,volume_m5,buys_m5,sells_m5,
-                  momentum,evidence,warnings
-           FROM radar_v54 WHERE scanned_at=?""",
-        (row[0][0],),
-    )
-    return pd.DataFrame(
-        data,
-        columns=[
-            "Naam", "Symbool", "Adres", "Pair", "Leeftijd uur",
-            "Prijs $", "Liquiditeit $", "5m-volume $",
-            "Buys", "Sells", "A momentum", "Trend",
-            "Waarschuwingen",
-        ],
-    )
+    finished = utcnow()
+
+    with db() as conn:
+        conn.execute("""
+            INSERT INTO v542_runs(
+                started_at,finished_at,cause,tokens,
+                api_errors,a_entries,b_entries,a_exits,b_exits
+            )
+            VALUES(?,?,?,?,?,?,?,?,?)
+        """, (
+            stamp, finished, trigger,
+            len(records), len(errors),
+            counts["A"][0], counts["B"][0],
+            counts["A"][1], counts["B"][1],
+        ))
+
+    return len(records), counts, errors
 
 
-def ledger_view(table):
-    rows = select(
-        f"""SELECT id,name,address,opened_at,amount_usd,
-                   entry_market,last_mark,status,pnl_usd,exit_reason
-            FROM {table} ORDER BY id DESC LIMIT 300"""
-    )
-    data = pd.DataFrame(
-        rows,
-        columns=[
-            "ID", "Naam", "Adres", "Open UTC",
-            "Inzet $", "Instap $", "Laatste prijs $",
-            "Status", "Gerealiseerd P/L $", "Exitreden",
-        ],
-    )
-    if not data.empty:
-        data["Geopend België"] = data["Open UTC"].apply(be_time)
-        data = data.drop(columns=["Open UTC"])
-    return data
-
+# ==========================================================
+# STREAMLIT DASHBOARD
+# ==========================================================
 
 initialize()
-st.title("🎮 GTA 6 Radar V5.4.2")
+
+st.title("🎮 GTA 6 Radar V5.4.3")
 st.caption(
-    "A/B-paperstrategieën · Belgische scanplanning · "
-    "bestaande V5.4 database behouden"
+    "A/B-paperstrategieën · Databaseherstel · Belgische tijd"
 )
+
 st.warning(
-    "Alleen virtuele transacties. Stoploss en gesimuleerde "
-    "verkoop betekenen geen gegarandeerd verliesmaximum."
+    "Alle transacties zijn virtueel. "
+    "Een stoploss van 15% is geen gegarandeerd verliesmaximum."
 )
 
-if "v542_auto" not in st.session_state:
-    st.session_state.v542_auto = get_bool("auto_scan", True)
-if "v542_a" not in st.session_state:
-    st.session_state.v542_a = get_bool("paper", False)
-if "v542_b" not in st.session_state:
-    st.session_state.v542_b = get_bool("paper_b", False)
+for key, config, default in (
+    ("auto", "auto_scan", True),
+    ("paper_a", "paper", False),
+    ("paper_b", "paper_b", False),
+):
+    if key not in st.session_state:
+        st.session_state[key] = config_get(config, default)
 
 
-def change_auto():
-    set_bool("auto_scan", st.session_state.v542_auto)
+st.sidebar.header("⚙️ Instellingen")
 
-
-def change_a():
-    set_bool("paper", st.session_state.v542_a)
-
-
-def change_b():
-    set_bool("paper_b", st.session_state.v542_b)
-
-
-st.sidebar.header("⚙️ Scanner")
-st.sidebar.toggle(
-    "Automatisch scannen (actieve sessie)",
-    key="v542_auto", on_change=change_auto
+auto = st.sidebar.toggle(
+    "Automatisch scannen",
+    value=st.session_state.auto,
 )
-st.sidebar.toggle(
-    "Strategie A: paperinstappen",
-    key="v542_a", on_change=change_a
+paper_a = st.sidebar.toggle(
+    "Strategie A inschakelen",
+    value=st.session_state.paper_a,
 )
-st.sidebar.toggle(
-    "Strategie B: paperinstappen",
-    key="v542_b", on_change=change_b
+paper_b = st.sidebar.toggle(
+    "Strategie B inschakelen",
+    value=st.session_state.paper_b,
 )
+
+st.session_state.auto = auto
+st.session_state.paper_a = paper_a
+st.session_state.paper_b = paper_b
+
+config_set("auto_scan", auto)
+config_set("paper", paper_a)
+config_set("paper_b", paper_b)
 
 interval = st.sidebar.selectbox(
-    "Scaninterval (min)", [5, 10, 15], index=0
-)
-minimum_liq = st.sidebar.number_input(
-    "Minimale liquiditeit ($)",
-    min_value=1000.0, max_value=1000000.0,
-    value=10000.0, step=1000.0
-)
-amount = st.sidebar.number_input(
-    "Virtuele inzet per positie ($)",
-    min_value=5.0, max_value=1000.0,
-    value=25.0, step=5.0
-)
-max_positions = st.sidebar.number_input(
-    "Max. open posities per strategie",
-    min_value=1, max_value=20, value=3
-)
-fee_pct = st.sidebar.number_input(
-    "Fee per zijde (%)", 0.0, 10.0, 1.0, 0.25
-)
-slip_pct = st.sidebar.number_input(
-    "Slippage per zijde (%)", 0.0, 30.0, 2.0, 0.5
-)
-take_pct = st.sidebar.number_input(
-    "Take profit (%)", 5, 500, 30, 5
-)
-stop_pct = st.sidebar.number_input(
-    "Stop loss (%)", 5, 95, 15, 5
-)
-max_hours = st.sidebar.number_input(
-    "Max. looptijd (uur)", 1, 72, 4
+    "Scaninterval (minuten)",
+    [5, 10, 15],
 )
 
-settings = dict(
-    min_liq=minimum_liq, amount=amount,
-    max_positions=max_positions,
-    fee=fee_pct / 100, slip=slip_pct / 100,
-    take=take_pct / 100, stop=stop_pct / 100,
-    max_hours=max_hours,
+min_liq = st.sidebar.number_input(
+    "Minimale liquiditeit ($)",
+    min_value=1000.0,
+    value=10000.0,
+    step=1000.0,
 )
+
+stake = st.sidebar.number_input(
+    "Virtuele inzet ($)",
+    min_value=5.0,
+    value=25.0,
+    step=5.0,
+)
+
+max_positions = st.sidebar.number_input(
+    "Maximum open posities",
+    min_value=1,
+    max_value=20,
+    value=3,
+)
+
+fee = st.sidebar.number_input(
+    "Fee per zijde (%)", 0.0, 10.0, 1.0, 0.25
+)
+
+slip = st.sidebar.number_input(
+    "Slippage per zijde (%)", 0.0, 30.0, 2.0, 0.5
+)
+
+take = st.sidebar.number_input(
+    "Take profit (%)", 5, 500, 30, 5
+)
+
+stop = st.sidebar.number_input(
+    "Stoploss (%)", 5, 95, 15, 5
+)
+
+max_hours = st.sidebar.number_input(
+    "Maximale looptijd (uren)", 1, 72, 4
+)
+
+settings = {
+    "min_liq": min_liq,
+    "amount": stake,
+    "max_positions": max_positions,
+    "fee": fee / 100,
+    "slip": slip / 100,
+    "take": take / 100,
+    "stop": stop / 100,
+    "max_hours": max_hours,
+}
+
+enabled = {"A": paper_a, "B": paper_b}
 
 
 @st.fragment(run_every="60s")
 def dashboard():
     manual = st.button("🔄 Scan nu", type="primary")
 
-    last = select(
-        """SELECT started_at,finished_at,cause FROM v542_runs
-           ORDER BY started_at DESC LIMIT 1"""
-    )
-    last_end = parse_time(last[0][1]) if last and last[0][1] else None
+    last = read("""
+        SELECT started_at,finished_at,cause
+        FROM v542_runs
+        WHERE started_at IS NOT NULL
+        ORDER BY started_at DESC
+        LIMIT 1
+    """)
+
     current = datetime.now(timezone.utc)
-    next_scan = (
-        last_end + timedelta(minutes=interval)
-        if last_end else current
+
+    last_finished = (
+        parse_time(last[0][1])
+        if last and last[0][1]
+        else None
     )
 
-    st.subheader("🕒 Scanplanning — Belgische tijd")
-    st.write(
-        "Automatisch scannen:",
-        "**AAN**" if st.session_state.v542_auto else "**UIT**",
-    )
-    st.write(
-        "Laatste scan:",
-        f"**{be_time(last[0][1])}** ({last[0][2]})"
-        if last else "Nog geen scan in V5.4.2",
-    )
-    st.write(
-        "Volgende scan vanaf:",
-        f"**{be_time(next_scan.isoformat())}**"
-        if st.session_state.v542_auto else "Niet ingepland",
+    due = (
+        auto
+        and (
+            last_finished is None
+            or current >= last_finished + timedelta(minutes=interval)
+        )
     )
 
-    due = st.session_state.v542_auto and current >= next_scan
+    st.subheader("🕒 Scanplanning")
+
+    if last:
+        st.write("Laatste scan:", be_time(last[0][1]))
+        st.write("Trigger:", last[0][2])
+    else:
+        st.info("Nog geen scans geregistreerd.")
 
     if manual or due:
         try:
-            with st.spinner("Tokens scannen en strategieën vergelijken..."):
+            with st.spinner("GTA6-tokens verzamelen..."):
                 count, result, errors = scan(
                     "MANUEEL" if manual else "AUTOMATISCH",
                     settings,
-                    st.session_state.v542_a,
-                    st.session_state.v542_b,
+                    enabled,
                 )
+
             st.success(
-                f"Scan klaar: {count} tokens · "
+                f"{count} tokens · "
                 f"A: {result['A'][0]} instappen · "
                 f"B: {result['B'][0]} instappen"
             )
+
             if errors:
-                with st.expander(f"{len(errors)} API-meldingen"):
-                    st.write(errors[:35])
-        except (
-            sqlite3.Error, requests.RequestException,
-            ValueError, TypeError
-        ) as exc:
-            st.error(f"Scanfout: {exc}")
+                with st.expander("API-meldingen"):
+                    st.write(errors)
 
-    tokens = latest_tokens()
-    a_open = select(
-        "SELECT COUNT(*) FROM paper_v54 WHERE status='OPEN'"
-    )[0][0]
-    b_open = select(
-        "SELECT COUNT(*) FROM paper_v542_b WHERE status='OPEN'"
-    )[0][0]
+        except Exception as exc:
+            st.error(f"Scannerfout: {exc}")
 
-    a, b, c, d = st.columns(4)
-    a.metric("Tokens laatste scan", len(tokens))
-    b.metric(
-        "A: momentum 80",
-        int((tokens["A momentum"] == 80).sum())
-        if not tokens.empty else 0,
-    )
-    c.metric("A: open posities", a_open)
-    d.metric("B: open posities", b_open)
+    latest = read("""
+        SELECT started_at
+        FROM v542_runs
+        WHERE started_at IS NOT NULL
+        ORDER BY started_at DESC
+        LIMIT 1
+    """)
 
-    st.subheader("📡 Laatste tokenmeting")
-    if tokens.empty:
-        st.info("Nog geen scan opgeslagen.")
-    else:
-        st.dataframe(
-            tokens.sort_values(
-                ["5m-volume $", "A momentum"],
-                ascending=False, na_position="last"
-            ),
-            hide_index=True, use_container_width=True
-        )
-        st.download_button(
-            "📥 Tokenmetingen CSV",
-            tokens.to_csv(index=False).encode("utf-8"),
-            "gta6_v542_tokens.csv", "text/csv"
-        )
+    if latest:
+        rows = read("""
+            SELECT name,address,price,liquidity,volume_m5,
+                   buys_m5,sells_m5,momentum,evidence
+            FROM radar_v54
+            WHERE scanned_at=?
+            ORDER BY volume_m5 DESC
+        """, (latest[0][0],))
 
-        choices = {
-            f"{r['Naam']} · {r['Adres'][:12]}": r["Adres"]
-            for _, r in tokens.iterrows()
-        }
-        chosen = st.selectbox("Tokenhistoriek", list(choices))
-        address = choices[chosen]
-        one = tokens[tokens["Adres"] == address].iloc[0]
-
-        st.code(address, language="text")
-        st.link_button(
-            "Bekijk DexScreener",
-            "https://dexscreener.com/solana/"
-            + str(one["Pair"] or address)
-        )
-
-        if st.button("⭐ Voeg toe aan watchlist"):
-            with db() as c:
-                c.execute(
-                    """INSERT OR IGNORE INTO watchlist
-                       (address,name,added_at) VALUES(?,?,?)""",
-                    (address, one["Naam"], utcnow()),
-                )
-            st.success("Toegevoegd")
-
-        hist = select(
-            """SELECT scanned_at,price,volume_m5 FROM radar_v54
-               WHERE address=?
-               ORDER BY scanned_at DESC LIMIT 120""",
-            (address,),
-        )
-
-        if len(hist) >= 2:
-            hd = pd.DataFrame(
-                hist, columns=["Tijd", "Prijs $", "5m-volume $"]
-            )
-            hd["Tijd"] = pd.to_datetime(
-                hd["Tijd"], utc=True
-            ).dt.tz_convert("Europe/Brussels")
-            hd = hd.sort_values("Tijd").set_index("Tijd")
-            st.line_chart(hd[["Prijs $"]])
-            st.line_chart(hd[["5m-volume $"]])
-
-    st.subheader("🔎 Vergelijking beslissingen A en B")
-    newest = select(
-        "SELECT started_at FROM v542_runs ORDER BY started_at DESC LIMIT 1"
-    )
-
-    if newest:
-        rows = select(
-            """SELECT name,address,strategy,outcome,
-                      reason,price,liquidity
-               FROM v542_decisions WHERE scan_at=?
-               ORDER BY strategy,outcome,name""",
-            (newest[0][0],),
-        )
-        decisions = pd.DataFrame(
+        tokens = pd.DataFrame(
             rows,
             columns=[
-                "Naam", "Adres", "Strategie",
-                "Uitkomst", "Reden", "Prijs $", "Liquiditeit $"
+                "Naam", "Adres", "Prijs $",
+                "Liquiditeit $", "Volume 5m $",
+                "Buys", "Sells", "Momentum A",
+                "Diagnose",
             ],
         )
-        strategy_filter = st.radio(
-            "Toon strategie", ["Allebei", "A", "B"],
-            horizontal=True
+
+        st.subheader("📡 Laatste tokenmeting")
+        st.metric("Tokens", len(tokens))
+
+        if not tokens.empty:
+            st.dataframe(
+                tokens,
+                hide_index=True,
+                use_container_width=True,
+            )
+
+            st.download_button(
+                "Download tokenmetingen CSV",
+                tokens.to_csv(index=False),
+                "gta6_tokens.csv",
+                mime="text/csv",
+            )
+
+            options = {
+                f"{r['Naam']} · {r['Adres'][:10]}": r["Adres"]
+                for _, r in tokens.iterrows()
+            }
+
+            selected = st.selectbox(
+                "Bekijk tokenhistoriek",
+                list(options),
+            )
+
+            address = options[selected]
+
+            history_rows = read("""
+                SELECT scanned_at,price,volume_m5
+                FROM radar_v54
+                WHERE address=?
+                ORDER BY scanned_at DESC
+                LIMIT 120
+            """, (address,))
+
+            if len(history_rows) >= 2:
+                history_df = pd.DataFrame(
+                    history_rows,
+                    columns=["Tijd", "Prijs", "Volume"],
+                )
+
+                history_df["Tijd"] = pd.to_datetime(
+                    history_df["Tijd"],
+                    utc=True,
+                )
+
+                history_df = (
+                    history_df.sort_values("Tijd")
+                    .set_index("Tijd")
+                )
+
+                st.line_chart(history_df[["Prijs"]])
+                st.line_chart(history_df[["Volume"]])
+
+    st.subheader("🔎 A/B-beslissingen")
+
+    if latest:
+        decisions = read("""
+            SELECT name,address,strategy,
+                   outcome,reason,price,liquidity
+            FROM v542_decisions
+            WHERE scan_at=?
+            ORDER BY strategy,name
+        """, (latest[0][0],))
+
+        decisions_df = pd.DataFrame(
+            decisions,
+            columns=[
+                "Naam", "Adres", "Strategie",
+                "Uitkomst", "Reden", "Prijs $",
+                "Liquiditeit $",
+            ],
         )
-        view = (
-            decisions if strategy_filter == "Allebei"
-            else decisions[
-                decisions["Strategie"] == strategy_filter
-            ]
-        )
+
         st.dataframe(
-            view, hide_index=True, use_container_width=True
+            decisions_df,
+            hide_index=True,
+            use_container_width=True,
         )
+
         st.download_button(
-            "📥 A/B-beslissingen CSV",
-            decisions.to_csv(index=False).encode("utf-8"),
-            "gta6_v542_ab_beslissingen.csv", "text/csv"
+            "Download A/B-beslissingen",
+            decisions_df.to_csv(index=False),
+            "gta6_ab_beslissingen.csv",
+            mime="text/csv",
         )
 
     st.subheader("🧪 Paperportfolio's")
-    ta, tb = st.tabs([
+
+    tab_a, tab_b = st.tabs([
         "Strategie A — streng",
-        "Strategie B — experimenteel"
+        "Strategie B — experimenteel",
     ])
 
-    for tab, table in [
-        (ta, "paper_v54"),
-        (tb, "paper_v542_b")
-    ]:
+    for tab, table in (
+        (tab_a, "paper_v54"),
+        (tab_b, "paper_v542_b"),
+    ):
         with tab:
-            trades = ledger_view(table)
-            if trades.empty:
-                st.info("Nog geen virtuele posities.")
+            trades = read(f"""
+                SELECT id,name,address,opened_at,
+                       amount_usd,entry_market,
+                       last_mark,status,pnl_usd,
+                       exit_reason
+                FROM {table}
+                ORDER BY id DESC
+                LIMIT 300
+            """)
+
+            frame = pd.DataFrame(
+                trades,
+                columns=[
+                    "ID", "Naam", "Adres",
+                    "Geopend UTC", "Inzet $",
+                    "Instap $", "Laatste prijs $",
+                    "Status", "Winst/verlies $",
+                    "Exitreden",
+                ],
+            )
+
+            if frame.empty:
+                st.info("Nog geen virtuele transacties.")
             else:
-                closed = trades[trades["Status"] == "CLOSED"]
-                cols = st.columns(3)
-                cols[0].metric("Totaal posities", len(trades))
-                cols[1].metric(
-                    "Gerealiseerd P/L",
-                    f"${closed['Gerealiseerd P/L $'].sum():,.2f}"
-                )
-                cols[2].metric(
-                    "Winrate gesloten",
-                    f"{(closed['Gerealiseerd P/L $'] > 0).mean() * 100:.1f}%"
-                    if not closed.empty else "-"
-                )
                 st.dataframe(
-                    trades,
-                    hide_index=True, use_container_width=True
-                )
-                st.download_button(
-                    f"📥 Trades {table} CSV",
-                    trades.to_csv(index=False).encode("utf-8"),
-                    f"{table}.csv", "text/csv"
+                    frame,
+                    hide_index=True,
+                    use_container_width=True,
                 )
 
-    st.subheader("🕒 Scanlog — België")
-    logs = select(
-        """SELECT started_at,finished_at,cause,tokens,
-                  api_errors,a_entries,b_entries,a_exits,b_exits
-           FROM v542_runs
-           ORDER BY started_at DESC LIMIT 40"""
-    )
+                closed = frame[frame["Status"] == "CLOSED"]
+
+                st.metric(
+                    "Gerealiseerde paper-P/L",
+                    f"${closed['Winst/verlies $'].sum():.2f}",
+                )
+
+                st.download_button(
+                    f"Download {table}",
+                    frame.to_csv(index=False),
+                    f"{table}.csv",
+                    mime="text/csv",
+                )
+
+    st.subheader("📋 Scanlogboek")
+
+    logs = read("""
+        SELECT cause,tokens,api_errors,
+               a_entries,b_entries,a_exits,b_exits,
+               started_at,finished_at
+        FROM v542_runs
+        WHERE started_at IS NOT NULL
+        ORDER BY started_at DESC
+        LIMIT 50
+    """)
+
     if logs:
-        ld = pd.DataFrame(
+        log_df = pd.DataFrame(
             logs,
             columns=[
-                "Begin UTC", "Einde UTC", "Trigger",
-                "Tokens", "API-meldingen",
-                "A instappen", "B instappen",
-                "A exits", "B exits"
+                "Trigger", "Tokens", "API-fouten",
+                "A-instappen", "B-instappen",
+                "A-exits", "B-exits",
+                "Start UTC", "Einde UTC",
             ],
         )
-        ld["Begin België"] = ld["Begin UTC"].apply(be_time)
-        ld["Einde België"] = ld["Einde UTC"].apply(be_time)
+
+        log_df["Start België"] = (
+            log_df["Start UTC"].apply(be_time)
+        )
+        log_df["Einde België"] = (
+            log_df["Einde UTC"].apply(be_time)
+        )
+
         st.dataframe(
-            ld.drop(columns=["Begin UTC", "Einde UTC"]),
-            hide_index=True, use_container_width=True
+            log_df.drop(columns=["Start UTC", "Einde UTC"]),
+            hide_index=True,
+            use_container_width=True,
         )
 
 
 dashboard()
+
 st.caption(
-    "Alle transacties zijn virtueel. Het Streamlit-dashboard "
-    "heeft een actieve sessie nodig. Alleen GitHub Actions "
-    "verzorgt de afzonderlijke geplande dataverzameling."
+    "V5.4.3 — Papertrading, geen echte orders. "
+    "Streamlit scant alleen betrouwbaar tijdens een actieve sessie. "
+    "De afzonderlijke GitHub Learning Collector verzamelt "
+    "gegevens onafhankelijk van deze app."
 )
