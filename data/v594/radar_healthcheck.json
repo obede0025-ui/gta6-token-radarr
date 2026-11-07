@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-07T20:40:22+00:00",
-  "last_scan_utc": "2026-11-07T20:40:22+00:00",
+  "checked_at_utc": "2026-11-07T20:45:29+00:00",
+  "last_scan_utc": "2026-11-07T20:45:29+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 58,
-  "recorded": 38,
+  "selected": 56,
+  "recorded": 36,
   "selection": {
-    "new_search_tokens": 0,
-    "active_follow": 8,
-    "early_follow": 30,
-    "search_revisit": 1,
+    "new_search_tokens": 1,
+    "active_follow": 7,
+    "early_follow": 19,
+    "search_revisit": 8,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 17,
-      "revisit": 74,
+      "early": 25,
+      "revisit": 68,
       "rotation": 0
     },
     "pinned_open": 1,
-    "selected_total": 58
+    "selected_total": 56
   },
-  "signals_last_run": 1,
+  "signals_last_run": 0,
   "open_positions": [
     {
       "strategy": "B",
@@ -26,12 +26,12 @@
       "name": "CHILL",
       "pair": "GoM6pz6Nc2NATJvtR29Xa98GSQmJzt72rJNkEKypRZs8",
       "opened_at": "2026-11-07T20:30:36+00:00",
-      "age_hours": 0.16,
+      "age_hours": 0.25,
       "entry_market": 0.0008559,
-      "last_price": 0.0008201,
+      "last_price": 0.0008135,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": -4.18,
-      "market_liquidity_usd": 70759.88
+      "gross_price_change_pct": -4.95,
+      "market_liquidity_usd": 70415.42
     },
     {
       "strategy": "C",
@@ -39,12 +39,12 @@
       "name": "CHILL",
       "pair": "GoM6pz6Nc2NATJvtR29Xa98GSQmJzt72rJNkEKypRZs8",
       "opened_at": "2026-11-07T17:40:24+00:00",
-      "age_hours": 3.0,
+      "age_hours": 3.08,
       "entry_market": 0.0007153,
-      "last_price": 0.0008201,
+      "last_price": 0.0008135,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 14.65,
-      "market_liquidity_usd": 70759.88
+      "gross_price_change_pct": 13.73,
+      "market_liquidity_usd": 70415.42
     }
   ],
   "closed_portfolios": {
