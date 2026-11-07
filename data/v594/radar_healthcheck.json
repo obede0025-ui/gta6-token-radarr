@@ -1,56 +1,56 @@
 {
-  "checked_at_utc": "2026-11-07T23:15:25+00:00",
-  "last_scan_utc": "2026-11-07T23:15:25+00:00",
+  "checked_at_utc": "2026-11-07T23:20:25+00:00",
+  "last_scan_utc": "2026-11-07T23:20:24+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 72,
-  "recorded": 52,
+  "selected": 47,
+  "recorded": 27,
   "selection": {
     "new_search_tokens": 1,
-    "active_follow": 8,
-    "early_follow": 12,
-    "search_revisit": 34,
+    "active_follow": 9,
+    "early_follow": 5,
+    "search_revisit": 15,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 31,
-      "revisit": 47,
+      "early": 30,
+      "revisit": 33,
       "rotation": 0
     },
-    "pinned_open": 3,
-    "selected_total": 72
+    "pinned_open": 2,
+    "selected_total": 47
   },
   "signals_last_run": 3,
   "open_positions": [
-    {
-      "strategy": "A",
-      "token": "J12v3CtMApT1v6ei5MFwwmLWgjKFsZF9P1RSLoHje4Ku",
-      "name": "GTA VI",
-      "pair": "6UgaxTX8fTARRYRNj5Pe9iSWgSuKxU2UdVk2z91nN62n",
-      "opened_at": "2026-11-07T23:00:50+00:00",
-      "age_hours": 0.24,
-      "entry_market": 6.667e-05,
-      "last_price": 8.443e-05,
-      "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 26.64,
-      "market_liquidity_usd": 78106.1
-    },
     {
       "strategy": "B",
       "token": "6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 1.34,
+      "age_hours": 1.42,
       "entry_market": 0.0001958,
       "last_price": 1.645e-06,
-      "last_market_age_minutes": 0.0,
+      "last_market_age_minutes": 0.1,
       "gross_price_change_pct": -99.16,
       "market_liquidity_usd": 1656.65
+    },
+    {
+      "strategy": "C",
+      "token": "3kQbP4tTBtUQ13TifHEon7X6ms9MhYtTr43m612owo5P",
+      "name": "GTA VI",
+      "pair": "9TyHyXsEYgouVUJ66vcJkr4BpPi65H2muAMuVeUyy9WM",
+      "opened_at": "2026-11-07T23:20:22+00:00",
+      "age_hours": 0.0,
+      "entry_market": 7.317e-05,
+      "last_price": 7.317e-05,
+      "last_market_age_minutes": 0.1,
+      "gross_price_change_pct": 0.0,
+      "market_liquidity_usd": 58536.03
     }
   ],
   "closed_portfolios": {
     "A": {
-      "count": 2,
-      "realized_pnl_usd": 13.6221
+      "count": 3,
+      "realized_pnl_usd": 19.985
     },
     "B": {
       "count": 7,
