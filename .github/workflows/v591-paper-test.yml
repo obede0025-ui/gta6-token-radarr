@@ -1,0 +1,37 @@
+
+name: GTA6 V5.9.1 Paper Engine Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Syntax check
+        run: python -m py_compile v591_paper_engine.py
+
+      - name: Run isolated preview
+        run: python v591_paper_engine.py
+
+      - name: Save preview artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gta6-v591-preview-${{ github.run_id }}
+          path: data/v591/preview.json
+          if-no-files-found: warn
+          retention-days: 14
