@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-07T18:35:19+00:00",
-  "last_scan_utc": "2026-11-07T18:35:19+00:00",
+  "checked_at_utc": "2026-11-07T18:39:11+00:00",
+  "last_scan_utc": "2026-11-07T18:39:11+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 39,
-  "recorded": 19,
+  "selected": 46,
+  "recorded": 26,
   "selection": {
-    "new_search_tokens": 1,
-    "active_follow": 7,
-    "early_follow": 5,
-    "search_revisit": 7,
+    "new_search_tokens": 0,
+    "active_follow": 8,
+    "early_follow": 19,
+    "search_revisit": 1,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 20,
-      "revisit": 70,
+      "early": 7,
+      "revisit": 72,
       "rotation": 0
     },
     "pinned_open": 2,
-    "selected_total": 39
+    "selected_total": 46
   },
-  "signals_last_run": 0,
+  "signals_last_run": 1,
   "open_positions": [
     {
       "strategy": "C",
@@ -26,25 +26,12 @@
       "name": "CHILL",
       "pair": "GoM6pz6Nc2NATJvtR29Xa98GSQmJzt72rJNkEKypRZs8",
       "opened_at": "2026-11-07T17:40:24+00:00",
-      "age_hours": 0.92,
+      "age_hours": 0.98,
       "entry_market": 0.0007153,
-      "last_price": 0.0007139,
+      "last_price": 0.0007354,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": -0.2,
-      "market_liquidity_usd": 65978.88
-    },
-    {
-      "strategy": "C",
-      "token": "9pqtMh3DnydKbAvTp97N9ht1mkUB8wvvsTefg4KzM8se",
-      "name": "LUCIA",
-      "pair": "EP6NqC6HbMSz56NKWq2a4ZBUnmTf7cqzhuWH8LsYmF1c",
-      "opened_at": "2026-11-07T18:05:16+00:00",
-      "age_hours": 0.5,
-      "entry_market": 8.123e-05,
-      "last_price": 7.036e-05,
-      "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": -13.38,
-      "market_liquidity_usd": 30774.09
+      "gross_price_change_pct": 2.81,
+      "market_liquidity_usd": 66944.45
     }
   ],
   "closed_portfolios": {
@@ -57,8 +44,8 @@
       "realized_pnl_usd": -2.1361
     },
     "C": {
-      "count": 1,
-      "realized_pnl_usd": 5.7982
+      "count": 2,
+      "realized_pnl_usd": -1.1232
     }
   },
   "alerts": [],

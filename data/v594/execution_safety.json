@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "mode": "PAPER_ONLY_READ_ONLY",
+  "checked_utc": "2026-11-07T18:39:12+00:00",
+  "thresholds": {
+    "maximum_roundtrip_loss_pct": "3.0",
+    "minimum_market_liquidity_usd": "20000",
+    "max_report_age_minutes": "12",
+    "max_stake_usdc": "25"
+  },
+  "report_integrity_issues": [],
+  "tokens": [
+    {
+      "mint": "9RZeokzHNXoRyJkWDFdvcQTAzUhKpXm7RrqkUM3Fpump",
+      "strategies": [
+        "C"
+      ],
+      "roundtrip_pct": "-2.315",
+      "liquidity_usd": "66944.45",
+      "quote_gate": "PASS",
+      "quote_gate_reasons": [],
+      "live_trade_approval": "BLOCK",
+      "live_trade_reasons": [
+        "TOKEN_CONTRACT_AND_HOLDER_RISK_NOT_VERIFIED",
+        "REAL_TRANSACTION_EXECUTION_NOT_VALIDATED"
+      ]
+    }
+  ],
+  "quote_gate_passed": 1,
+  "quote_gate_blocked": 0,
+  "status": "OK",
+  "all_live_trades_blocked": true,
+  "notes": [
+    "No private keys, swaps, transaction signing, or state changes.",
+    "Quote gate evaluates CURRENT OPEN PAPER POSITIONS, not future pre-trade candidates.",
+    "Jupiter quote-only amounts are indicative; fees and order fills can differ.",
+    "No contract security assessment is performed: all live orders BLOCKED."
+  ]
+}
