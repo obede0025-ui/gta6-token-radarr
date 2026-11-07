@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "mode": "B2_SHADOW_PAPER_ONLY",
+  "generated_utc": "2026-11-07T22:25:19+00:00",
+  "initialized_this_run": true,
+  "cursor": [
+    "2026-11-07T22:25:18+00:00",
+    "bAvTZNzXs8heoyWwuHp6CtBAqqXm6Sv19FzFLAtpump",
+    "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44"
+  ],
+  "run": {},
+  "recent_decisions": [],
+  "portfolio": {
+    "open": 0,
+    "closed": 0,
+    "realized_pnl_usd": 0,
+    "wins": 0
+  },
+  "rules": {
+    "strategy": "B momentum identical thresholds",
+    "min_liquidity_usd": 20000.0,
+    "maximum_roundtrip_loss_pct": 3,
+    "take_profit_pct": 30,
+    "stop_loss_pct": 15,
+    "time_exit_hours": 4
+  },
+  "limitations": [
+    "Not a live-order safety approval.",
+    "No contract/holder safety gating yet; requires separate audit.",
+    "Jupiter quotes are indications, not settled transactions.",
+    "Exit P/L uses simulated market price and fixed fees, not sale quotes.",
+    "No automatic trade replay before the first run; B2 cohort starts now.",
+    "B2 shares market observations, but paper portfolios remain separate."
+  ]
+}
