@@ -1,15 +1,102 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-07T18:05:17+00:00",
+  "checked_utc": "2026-11-07T18:07:47+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
-  "status": "NOT_CONFIGURED",
+  "status": "OK",
   "stake_usdc": "25",
-  "positions": [],
+  "positions": [
+    {
+      "mint": "9RZeokzHNXoRyJkWDFdvcQTAzUhKpXm7RrqkUM3Fpump",
+      "strategies": [
+        "C"
+      ],
+      "buy_quote": {
+        "input_raw": 25000000,
+        "output_raw": 36273487690,
+        "router": "metis",
+        "mode": "ultra",
+        "fee_bps": 10,
+        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "error_code": null,
+        "quote_only": true
+      },
+      "sell_back_quote": {
+        "input_raw": 36273487690,
+        "output_raw": 24417765,
+        "router": "metis",
+        "mode": "ultra",
+        "fee_bps": 10,
+        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "error_code": null,
+        "quote_only": true
+      },
+      "roundtrip_usdc": "24.417765",
+      "roundtrip_pct": "-2.329",
+      "positions": [
+        {
+          "strategy": "C",
+          "opened_at": "2026-11-07T17:40:24+00:00",
+          "entry_market": 0.0007153,
+          "position_quantity": 33922.41840116446,
+          "estimated_exit_usdc": "22.835664",
+          "estimated_net_pnl_usdc_before_network_cost": "-2.1643",
+          "exit_router": "metis",
+          "status": "QUOTE_AVAILABLE"
+        }
+      ],
+      "warnings": [
+        "Indicative roundtrip only; no execution, possible spread/price impact"
+      ]
+    },
+    {
+      "mint": "9pqtMh3DnydKbAvTp97N9ht1mkUB8wvvsTefg4KzM8se",
+      "strategies": [
+        "C"
+      ],
+      "buy_quote": {
+        "input_raw": 25000000,
+        "output_raw": 290953795474,
+        "router": "metis",
+        "mode": "ultra",
+        "fee_bps": 10,
+        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "error_code": null,
+        "quote_only": true
+      },
+      "sell_back_quote": {
+        "input_raw": 290953795474,
+        "output_raw": 23763127,
+        "router": "metis",
+        "mode": "ultra",
+        "fee_bps": 10,
+        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "error_code": null,
+        "quote_only": true
+      },
+      "roundtrip_usdc": "23.763127",
+      "roundtrip_pct": "-4.947",
+      "positions": [
+        {
+          "strategy": "C",
+          "opened_at": "2026-11-07T18:05:16+00:00",
+          "entry_market": 8.123e-05,
+          "position_quantity": 298716.0640447241,
+          "estimated_exit_usdc": "24.395568",
+          "estimated_net_pnl_usdc_before_network_cost": "-0.6044",
+          "exit_router": "metis",
+          "status": "QUOTE_AVAILABLE"
+        }
+      ],
+      "warnings": [
+        "Indicative roundtrip only; no execution, possible spread/price impact"
+      ]
+    }
+  ],
   "notes": [
     "Read-only API calls. No wallet, no transaction signing or execution.",
     "Quotes can expire immediately; values are indicative, not fills.",
     "Roundtrip ignores network/priority/rent costs; position exit comparison also ignores those costs.",
-    "Existing GitHub A/B/C paper portfolio unchanged.",
-    "Add JUPITER_API_KEY as GitHub Actions secret to enable quotes."
-  ]
+    "Existing GitHub A/B/C paper portfolio unchanged."
+  ],
+  "tracked_tokens": 2
 }
