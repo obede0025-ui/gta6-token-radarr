@@ -1,19 +1,17 @@
 
 name: GTA6 Learning Collector
 
-on:
-  # Automatische scan, ongeveer iedere 5 minuten.
-  schedule:
-    - cron: '7-59/5 * * * *'
+# V6.5 - Externe scheduler via cron-job.org.
+# Geen interne GitHub-schedule meer.
+# Handmatige en externe API-start blijven mogelijk.
 
-  # Handmatig starten blijft mogelijk.
+on:
   workflow_dispatch:
 
 permissions:
   contents: write
 
-# Voorkom dat twee collectors tegelijk
-# dezelfde database aanpassen.
+# Voorkom gelijktijdige wijzigingen aan de database.
 concurrency:
   group: gta6-learning-db
   cancel-in-progress: false
@@ -53,20 +51,22 @@ jobs:
             v592_paper_runner.py \
             v594_health.py
 
-      # V6.1: nieuwe tokens zoeken
-      # en actieve tokens opnieuw meten.
+      # V6.1 - Token discovery en marktmetingen.
       - name: Collect GTA6 market data
-        run: python collector.py
+        run: |
+          python collector.py
 
-      # V6.2: achtergrondpapertrading A/B/C.
+      # V6.4 - Papertrading A/B/C met diagnostiek.
       - name: Run paper engine A B C
-        run: python v592_paper_runner.py
+        run: |
+          python v592_paper_runner.py
 
-      # Scanhistoriek voor het dashboard.
+      # Scanhistoriek en systeemcontrole.
       - name: Record scan history
-        run: python v594_health.py
+        run: |
+          python v594_health.py
 
-      # Behoud bestaande SQLite-database,
+      # Bewaar bestaande learningdatabase,
       # paperportfolio en historische rapporten.
       - name: Save collector portfolio and history
         run: |
@@ -100,9 +100,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Bij een pushconflict eerst nieuwe
-            # marktmetingen en portfolioresultaten
-            # berekenen vanaf de nieuwste state.
+            # Nieuwe marktmetingen uitvoeren vanaf
+            # de meest recente opgeslagen state.
             python collector.py
             python v592_paper_runner.py
             python v594_health.py
