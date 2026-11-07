@@ -1,28 +1,12 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-07T22:40:24+00:00",
+  "checked_utc": "2026-11-07T22:45:24+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [
-    {
-      "mint": "J12v3CtMApT1v6ei5MFwwmLWgjKFsZF9P1RSLoHje4Ku",
-      "pair": "6UgaxTX8fTARRYRNj5Pe9iSWgSuKxU2UdVk2z91nN62n",
-      "name": "GTA VI",
-      "strategy": "B",
-      "scanned_at_utc": "2026-11-07T22:40:23+00:00",
-      "market_age_min": 0.02,
-      "price_usd": "0.00004307",
-      "liquidity_usd": "55557.78",
-      "volume_5m_usd": "12929.84",
-      "quote_gate": "PASS",
-      "reasons": [],
-      "roundtrip_pct": "-0.978",
-      "live_trade_approval": "BLOCK"
-    }
-  ],
+  "candidates": [],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 1,
-  "quote_gate_passed": 1,
+  "candidate_count": 0,
+  "quote_gate_passed": 0,
   "quote_gate_blocked": 0
 }
