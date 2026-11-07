@@ -17,7 +17,11 @@ import requests
 import streamlit as st
 
 st.set_page_config(page_title="GTA 6 Radar V5.8.1", page_icon="🎮", layout="wide")
-DB = os.getenv("GTA6_RADAR_DB", "gta6_radar.db")
+# Stable absolute path across Streamlit full reruns and independent fragments.
+# A relative override is anchored to this app's own directory, never process CWD.
+_APP_DIR = Path(__file__).resolve().parent
+_DB_CONFIG = Path(os.getenv("GTA6_RADAR_DB", "gta6_radar.db")).expanduser()
+DB = str((_DB_CONFIG if _DB_CONFIG.is_absolute() else _APP_DIR / _DB_CONFIG).resolve())
 API = "https://api.dexscreener.com"
 LOCAL = ZoneInfo("Europe/Brussels")
 SEARCHES = ["GTA6", "GTA VI", "Grand Theft Auto", "Vice City", "Leonida", "Lucia Camino", "Jason Duval", "Port Gellhorn"]
@@ -99,7 +103,7 @@ def _inspect_database(blob):
 
 def _snapshot():
     with tempfile.NamedTemporaryFile(suffix=".db") as tmp:
-        with sqlite3.connect(DB, timeout=30) as source:
+        with sqlite3.connect(Path(DB).as_uri() + "?mode=ro", uri=True, timeout=30) as source:
             with sqlite3.connect(tmp.name) as destination:
                 source.backup(destination)
         return Path(tmp.name).read_bytes()
@@ -111,7 +115,7 @@ def backup_restore_at_start():
     Never accept an existing empty/incomplete file as a valid portfolio.
     Never silently erase local trade history in favor of an older remote copy.
     """
-    required = {"paper_v54", "paper_v542_b", "radar_v54", "v542_runs"}
+    required = {"paper_v54", "paper_v542_b", "radar_v54", "v542_runs", "v541_config", "v542_decisions", "v57_monitor"}
     local_path = Path(DB)
 
     def inspect_file(path):
@@ -185,6 +189,24 @@ def backup_restore_at_start():
                                     f"Herstel geblokkeerd: lokale {table} heeft "
                                     f"{count} regels, Supabase slechts {remote_stats[table]}."
                                 )
+                        for table, column, stat in (
+                            ("v542_runs", "started_at", "last_scan"),
+                            ("paper_v54", "opened_at", "last_trade_a"),
+                            ("paper_v542_b", "opened_at", "last_trade_b"),
+                        ):
+                            if table in names:
+                                cols = {r[1] for r in conn.execute(
+                                    'PRAGMA table_info("' + table + '")'
+                                )}
+                                if column in cols:
+                                    local_latest = conn.execute(
+                                        'SELECT MAX("' + column + '") FROM "' + table + '"'
+                                    ).fetchone()[0] or ""
+                                    if local_latest > remote_stats[stat]:
+                                        raise RuntimeError(
+                                            f"Herstel geblokkeerd: lokaal {table} is "
+                                            "nieuwer dan de Supabase-back-up."
+                                        )
                 except sqlite3.Error as exc:
                     raise RuntimeError(
                         "Lokale gegevens zijn niet veilig te vergelijken; "
@@ -294,18 +316,67 @@ def matches(text, patterns):
     return any(re.search(r"(?<![a-z0-9])" + re.escape(t) + r"(?![a-z0-9])", text) for t in patterns)
 
 
-def db():
-    """Never silently create a fresh empty SQLite file during a Streamlit rerun."""
+# These core tables must exist before ANY scanner, monitor or dashboard read.
+# In particular, do not create a blank SQLite file through sqlite3.connect().
+_REQUIRED_RADAR_TABLES = frozenset((
+    "paper_v54", "paper_v542_b", "radar_v54", "v542_runs",
+    "v541_config", "v542_decisions", "v57_monitor",
+))
+
+
+def _open_existing_database():
     path = Path(DB)
-    if not path.is_file():
+    if not path.is_file() or path.stat().st_size == 0:
         raise sqlite3.OperationalError(
-            "Lokale radar-database ontbreekt; herstart de app voor veilig Supabase-herstel"
+            "Lokale SQLite-database ontbreekt of is leeg"
         )
     connection = sqlite3.connect(
-        path.resolve().as_uri() + "?mode=rw", uri=True, timeout=30
+        path.as_uri() + "?mode=rw", uri=True, timeout=30,
     )
-    connection.execute("PRAGMA busy_timeout=30000")
-    return connection
+    try:
+        connection.execute("PRAGMA busy_timeout=30000")
+        tables = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )}
+        missing = _REQUIRED_RADAR_TABLES - tables
+        if missing:
+            raise sqlite3.OperationalError(
+                "Ontbrekende radartabellen: " + ", ".join(sorted(missing))
+            )
+        return connection
+    except BaseException:
+        connection.close()
+        raise
+
+
+def db():
+    """Open a verified existing DB; retry safe Supabase recovery ONCE.
+
+    Applies to regular Streamlit runs AND independently refreshed fragments.
+    Never manufacture an empty database on missing tables. Any recovery
+    failure stays visible and blocks writes, preserving historical trades.
+    """
+    try:
+        return _open_existing_database()
+    except (sqlite3.Error, OSError) as first_error:
+        with _LOCK:
+            # Another fragment may have restored it while this one waited.
+            try:
+                return _open_existing_database()
+            except (sqlite3.Error, OSError):
+                pass
+            try:
+                backup_restore_at_start()
+                # Existing backups are verified before restore; migration
+                # is deliberately NOT re-run inside a fragment.
+                return _open_existing_database()
+            except (requests.RequestException, sqlite3.Error,
+                    OSError, ValueError, RuntimeError) as restore_error:
+                raise sqlite3.OperationalError(
+                    "Radar-database niet beschikbaar (" + str(first_error)
+                    + "). Veilig Supabase-herstel niet gelukt: "
+                    + str(restore_error)
+                ) from restore_error
 
 
 def select(sql, args=()):
