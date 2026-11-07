@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-07T19:20:25+00:00",
-  "last_scan_utc": "2026-11-07T19:20:25+00:00",
+  "checked_at_utc": "2026-11-07T19:25:18+00:00",
+  "last_scan_utc": "2026-11-07T19:25:17+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 36,
-  "recorded": 16,
+  "selected": 45,
+  "recorded": 25,
   "selection": {
-    "new_search_tokens": 2,
-    "active_follow": 9,
-    "early_follow": 5,
+    "new_search_tokens": 0,
+    "active_follow": 10,
+    "early_follow": 16,
     "search_revisit": 3,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 20,
-      "revisit": 49,
+      "early": 8,
+      "revisit": 69,
       "rotation": 0
     },
     "pinned_open": 1,
-    "selected_total": 36
+    "selected_total": 45
   },
-  "signals_last_run": 0,
+  "signals_last_run": 2,
   "open_positions": [
     {
       "strategy": "C",
@@ -26,12 +26,25 @@
       "name": "CHILL",
       "pair": "GoM6pz6Nc2NATJvtR29Xa98GSQmJzt72rJNkEKypRZs8",
       "opened_at": "2026-11-07T17:40:24+00:00",
-      "age_hours": 1.67,
+      "age_hours": 1.75,
       "entry_market": 0.0007153,
-      "last_price": 0.0007036,
+      "last_price": 0.0007471,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": -1.64,
-      "market_liquidity_usd": 65439.46
+      "gross_price_change_pct": 4.45,
+      "market_liquidity_usd": 67487.3
+    },
+    {
+      "strategy": "C",
+      "token": "AJBZMJ4a4dLKvrXmjkrKwjaaQCdph5kssjadZizppump",
+      "name": "GTA6 Mendez",
+      "pair": "9seBidEsbUSTW8XbbacZB6ab2tY72P6xp51mFtPUWHp6",
+      "opened_at": "2026-11-07T19:25:16+00:00",
+      "age_hours": 0.0,
+      "entry_market": 6.165e-05,
+      "last_price": 6.165e-05,
+      "last_market_age_minutes": 0.0,
+      "gross_price_change_pct": 0.0,
+      "market_liquidity_usd": 18201.32
     }
   ],
   "closed_portfolios": {
