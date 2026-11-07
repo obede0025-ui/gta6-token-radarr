@@ -929,6 +929,72 @@ settings = dict(min_liq=minimum_liq, amount=amount, max_positions=max_positions,
                 stop=stop_pct / 100, max_hours=max_hours)
 
 
+def momentum_watchlist():
+    """Read-only research shortlist; no changes to paper-trading decisions."""
+    latest = select("SELECT started_at FROM v542_runs ORDER BY started_at DESC LIMIT 1")
+    if not latest:
+        return pd.DataFrame()
+    scanned_at = latest[0][0]
+    candidates = select("""SELECT address, name, pair_address, price,
+        liquidity, volume_m5, buys_m5, sells_m5, age_hours
+        FROM radar_v54 WHERE scanned_at=?""", (scanned_at,))
+    result = []
+    for address, name, pair, price, liq, vol, buys, sells, age in candidates:
+        if not pair or not price or price <= 0:
+            continue
+        series = select("""SELECT scanned_at,price,volume_m5 FROM radar_v54
+            WHERE address=? AND pair_address=? AND scanned_at<=?
+            ORDER BY scanned_at DESC LIMIT 12""", (address, pair, scanned_at))
+        current = next((p for p in series if p[0] == scanned_at), None)
+        if current is None:
+            continue
+        previous = [p for p in series if p[0] != scanned_at
+                    and p[1] is not None and p[1] > 0
+                    and p[2] is not None and p[2] > 0]
+        recent = next((p for p in previous if 3.5 <=
+                       (parse_time(scanned_at)-parse_time(p[0])).total_seconds()/60 <= 20), None)
+        old = next((p for p in previous if recent and 3.5 <=
+                    (parse_time(recent[0])-parse_time(p[0])).total_seconds()/60 <= 20), None)
+        if not recent or not old or vol is None or vol <= 0:
+            continue
+        gain = price / old[1] - 1
+        rising_prices = old[1] < recent[1] < price
+        rising_volumes = old[2] < recent[2] < vol
+        a_signal = rising_prices and gain >= .02 and rising_volumes and vol >= 250
+        b_signal = gain >= .05 and price > recent[1] and vol >= 250
+        liq_ok = liq is not None and liq >= 10000
+        activity_ok = vol >= 250
+        if (a_signal or b_signal) and liq_ok:
+            category = 'Momentumkandidaat'
+            note = 'Kwantitatief A/B-signaal; overige filters en contractrisico nog te toetsen'
+            rank = 0
+        elif (rising_prices and gain >= .02 and vol >= 100 and liq_ok
+              or gain >= .04 and price > recent[1] and vol >= 100 and liq_ok):
+            category = 'Bijna instapklaar'
+            note = ('Volume stijgt niet 3×' if not rising_volumes else
+                    '5m-volume onder $250' if not activity_ok else
+                    'Niet alle A/B-voorwaarden voldaan')
+            rank = 1
+        else:
+            category = 'Afgewezen'
+            note = 'Prijs/volume-momentum onvoldoende voor shortlist'
+            rank = 2
+        result.append({
+            'Categorie': category, 'Token': name, 'Adres': address,
+            'Koers 3 metingen %': round(gain*100, 2),
+            '5m-volume $': round(vol, 2),
+            'Liquiditeit $': round(liq, 2) if liq is not None else None,
+            'Prijzen stijgen 3×': rising_prices,
+            'Volumes stijgen 3×': rising_volumes,
+            'Waarom': note, '_rank': rank,
+        })
+    if not result:
+        return pd.DataFrame()
+    return pd.DataFrame(result).sort_values(
+        ['_rank', '5m-volume $'], ascending=[True, False]
+    ).drop(columns=['_rank'])
+
+
 @st.fragment(run_every='60s')
 def dashboard():
     manual = st.button('🔄 Scan nu', type='primary')
@@ -1000,6 +1066,37 @@ def dashboard():
         view = decisions if filter_strategy == 'Allebei' else decisions[decisions['Strategie'] == filter_strategy]
         st.dataframe(view, hide_index=True, width='stretch')
         st.download_button('📥 A/B-beslissingen CSV', decisions.to_csv(index=False).encode('utf-8'), 'gta6_v542_ab_beslissingen.csv', 'text/csv')
+
+    st.subheader('🎯 Momentum-watchlist — alleen onderzoek')
+    st.caption('Gebaseerd op de nieuwste Streamlit-scans en drie metingen van hetzelfde pair. '
+               'Geen orders, geen nieuwe paperinstappen en geen versoepelde risicofilters. '
+               'De GitHub A/B/C-engine gebruikt een afzonderlijke database.')
+    shortlist = momentum_watchlist()
+    if shortlist.empty:
+        st.info('Nog geen kandidaten met drie recente, geldige metingen en handelsvolume.')
+    else:
+        totals = shortlist['Categorie'].value_counts()
+        left, mid, right = st.columns(3)
+        left.metric('Momentumkandidaten', int(totals.get('Momentumkandidaat', 0)))
+        mid.metric('Bijna instapklaar', int(totals.get('Bijna instapklaar', 0)))
+        right.metric('Afgewezen', int(totals.get('Afgewezen', 0)))
+        chosen_status = st.selectbox('Watchlist filter',
+             ['Interessant', 'Alle', 'Momentumkandidaat', 'Bijna instapklaar', 'Afgewezen'],
+             key='momentum_watchlist_filter')
+        if chosen_status == 'Interessant':
+            visible = shortlist[shortlist['Categorie'] != 'Afgewezen']
+        elif chosen_status == 'Alle':
+            visible = shortlist
+        else:
+            visible = shortlist[shortlist['Categorie'] == chosen_status]
+        if visible.empty:
+            st.info('Momenteel geen tokens in deze categorie.')
+        else:
+            st.dataframe(visible, hide_index=True, width='stretch')
+            st.download_button('📥 Momentum-watchlist CSV',
+                visible.to_csv(index=False).encode('utf-8'),
+                'gta6_momentum_watchlist.csv', 'text/csv',
+                key='momentum_watchlist_csv')
 
     st.subheader('🧪 Paperportfolio’s (volledig gescheiden)')
     ta, tb = st.tabs(['Strategie A — streng', 'Strategie B — experimenteel'])
