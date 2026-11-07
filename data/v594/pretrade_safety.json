@@ -1,31 +1,12 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-07T19:40:24+00:00",
+  "checked_utc": "2026-11-07T19:45:29+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [
-    {
-      "mint": "AJBZMJ4a4dLKvrXmjkrKwjaaQCdph5kssjadZizppump",
-      "pair": "9seBidEsbUSTW8XbbacZB6ab2tY72P6xp51mFtPUWHp6",
-      "name": "GTA6 Mendez",
-      "strategy": "B",
-      "scanned_at_utc": "2026-11-07T19:40:22+00:00",
-      "market_age_min": 0.03,
-      "price_usd": "0.00006183",
-      "liquidity_usd": "18239.95",
-      "volume_5m_usd": "497.19",
-      "quote_gate": "BLOCK",
-      "reasons": [
-        "LIQUIDITY_BELOW_20000",
-        "ROUNDTRIP_COST_TOO_HIGH"
-      ],
-      "roundtrip_pct": "-3.059",
-      "live_trade_approval": "BLOCK"
-    }
-  ],
+  "candidates": [],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 1,
+  "candidate_count": 0,
   "quote_gate_passed": 0,
-  "quote_gate_blocked": 1
+  "quote_gate_blocked": 0
 }
