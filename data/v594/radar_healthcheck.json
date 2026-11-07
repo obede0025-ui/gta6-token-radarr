@@ -1,0 +1,69 @@
+{
+  "checked_at_utc": "2026-11-07T17:20:22+00:00",
+  "last_scan_utc": "2026-11-07T17:20:22+00:00",
+  "scan_age_minutes": 0.0,
+  "selected": 32,
+  "recorded": 12,
+  "selection": {
+    "new_search_tokens": 0,
+    "active_follow": 7,
+    "early_follow": 1,
+    "search_revisit": 5,
+    "rotation": 20,
+    "cooldown_skipped": {
+      "early": 16,
+      "revisit": 74,
+      "rotation": 0
+    },
+    "pinned_open": 1,
+    "selected_total": 32
+  },
+  "signals_last_run": 0,
+  "open_positions": [
+    {
+      "strategy": "A",
+      "token": "bAvTZNzXs8heoyWwuHp6CtBAqqXm6Sv19FzFLAtpump",
+      "name": "GTA VI",
+      "pair": "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44",
+      "opened_at": "2026-11-07T16:55:17+00:00",
+      "age_hours": 0.42,
+      "entry_market": 9.381e-05,
+      "last_price": 0.000105,
+      "last_market_age_minutes": 0.0,
+      "gross_price_change_pct": 11.93,
+      "market_liquidity_usd": 24281.07
+    },
+    {
+      "strategy": "B",
+      "token": "bAvTZNzXs8heoyWwuHp6CtBAqqXm6Sv19FzFLAtpump",
+      "name": "GTA VI",
+      "pair": "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44",
+      "opened_at": "2026-11-07T13:27:54+00:00",
+      "age_hours": 3.87,
+      "entry_market": 8.733e-05,
+      "last_price": 0.000105,
+      "last_market_age_minutes": 0.0,
+      "gross_price_change_pct": 20.23,
+      "market_liquidity_usd": 24281.07
+    }
+  ],
+  "closed_portfolios": {
+    "A": {
+      "count": 0,
+      "realized_pnl_usd": 0
+    },
+    "B": {
+      "count": 0,
+      "realized_pnl_usd": 0
+    },
+    "C": {
+      "count": 1,
+      "realized_pnl_usd": 5.7982
+    }
+  },
+  "alerts": [
+    "GECORRELEERD_MARKTRISICO: A,B volgen dezelfde token bAvTZNzXs8heoyWwuHp6CtBAqqXm6Sv19FzFLAtpump"
+  ],
+  "status": "AANDACHT",
+  "disclaimer": "Uitsluitend papertrading. Marktprijzen zijn geen uitvoerbare verkoopquotes."
+}
