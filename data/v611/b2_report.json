@@ -1,22 +1,23 @@
 {
   "version": "1.0",
   "mode": "B2_SHADOW_PAPER_ONLY",
-  "generated_utc": "2026-11-07T23:10:24+00:00",
+  "generated_utc": "2026-11-07T23:15:25+00:00",
   "initialized_this_run": false,
   "cursor": [
-    "2026-11-07T23:10:22+00:00",
+    "2026-11-07T23:15:24+00:00",
     "bAvTZNzXs8heoyWwuHp6CtBAqqXm6Sv19FzFLAtpump",
     "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44"
   ],
   "run": {
-    "observations": 30
+    "observations": 52,
+    "closed": 1
   },
   "recent_decisions": [],
   "portfolio": {
-    "open": 1,
-    "closed": 1,
-    "realized_pnl_usd": 5.9315,
-    "wins": 1
+    "open": 0,
+    "closed": 2,
+    "realized_pnl_usd": 11.6793,
+    "wins": 2
   },
   "rules": {
     "strategy": "B momentum identical thresholds",
