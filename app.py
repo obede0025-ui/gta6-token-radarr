@@ -2139,3 +2139,155 @@ def v60_diagnostics_panel():
 
 
 v60_diagnostics_panel()
+
+# ============================================================
+# V6.4 - WALLETINTELLIGENCE + GITHUB PAPERPOSITIONS
+# Plak dit ONDERAAN de bestaande app.py. Niets verwijderen.
+# Gebruikt bestaande _v582_latest_pair(), db() en GitHub-lezer.
+# Alleen lezen: geen trades, DB-migraties of RPC-transacties.
+# ============================================================
+
+def v64_wallet_paper_panel():
+    import math
+    from datetime import datetime, timezone
+    from v593_dashboard import _v593_read, _v593_token
+
+    st.divider()
+    st.subheader('🧠 V6.4 — Walletinformatie bij papertrades')
+    st.caption(
+        'Combineert bestaande lokale walletmetingen met de afzonderlijke '
+        'GitHub-paperportefeuille. Geen automatisch koopadvies of live walletfeed.'
+    )
+
+    if st.button('🔄 GitHub- en walletoverzicht vernieuwen', key='v64_refresh'):
+        _v593_read.clear()
+
+    try:
+        state = _v593_read('data/v591/portfolio.json', _v593_token())
+        report = _v593_read('data/v591/preview.json', _v593_token())
+    except Exception as exc:
+        st.warning('GitHub-papergegevens niet beschikbaar: ' + str(exc))
+        return
+
+    opened = []
+    for strategy in ('A', 'B', 'C'):
+        for mint, trade in (state.get('open', {}).get(strategy) or {}).items():
+            opened.append((strategy, mint, trade))
+
+    run = report.get('run') or {}
+    rejected = run.get('rejected') or {}
+    c1, c2, c3 = st.columns(3)
+    c1.metric('GitHub-paperposities open', len(opened))
+    c2.metric('Geen momentum (laatste run)', rejected.get('no_momentum_signal', 0))
+    c3.metric('Signalen (laatste run)', run.get('signals', 0))
+
+    # De beschikbare walletmetingen zijn niet automatisch in de
+    # GitHub collector DB aanwezig. Toon dus niet-gemeten expliciet.
+    try:
+        with db() as connection:
+            available = connection.execute(
+                'SELECT mint, MAX(checked_at) FROM v58_holders '
+                'GROUP BY mint ORDER BY MAX(checked_at) DESC LIMIT 30'
+            ).fetchall()
+    except Exception as exc:
+        st.warning('Lokale walletgeschiedenis niet leesbaar: ' + str(exc))
+        return
+
+    selected = {mint for _, mint, _ in opened}
+    # Ook reeds gemeten tokens zonder open papertrade blijven zichtbaar.
+    selected.update(row[0] for row in available)
+    # Beperk de tabel tot open posities en maximaal 30 lokaal gevolgde tokens.
+    meta = {}
+    for strategy, mint, trade in opened:
+        meta.setdefault(mint, []).append(strategy)
+
+    def safe_float(value):
+        try:
+            value = float(value)
+            return value if math.isfinite(value) else 0.0
+        except (TypeError, ValueError, OverflowError):
+            return 0.0
+
+    rows = []
+    for mint in sorted(selected, key=lambda x: (x not in meta, x)):
+        strategies = '/'.join(meta.get(mint, [])) or 'Geen open positie'
+        try:
+            observations = _v582_latest_pair(mint)
+        except Exception as exc:
+            rows.append({
+                'Tokenmint': mint, 'Open strategie': strategies,
+                'Walletstatus': 'Leesfout: ' + str(exc)[:65],
+                'Laatste walletmeting': '', 'Top 3 %': None,
+                'Top 20 %': None, 'Saldo veranderingen': None,
+                'Unieke eigenaars (top 20)': None,
+            })
+            continue
+
+        if not observations:
+            rows.append({
+                'Tokenmint': mint, 'Open strategie': strategies,
+                'Walletstatus': 'NIET GEMETEN',
+                'Laatste walletmeting': '', 'Top 3 %': None,
+                'Top 20 %': None, 'Saldo veranderingen': None,
+                'Unieke eigenaars (top 20)': None,
+            })
+            continue
+
+        stamp, accounts = observations[0]
+        shares = sorted(
+            (safe_float(x.get('supply_share_pct')) for x in accounts),
+            reverse=True,
+        )
+        owners = len({x.get('owner') for x in accounts if x.get('owner')})
+        changes = None
+        if len(observations) > 1:
+            _, older = observations[1]
+            before = {x['token_account']: x for x in older}
+            changes = sum(
+                1 for x in accounts
+                if x['token_account'] in before
+                and x.get('raw_amount') != before[x['token_account']].get('raw_amount')
+            )
+
+        try:
+            measured = datetime.fromisoformat(stamp.replace('Z', '+00:00'))
+            if measured.tzinfo is None:
+                measured = measured.replace(tzinfo=timezone.utc)
+            age_hours = (datetime.now(timezone.utc) - measured).total_seconds() / 3600
+            status = 'VEROUDERD (>24u)' if age_hours > 24 else 'BESCHIKBAAR'
+        except (ValueError, TypeError, OverflowError):
+            status = 'TIJD ONBEKEND'
+
+        rows.append({
+            'Tokenmint': mint,
+            'Open strategie': strategies,
+            'Walletstatus': status,
+            'Laatste walletmeting': stamp,
+            'Top 3 %': round(sum(shares[:3]), 2),
+            'Top 20 %': round(sum(shares), 2),
+            'Saldo veranderingen': changes,
+            'Unieke eigenaars (top 20)': owners,
+        })
+
+    if not rows:
+        st.info('Nog geen paperposities of lokaal gemeten walletgegevens.')
+        return
+
+    frame = pd.DataFrame(rows)
+    st.dataframe(frame, hide_index=True, use_container_width=True)
+    st.download_button(
+        '📥 Paper + walletanalyse CSV',
+        frame.to_csv(index=False).encode('utf-8'),
+        'v64_wallet_paperanalyse.csv',
+        'text/csv',
+        key='v64_wallet_csv',
+    )
+    st.caption(
+        'Top-3/top-20 = aandeel van grootste TOKENACCOUNTS in totale supply, '
+        'niet noodzakelijk onafhankelijke wallets. '
+        'Saldo veranderingen zijn geen bewezen aan- of verkopen. '
+        'Onbekende, oude of ontbrekende metingen blokkeren geen bestaande papertrades.'
+    )
+
+
+v64_wallet_paper_panel()
