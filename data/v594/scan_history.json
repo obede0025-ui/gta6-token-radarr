@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at_utc": "2026-11-07T16:50:25+00:00",
+  "updated_at_utc": "2026-11-07T16:55:18+00:00",
   "runs": [
     {
       "started_at_utc": "2026-11-07T13:01:38+00:00",
@@ -431,6 +431,20 @@
       "signals": 3,
       "paper_observations": 54,
       "paper_open_a": 0,
+      "paper_open_b": 1,
+      "error_count": 0,
+      "errors": [],
+      "status": "OK"
+    },
+    {
+      "started_at_utc": "2026-11-07T16:55:17+00:00",
+      "finished_at_utc": "2026-11-07T16:55:18+00:00",
+      "recorded": 61,
+      "discovered": 81,
+      "new_labels": 108,
+      "signals": 4,
+      "paper_observations": 61,
+      "paper_open_a": 1,
       "paper_open_b": 1,
       "error_count": 0,
       "errors": [],
