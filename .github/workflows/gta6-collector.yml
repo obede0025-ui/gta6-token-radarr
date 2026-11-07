@@ -51,7 +51,8 @@ jobs:
             radar_execution_safety.py \
             radar_pretrade_safety.py \
             radar_pretrade_history.py \
-            radar_token_security.py
+            radar_token_security.py \
+            v611_b2_shadow.py
 
       - name: Collect GTA6 market data
         run: python collector.py
@@ -65,8 +66,14 @@ jobs:
           python -m json.tool data/v594/pretrade_safety.json
 
       - name: Log shadow pretrade history
+        run: python radar_pretrade_history.py
+
+      - name: B2 independent shadow papertrading
+        env:
+          JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
         run: |
-          python radar_pretrade_history.py
+          python v611_b2_shadow.py
+          python -m json.tool data/v611/b2_report.json
 
       - name: Run paper engine A B C
         run: python v592_paper_runner.py
@@ -126,7 +133,9 @@ jobs:
               data/v594/execution_safety.json \
               data/v594/pretrade_safety.json \
               data/v594/pretrade_history.json \
-              data/v594/token_security.json
+              data/v594/token_security.json \
+              data/v611/b2_portfolio.json \
+              data/v611/b2_report.json
 
             if git diff --cached --quiet; then
               echo 'No changes'
@@ -136,7 +145,7 @@ jobs:
             git commit -m 'data: GTA6 automatic collector [skip ci]'
 
             if git push origin HEAD:main; then
-              echo 'Collector, portfolio, audit and safety saved'
+              echo 'Collector, portfolio, B2, audit and safety saved'
               exit 0
             fi
 
@@ -147,6 +156,7 @@ jobs:
             python collector.py
             python radar_pretrade_safety.py > data/v594/pretrade_safety.json
             python radar_pretrade_history.py
+            python v611_b2_shadow.py
             python v592_paper_runner.py
             python v594_health.py
             mkdir -p data/v594
@@ -177,5 +187,7 @@ jobs:
             data/v594/pretrade_safety.json
             data/v594/pretrade_history.json
             data/v594/token_security.json
+            data/v611/b2_portfolio.json
+            data/v611/b2_report.json
           if-no-files-found: ignore
           retention-days: 14
