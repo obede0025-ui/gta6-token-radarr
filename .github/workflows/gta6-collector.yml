@@ -46,7 +46,8 @@ jobs:
             v592_paper_runner.py \
             v594_health.py \
             radar_healthcheck.py \
-            radar_missed_opportunities.py
+            radar_missed_opportunities.py \
+            radar_quote_monitor.py
 
       - name: Collect GTA6 market data
         run: |
@@ -72,7 +73,19 @@ jobs:
             > data/v594/missed_opportunities.json
           python -m json.tool data/v594/missed_opportunities.json
 
+      - name: Jupiter Quote Monitor V1 (read-only)
+        env:
+          JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
+        run: |
+          python radar_quote_monitor.py \
+            > data/v594/jupiter_quote_monitor.json
+          python -m json.tool data/v594/jupiter_quote_monitor.json
+
       - name: Save collector portfolio and history
+        env:
+          JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -85,7 +98,8 @@ jobs:
               data/v591/preview.json \
               data/v594/scan_history.json \
               data/v594/radar_healthcheck.json \
-              data/v594/missed_opportunities.json
+              data/v594/missed_opportunities.json \
+              data/v594/jupiter_quote_monitor.json
 
             if git diff --cached --quiet; then
               echo 'No changes'
@@ -95,7 +109,7 @@ jobs:
             git commit -m 'data: GTA6 automatic collector [skip ci]'
 
             if git push origin HEAD:main; then
-              echo 'Collector, paper, health and audit saved'
+              echo 'Collector, paper, health, audit and quotes saved'
               exit 0
             fi
 
@@ -109,6 +123,7 @@ jobs:
             mkdir -p data/v594
             python radar_healthcheck.py > data/v594/radar_healthcheck.json
             python radar_missed_opportunities.py > data/v594/missed_opportunities.json
+            python radar_quote_monitor.py > data/v594/jupiter_quote_monitor.json
             sleep 2
           done
 
@@ -126,5 +141,6 @@ jobs:
             data/v594/scan_history.json
             data/v594/radar_healthcheck.json
             data/v594/missed_opportunities.json
+            data/v594/jupiter_quote_monitor.json
           if-no-files-found: ignore
           retention-days: 14
