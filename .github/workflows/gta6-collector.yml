@@ -1,10 +1,6 @@
-
 name: GTA6 Learning Collector
 
-# V6.8 + Radar Healthcheck V1
-# Externe planning blijft via cron-job.org.
-# Geen tweede scheduler.
-
+# Externe scheduler: cron-job.org; workflow_dispatch blijft ongewijzigd.
 on:
   workflow_dispatch:
 
@@ -31,7 +27,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -49,7 +45,8 @@ jobs:
             v591_paper_engine.py \
             v592_paper_runner.py \
             v594_health.py \
-            radar_healthcheck.py
+            radar_healthcheck.py \
+            radar_missed_opportunities.py
 
       - name: Collect GTA6 market data
         run: |
@@ -66,11 +63,14 @@ jobs:
       - name: Radar Healthcheck V1
         run: |
           mkdir -p data/v594
-          python radar_healthcheck.py \
-            > data/v594/radar_healthcheck.json
+          python radar_healthcheck.py > data/v594/radar_healthcheck.json
+          python -m json.tool data/v594/radar_healthcheck.json
 
-          python -m json.tool \
-            data/v594/radar_healthcheck.json
+      - name: Missed Opportunities Audit V1 (read-only)
+        run: |
+          python radar_missed_opportunities.py \
+            > data/v594/missed_opportunities.json
+          python -m json.tool data/v594/missed_opportunities.json
 
       - name: Save collector portfolio and history
         run: |
@@ -78,46 +78,41 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
           for attempt in 1 2 3; do
-
             git add \
               data/learning.db \
               data/latest_scan.json \
               data/v591/portfolio.json \
               data/v591/preview.json \
               data/v594/scan_history.json \
-              data/v594/radar_healthcheck.json
+              data/v594/radar_healthcheck.json \
+              data/v594/missed_opportunities.json
 
             if git diff --cached --quiet; then
-              echo "No changes"
+              echo 'No changes'
               exit 0
             fi
 
-            git commit -m \
-              "data: GTA6 automatic collector [skip ci]"
+            git commit -m 'data: GTA6 automatic collector [skip ci]'
 
             if git push origin HEAD:main; then
-              echo "Collector, portfolio and healthcheck saved"
+              echo 'Collector, paper, health and audit saved'
               exit 0
             fi
 
-            echo "Remote changed - rescan safely"
-
+            echo 'Remote changed - rescan safely'
             git fetch origin main
             git reset --hard origin/main
 
-            # Herbereken alles vanuit de nieuwste state.
             python collector.py
             python v592_paper_runner.py
             python v594_health.py
-
             mkdir -p data/v594
-            python radar_healthcheck.py \
-              > data/v594/radar_healthcheck.json
-
+            python radar_healthcheck.py > data/v594/radar_healthcheck.json
+            python radar_missed_opportunities.py > data/v594/missed_opportunities.json
             sleep 2
           done
 
-          echo "Could not publish data" >&2
+          echo 'Could not publish data' >&2
           exit 1
 
       - name: Upload scan reports
@@ -130,5 +125,6 @@ jobs:
             data/v591/preview.json
             data/v594/scan_history.json
             data/v594/radar_healthcheck.json
+            data/v594/missed_opportunities.json
           if-no-files-found: ignore
           retention-days: 14
