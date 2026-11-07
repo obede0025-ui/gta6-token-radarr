@@ -1,21 +1,23 @@
 {
   "version": 1,
   "cursor": [
-    "2026-11-07T22:45:23+00:00",
+    "2026-11-07T22:50:22+00:00",
     "bAvTZNzXs8heoyWwuHp6CtBAqqXm6Sv19FzFLAtpump",
     "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44"
   ],
-  "open": {
-    "J12v3CtMApT1v6ei5MFwwmLWgjKFsZF9P1RSLoHje4Ku": {
+  "open": {},
+  "closed": [
+    {
+      "token": "J12v3CtMApT1v6ei5MFwwmLWgjKFsZF9P1RSLoHje4Ku",
       "name": "GTA VI",
       "pair": "6UgaxTX8fTARRYRNj5Pe9iSWgSuKxU2UdVk2z91nN62n",
       "opened_at": "2026-11-07T22:40:23+00:00",
-      "entry_market": 4.307e-05,
-      "quantity": 563378.3580764557,
-      "quote_roundtrip_pct": "-0.980"
+      "closed_at": "2026-11-07T22:50:22+00:00",
+      "reason": "TAKE_PROFIT",
+      "pnl_usd": 5.93151,
+      "note": "Simulated fixed fees/slippage; not actual Jupiter exit quote"
     }
-  },
-  "closed": [],
+  ],
   "traded": [
     "J12v3CtMApT1v6ei5MFwwmLWgjKFsZF9P1RSLoHje4Ku"
   ],
