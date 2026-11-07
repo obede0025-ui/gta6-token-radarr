@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-07T22:30:39+00:00",
+  "generated_utc": "2026-11-07T22:35:17+00:00",
   "last_processed": [
-    "2026-11-07T22:30:37+00:00",
-    "zKtS4A5vhReBWXbv2BuJFQSTUK3127CjD2gpBUmpump",
-    "8Jb97sGz6vxfCDVFD3GUMY7Thbf13FKQf48Q17HCvhNn"
+    "2026-11-07T22:35:16+00:00",
+    "wKy6tEDZj6jS1GUMmnSSTrR1bXJQa35s7VHcWHxhNbA",
+    "i6Gkgadg8Je9QXwRiqjmiEU1ctpYY7dyf2RzTAFkkjZ"
   ],
   "run": {
-    "observations": 15,
+    "observations": 16,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,29 +25,35 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 15
+      "no_momentum_signal": 16
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "te_weinig_opeenvolgende_metingen": 15
+          "momentumvoorwaarden_niet_gehaald": 6,
+          "volume_5m_te_laag": 4,
+          "te_weinig_opeenvolgende_metingen": 6
         },
         "B": {
-          "te_weinig_opeenvolgende_metingen": 15
+          "momentumvoorwaarden_niet_gehaald": 6,
+          "volume_5m_te_laag": 4,
+          "te_weinig_opeenvolgende_metingen": 6
         },
         "C": {
-          "te_weinig_opeenvolgende_metingen": 15
+          "momentumvoorwaarden_niet_gehaald": 7,
+          "volume_5m_te_laag": 6,
+          "te_weinig_opeenvolgende_metingen": 3
         }
       },
       "spacing": {
-        "interval_te_lang": 14,
-        "geen_vorige_meting": 1
+        "interval_geldig": 13,
+        "interval_te_lang": 3
       },
       "market_filters": {
-        "liquiditeit_te_laag_of_onbekend": 14,
-        "volume_5m_te_laag_of_onbekend": 14,
-        "buys_niet_hoger_dan_sells": 14,
-        "paarleeftijd_ongeldig": 1
+        "paarleeftijd_ongeldig": 7,
+        "liquiditeit_te_laag_of_onbekend": 6,
+        "volume_5m_te_laag_of_onbekend": 9,
+        "buys_niet_hoger_dan_sells": 9
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
