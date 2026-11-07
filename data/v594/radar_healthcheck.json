@@ -1,22 +1,22 @@
 {
-  "checked_at_utc": "2026-11-07T23:20:25+00:00",
-  "last_scan_utc": "2026-11-07T23:20:24+00:00",
+  "checked_at_utc": "2026-11-07T23:25:24+00:00",
+  "last_scan_utc": "2026-11-07T23:25:23+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 47,
-  "recorded": 27,
+  "selected": 51,
+  "recorded": 31,
   "selection": {
-    "new_search_tokens": 1,
-    "active_follow": 9,
-    "early_follow": 5,
-    "search_revisit": 15,
+    "new_search_tokens": 0,
+    "active_follow": 8,
+    "early_follow": 9,
+    "search_revisit": 16,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 30,
-      "revisit": 33,
+      "early": 23,
+      "revisit": 20,
       "rotation": 0
     },
     "pinned_open": 2,
-    "selected_total": 47
+    "selected_total": 51
   },
   "signals_last_run": 3,
   "open_positions": [
@@ -26,7 +26,7 @@
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 1.42,
+      "age_hours": 1.5,
       "entry_market": 0.0001958,
       "last_price": 1.645e-06,
       "last_market_age_minutes": 0.1,
@@ -34,17 +34,30 @@
       "market_liquidity_usd": 1656.65
     },
     {
+      "strategy": "B",
+      "token": "3kQbP4tTBtUQ13TifHEon7X6ms9MhYtTr43m612owo5P",
+      "name": "GTA VI",
+      "pair": "9TyHyXsEYgouVUJ66vcJkr4BpPi65H2muAMuVeUyy9WM",
+      "opened_at": "2026-11-07T23:25:19+00:00",
+      "age_hours": 0.0,
+      "entry_market": 7.777e-05,
+      "last_price": 7.777e-05,
+      "last_market_age_minutes": 0.1,
+      "gross_price_change_pct": 0.0,
+      "market_liquidity_usd": 60370.94
+    },
+    {
       "strategy": "C",
       "token": "3kQbP4tTBtUQ13TifHEon7X6ms9MhYtTr43m612owo5P",
       "name": "GTA VI",
       "pair": "9TyHyXsEYgouVUJ66vcJkr4BpPi65H2muAMuVeUyy9WM",
       "opened_at": "2026-11-07T23:20:22+00:00",
-      "age_hours": 0.0,
+      "age_hours": 0.08,
       "entry_market": 7.317e-05,
-      "last_price": 7.317e-05,
+      "last_price": 7.777e-05,
       "last_market_age_minutes": 0.1,
-      "gross_price_change_pct": 0.0,
-      "market_liquidity_usd": 58536.03
+      "gross_price_change_pct": 6.29,
+      "market_liquidity_usd": 60370.94
     }
   ],
   "closed_portfolios": {
@@ -62,6 +75,7 @@
     }
   },
   "alerts": [
+    "GECORRELEERD_MARKTRISICO: B,C volgen dezelfde token 3kQbP4tTBtUQ13TifHEon7X6ms9MhYtTr43m612owo5P",
     "LAGE_LIQUIDITEIT: B/6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump"
   ],
   "status": "AANDACHT",
