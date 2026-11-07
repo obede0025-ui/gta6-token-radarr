@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "checked_utc": "2026-11-07T18:00:51+00:00",
+  "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
+  "status": "NOT_CONFIGURED",
+  "stake_usdc": "25",
+  "positions": [],
+  "notes": [
+    "Read-only API calls. No wallet, no transaction signing or execution.",
+    "Quotes can expire immediately; values are indicative, not fills.",
+    "Roundtrip ignores network/priority/rent costs; position exit comparison also ignores those costs.",
+    "Existing GitHub A/B/C paper portfolio unchanged.",
+    "Add JUPITER_API_KEY as GitHub Actions secret to enable quotes."
+  ]
+}
