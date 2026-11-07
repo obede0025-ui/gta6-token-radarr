@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-07T21:25:22+00:00",
+  "checked_utc": "2026-11-07T21:30:38+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
@@ -13,11 +13,10 @@
     {
       "mint": "9RZeokzHNXoRyJkWDFdvcQTAzUhKpXm7RrqkUM3Fpump",
       "strategies": [
-        "B",
         "C"
       ],
-      "roundtrip_pct": "-2.316",
-      "liquidity_usd": "66402.48",
+      "roundtrip_pct": "-2.323",
+      "liquidity_usd": "66090.03",
       "quote_gate": "PASS",
       "quote_gate_reasons": [],
       "live_trade_approval": "BLOCK",
