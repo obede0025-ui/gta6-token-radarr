@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-07T17:35:16+00:00",
-  "last_scan_utc": "2026-11-07T17:35:16+00:00",
+  "checked_at_utc": "2026-11-07T17:40:25+00:00",
+  "last_scan_utc": "2026-11-07T17:40:25+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 32,
-  "recorded": 12,
+  "selected": 33,
+  "recorded": 13,
   "selection": {
     "new_search_tokens": 2,
     "active_follow": 8,
-    "early_follow": 2,
-    "search_revisit": 2,
+    "early_follow": 4,
+    "search_revisit": 1,
     "rotation": 20,
     "cooldown_skipped": {
       "early": 16,
-      "revisit": 76,
+      "revisit": 77,
       "rotation": 0
     },
-    "pinned_open": 1,
-    "selected_total": 32
+    "pinned_open": 2,
+    "selected_total": 33
   },
-  "signals_last_run": 3,
+  "signals_last_run": 2,
   "open_positions": [
     {
       "strategy": "A",
@@ -26,25 +26,25 @@
       "name": "GTA VI",
       "pair": "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44",
       "opened_at": "2026-11-07T16:55:17+00:00",
-      "age_hours": 0.67,
+      "age_hours": 0.75,
       "entry_market": 9.381e-05,
-      "last_price": 0.0001176,
+      "last_price": 0.0001192,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 25.36,
-      "market_liquidity_usd": 25792.27
+      "gross_price_change_pct": 27.07,
+      "market_liquidity_usd": 25991.16
     },
     {
-      "strategy": "B",
-      "token": "9pqtMh3DnydKbAvTp97N9ht1mkUB8wvvsTefg4KzM8se",
-      "name": "LUCIA",
-      "pair": "EP6NqC6HbMSz56NKWq2a4ZBUnmTf7cqzhuWH8LsYmF1c",
-      "opened_at": "2026-11-07T17:35:15+00:00",
+      "strategy": "C",
+      "token": "9RZeokzHNXoRyJkWDFdvcQTAzUhKpXm7RrqkUM3Fpump",
+      "name": "CHILL",
+      "pair": "GoM6pz6Nc2NATJvtR29Xa98GSQmJzt72rJNkEKypRZs8",
+      "opened_at": "2026-11-07T17:40:24+00:00",
       "age_hours": 0.0,
-      "entry_market": 6.555e-05,
-      "last_price": 6.555e-05,
+      "entry_market": 0.0007153,
+      "last_price": 0.0007153,
       "last_market_age_minutes": 0.0,
       "gross_price_change_pct": 0.0,
-      "market_liquidity_usd": 30071.18
+      "market_liquidity_usd": 66011.25
     }
   ],
   "closed_portfolios": {
@@ -53,8 +53,8 @@
       "realized_pnl_usd": 0
     },
     "B": {
-      "count": 1,
-      "realized_pnl_usd": 5.8119
+      "count": 2,
+      "realized_pnl_usd": -2.1361
     },
     "C": {
       "count": 1,
