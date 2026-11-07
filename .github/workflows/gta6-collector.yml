@@ -34,19 +34,19 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install \
-            -r requirements-collector.txt
+          python -m pip install -r requirements-collector.txt
 
       - name: Synchronize latest data
         run: |
           git fetch origin main
           git reset --hard origin/main
 
-      - name: Verify paper engine
+      - name: Verify Python engines
         run: |
           python -m py_compile \
             v591_paper_engine.py \
-            v592_paper_runner.py
+            v592_paper_runner.py \
+            v594_health.py
 
       - name: Collect GTA6 market data
         run: python collector.py
@@ -54,7 +54,10 @@ jobs:
       - name: Run V5.9.2 paper engine
         run: python v592_paper_runner.py
 
-      - name: Save collector and portfolio safely
+      - name: Record V5.9.4 scan history
+        run: python v594_health.py
+
+      - name: Save collector, portfolio and history
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -64,28 +67,30 @@ jobs:
               data/learning.db \
               data/latest_scan.json \
               data/v591/portfolio.json \
-              data/v591/preview.json
+              data/v591/preview.json \
+              data/v594/scan_history.json
 
             if git diff --cached --quiet; then
-              echo "No new data to save"
+              echo "No changes"
               exit 0
             fi
 
             git commit -m \
-              "data: GTA6 collector and V5.9.2 [skip ci]"
+              "data: GTA6 collector V5.9.4 [skip ci]"
 
             if git push origin HEAD:main; then
-              echo "Collector and portfolio saved"
+              echo "All reports saved"
               exit 0
             fi
 
-            echo "Remote changed - refreshing"
+            echo "Remote changed - rescan safely"
 
             git fetch origin main
             git reset --hard origin/main
 
             python collector.py
             python v592_paper_runner.py
+            python v594_health.py
 
             sleep 2
           done
@@ -93,13 +98,14 @@ jobs:
           echo "Could not publish data" >&2
           exit 1
 
-      - name: Upload V5.9.2 results
+      - name: Upload scan reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gta6-v592-${{ github.run_id }}
+          name: gta6-v594-${{ github.run_id }}
           path: |
             data/latest_scan.json
             data/v591/preview.json
+            data/v594/scan_history.json
           if-no-files-found: ignore
           retention-days: 14
