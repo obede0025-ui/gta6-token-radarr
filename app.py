@@ -1934,3 +1934,208 @@ wallet_intelligence_v582()
 
 from v593_dashboard import v593_background_dashboard
 v593_background_dashboard()
+
+# ============================================================
+# V6.0 — SIGNAL DIAGNOSTICS
+# Alleen lezen: geen wijzigingen aan trades of database
+# ============================================================
+
+def v60_block_reason(outcome, reason):
+    text = str(reason or "").lower()
+
+    if outcome == "PAPER_ENTRY":
+        return "Paperinstap uitgevoerd"
+
+    if outcome == "UITGESCHAKELD":
+        return "Strategie uitgeschakeld"
+
+    if "al eens virtueel verhandeld" in text:
+        return "Token eerder verhandeld"
+
+    if "te_weinig_metingen" in text:
+        return "Te weinig metingen"
+
+    if "ongeldig_interval" in text:
+        return "Verkeerde meetintervallen"
+
+    if "onvolledige_data" in text:
+        return "Onvolledige marktdata"
+
+    if "geen_handel" in text:
+        return "Geen actieve handel"
+
+    if text.startswith(("a faalt", "b faalt")):
+        return "Momentum of volume onvoldoende"
+
+    if "liquiditeit" in text:
+        return "Onvoldoende liquiditeit"
+
+    if "ouder dan 24" in text:
+        return "Handelspaar te oud"
+
+    if "kooptransacties" in text:
+        return "Onvoldoende koopdruk"
+
+    if "microtransacties" in text:
+        return "Mogelijke botactiviteit"
+
+    if "maximaal" in text and "posities" in text:
+        return "Maximum open posities"
+
+    if outcome == "KANDIDAAT":
+        return "Kandidaat"
+
+    return "Andere reden"
+
+
+def v60_diagnostics_panel():
+    st.divider()
+    st.subheader("🔬 V6.0 — Waarom geen nieuwe instappen?")
+
+    st.caption(
+        "Analyse van de laatste 20 Streamlit-scans. "
+        "Toont de eerste blokkade per beslissing. "
+        "Strategie A en B blijven ongewijzigd."
+    )
+
+    try:
+        recent = select(
+            "SELECT started_at FROM v542_runs "
+            "ORDER BY started_at DESC LIMIT 20"
+        )
+
+        if not recent:
+            st.info("Nog geen scans om te analyseren.")
+            return
+
+        stamps = [row[0] for row in recent]
+        marks = ",".join("?" for _ in stamps)
+
+        query = (
+            "SELECT scan_at, address, name, strategy, "
+            "outcome, reason "
+            "FROM v542_decisions "
+            f"WHERE scan_at IN ({marks}) "
+            "ORDER BY scan_at DESC"
+        )
+
+        rows = select(query, tuple(stamps))
+
+    except sqlite3.Error as exc:
+        st.error("Database kon niet worden gelezen: " + str(exc))
+        return
+
+    if not rows:
+        st.warning(
+            "Geen beslissingen in de laatste scans gevonden. "
+            "Controleer of de Streamlit-scanner actief scant."
+        )
+        return
+
+    df = pd.DataFrame(
+        rows,
+        columns=[
+            "Tijd UTC",
+            "Tokenadres",
+            "Naam",
+            "Strategie",
+            "Uitkomst",
+            "Reden"
+        ]
+    )
+
+    df["Blokkade"] = [
+        v60_block_reason(outcome, reason)
+        for outcome, reason
+        in zip(df["Uitkomst"], df["Reden"])
+    ]
+
+    a, b, c = st.columns(3)
+
+    a.metric("Scans onderzocht", len(stamps))
+    b.metric("Unieke tokens", df["Tokenadres"].nunique())
+    c.metric(
+        "Paperinstappen",
+        int((df["Uitkomst"] == "PAPER_ENTRY").sum())
+    )
+
+    strategy = st.radio(
+        "Strategie",
+        ["A", "B", "Allebei"],
+        horizontal=True,
+        key="v60_strategy"
+    )
+
+    filtered = (
+        df if strategy == "Allebei"
+        else df[df["Strategie"] == strategy]
+    )
+
+    if filtered.empty:
+        st.info("Geen beslissingen voor deze strategie.")
+        return
+
+    summary = (
+        filtered.groupby(
+            ["Strategie", "Blokkade"]
+        )
+        .size()
+        .reset_index(name="Aantal")
+        .sort_values("Aantal", ascending=False)
+    )
+
+    st.write("**Belangrijkste redenen voor geen instap**")
+
+    st.dataframe(
+        summary,
+        hide_index=True,
+        use_container_width=True
+    )
+
+    st.bar_chart(
+        summary.groupby("Blokkade")["Aantal"].sum()
+    )
+
+    st.write("**Laatste individuele beslissingen**")
+
+    details = filtered.copy()
+
+    details["Tijd België"] = (
+        pd.to_datetime(details["Tijd UTC"], utc=True)
+        .dt.tz_convert("Europe/Brussels")
+        .dt.strftime("%d-%m %H:%M")
+    )
+
+    st.dataframe(
+        details[
+            [
+                "Tijd België",
+                "Naam",
+                "Tokenadres",
+                "Strategie",
+                "Uitkomst",
+                "Blokkade",
+                "Reden"
+            ]
+        ].head(100),
+        hide_index=True,
+        use_container_width=True
+    )
+
+    st.download_button(
+        "📥 Download diagnose CSV",
+        filtered.to_csv(index=False).encode("utf-8"),
+        "v60_diagnostics.csv",
+        "text/csv",
+        key="v60_csv"
+    )
+
+    st.caption(
+        "Tellingen zijn beslissingen over meerdere scans, "
+        "niet unieke handelsmogelijkheden. "
+        "De GitHub-achtergrondengine wordt hier "
+        "nog niet afzonderlijk geanalyseerd."
+    )
+
+
+v60_diagnostics_panel()
