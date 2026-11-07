@@ -2508,3 +2508,256 @@ def v64_wallet_paper_panel():
 
 
 v64_wallet_paper_panel()
+
+
+# ============================================================
+# V6.8 — PERFORMANCE & LEARNING (READ-ONLY)
+# GitHub A/B/C-paperstate blijft gescheiden van lokale Streamlit-data.
+# Geen writes naar GitHub, Supabase, portefeuille of learning.db.
+# ============================================================
+
+
+def _v68_number(value):
+    import math
+    try:
+        result = float(value)
+        return result if math.isfinite(result) else None
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+def _v68_closed_metrics(closed):
+    """Equity en drawdown uit gerealiseerde P/L, niet uit open marks."""
+    ordered = sorted(closed, key=lambda row: str(row.get('closed_at') or ''))
+    pnl = [_v68_number(row.get('pnl_usd')) for row in ordered]
+    pnl = [value for value in pnl if value is not None]
+    total = sum(pnl)
+    wins = [value for value in pnl if value > 0]
+    losses = [value for value in pnl if value < 0]
+    equity, high, max_drawdown = 0.0, 0.0, 0.0
+    curve = []
+    for value in pnl:
+        equity += value
+        high = max(high, equity)
+        max_drawdown = max(max_drawdown, high - equity)
+        curve.append(equity)
+    return {
+        'count': len(pnl), 'pnl': total,
+        'winrate': 100 * len(wins) / len(pnl) if pnl else None,
+        'avg_pnl': total / len(pnl) if pnl else None,
+        'avg_win': sum(wins) / len(wins) if wins else None,
+        'avg_loss': sum(losses) / len(losses) if losses else None,
+        'max_drawdown_usd': max_drawdown if pnl else None,
+        'curve': curve,
+    }
+
+
+def _v68_strategy_table(state):
+    rows = []
+    for strat in ('A', 'B', 'C'):
+        closed = state['closed'].get(strat) or []
+        metrics = _v68_closed_metrics(closed)
+        rows.append({
+            'Strategie': strat,
+            'Open': len(state['open'].get(strat) or {}),
+            'Gesloten': metrics['count'],
+            'Gerealiseerde P/L $': round(metrics['pnl'], 2),
+            'Winrate %': round(metrics['winrate'], 1) if metrics['winrate'] is not None else None,
+            'Gem. P/L $': round(metrics['avg_pnl'], 2) if metrics['avg_pnl'] is not None else None,
+            'Max. gerealiseerde drawdown $': (
+                round(metrics['max_drawdown_usd'], 2)
+                if metrics['max_drawdown_usd'] is not None else None
+            ),
+            'Voorlopige evaluatie': (
+                'Nog geen gesloten trades' if metrics['count'] == 0
+                else 'Kleine steekproef' if metrics['count'] < 30
+                else 'Eerste evaluatie mogelijk (geen garantie)'
+            ),
+        })
+    return rows
+
+
+def _v68_learning_upload(uploaded, state):
+    """Analyses uploaded learning.db read-only; never alters source bytes."""
+    if uploaded.size > 100_000_000:
+        raise ValueError('learning.db groter dan 100 MB; upload geweigerd')
+    content = uploaded.getvalue()
+    if not content.startswith(b'SQLite format 3\x00'):
+        raise ValueError('Geen geldige SQLite-bestandsheader')
+    with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+        tmp.write(content)
+        tmp.flush()
+        with sqlite3.connect(tmp.name, timeout=20) as conn:
+            conn.execute('PRAGMA query_only=ON')
+            if conn.execute('PRAGMA quick_check').fetchone()[0] != 'ok':
+                raise ValueError('SQLite-integriteitscontrole mislukt')
+            tables = {row[0] for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")}
+            if 'outcomes' not in tables or 'snapshots' not in tables:
+                raise ValueError('De tabellen outcomes en snapshots ontbreken')
+            overall = conn.execute("""
+                SELECT horizon_minutes, COUNT(*),
+                       AVG(return_pct),
+                       AVG(CASE WHEN return_pct > 0 THEN 1.0 ELSE 0.0 END),
+                       AVG(CASE WHEN crash_30pct = 1 THEN 1.0 ELSE 0.0 END)
+                  FROM outcomes
+                 WHERE horizon_minutes IN (15,30,60)
+                 GROUP BY horizon_minutes
+                 ORDER BY horizon_minutes
+            """).fetchall()
+            baselines = []
+            for strat in ('A', 'B', 'C'):
+                for address, position in (state['open'].get(strat) or {}).items():
+                    baselines.append((strat, address, position))
+                for position in (state['closed'].get(strat) or []):
+                    baselines.append((strat, position.get('token'), position))
+            cohort = {}
+            for strat, address, position in baselines:
+                pair, opened = position.get('pair'), position.get('opened_at')
+                if not address or not pair or not opened:
+                    continue
+                for horizon in (15, 30, 60):
+                    observed = conn.execute("""
+                        SELECT return_pct
+                          FROM outcomes
+                         WHERE token_address=? AND pair_address=?
+                           AND horizon_minutes=?
+                           AND ABS((julianday(baseline_at) - julianday(?)) * 1440) <= 10
+                         ORDER BY ABS((julianday(baseline_at) - julianday(?)) * 1440) ASC
+                         LIMIT 1
+                    """, (address, pair, horizon, opened, opened)).fetchone()
+                    if observed is not None:
+                        value = _v68_number(observed[0])
+                        if value is not None:
+                            cohort.setdefault((strat, horizon), []).append(value)
+            cohort_rows = [
+                {'Strategie': strat, 'Horizon (min)': horizon,
+                 'Gem. koersrendement %': round(sum(values)/len(values), 2),
+                 'Gematchte instappen': len(values)}
+                for (strat, horizon), values in sorted(cohort.items())
+            ]
+            overall_rows = [
+                {'Horizon (min)': int(horizon), 'Aantal labels': count,
+                 'Gem. koersrendement %': round(avg, 2) if avg is not None else None,
+                 'Positieve labels %': round(100 * positive, 1) if positive is not None else None,
+                 'Crash ≥30% %': round(100 * crash, 1) if crash is not None else None}
+                for horizon, count, avg, positive, crash in overall
+            ]
+    return overall_rows, cohort_rows
+
+
+@st.fragment(run_every='120s')
+def v68_performance_dashboard():
+    from v593_dashboard import _v593_read, _v593_token, _v593_validate, _v593_time, _v593_age
+
+    st.divider()
+    st.subheader('📊 Performance & Learning V6.8 — A / B / C')
+    st.caption('Alle GitHub-data wordt alleen gelezen. Geen live-orders, geen automatische '
+               'aanpassing van strategieën en geen samenvoeging met de Streamlit/Supabase-portefeuilles.')
+
+    if st.button('🔄 Performancegegevens vernieuwen', key='v68_refresh'):
+        _v593_read.clear()
+
+    try:
+        read_token = _v593_token()
+        state = _v593_read('data/v591/portfolio.json', read_token)
+        report = _v593_read('data/v591/preview.json', read_token)
+        history = _v593_read('data/v594/scan_history.json', read_token)
+        latest = _v593_read('data/latest_scan.json', read_token)
+        _v593_validate(state, report)
+        if not isinstance(history.get('runs'), list):
+            raise ValueError('Scan history bevat geen runs-lijst')
+    except (requests.RequestException, FileNotFoundError, RuntimeError,
+            ValueError, TypeError, KeyError, UnicodeError, json.JSONDecodeError) as exc:
+        st.error('Performancegegevens konden niet worden gelezen: ' + str(exc))
+        st.info('Controleer GitHub Actions en de JSON-bestanden. Bij een private '
+                'repository is een read-only GITHUB_READ_TOKEN nodig.')
+        return
+
+    when = report.get('generated_utc')
+    age = _v593_age(when)
+    st.caption('Laatste GitHub-paperupdate: ' + _v593_time(when))
+    if age is None or age < -5 or age > 20:
+        st.warning('De papergegevens zijn mogelijk verouderd of hebben een ongeldige tijdstempel.')
+    if report.get('last_processed') != state.get('cursor'):
+        st.warning('Paperportfolio en preview zijn tijdelijk niet synchroon.')
+
+    rows = _v68_strategy_table(state)
+    a, b, c, d = st.columns(4)
+    a.metric('Open paperposities', sum(r['Open'] for r in rows))
+    b.metric('Gesloten papertrades', sum(r['Gesloten'] for r in rows))
+    c.metric('Gerealiseerde P/L', f"${sum(r['Gerealiseerde P/L $'] for r in rows):+.2f}")
+    d.metric('Leerlabels totaal', latest.get('total_labels', '—'))
+    st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+    st.caption('Winrate en drawdown verschijnen pas met gesloten trades. '
+               'Drawdown is uitsluitend berekend uit gerealiseerde P/L en mist '
+               'tussentijdse verliezen op open posities.')
+
+    opened = []
+    for strategy in ('A', 'B', 'C'):
+        for address, position in (state['open'].get(strategy) or {}).items():
+            opened.append({
+                'Strategie': strategy,
+                'Token': position.get('name', 'Onbekend'),
+                'Adres': address,
+                'Pair': position.get('pair'),
+                'Geopend (BE)': _v593_time(position.get('opened_at')),
+                'Instapprijs $': _v68_number(position.get('entry_market')),
+                'Hoeveelheid': _v68_number(position.get('quantity')),
+                'Huidige P/L': 'Onbekend — geen actuele uitvoerbare verkoopquote',
+            })
+    st.subheader('📍 Open A/B/C-paperposities')
+    if opened:
+        st.dataframe(pd.DataFrame(opened), hide_index=True, use_container_width=True)
+    else:
+        st.info('Geen open GitHub-paperposities.')
+
+    closed = []
+    for strategy in ('A', 'B', 'C'):
+        closed.extend([{'Strategie': strategy, 'Gesloten UTC': t.get('closed_at'),
+                        'P/L $': _v68_number(t.get('pnl_usd'))}
+                       for t in state['closed'].get(strategy) or []])
+    if closed:
+        curve = pd.DataFrame(closed).sort_values('Gesloten UTC')
+        curve['Gecumuleerde gerealiseerde P/L $'] = curve['P/L $'].fillna(0).cumsum()
+        st.line_chart(curve.set_index('Gesloten UTC')[['Gecumuleerde gerealiseerde P/L $']])
+
+    st.subheader('📡 Betrouwbaarheid van de automatische scans')
+    recent = history['runs'][-30:]
+    if recent:
+        scan = pd.DataFrame([{
+            'UTC': r.get('finished_at_utc') or r.get('started_at_utc'),
+            'Metingen': r.get('recorded', 0),
+            'Signalen': r.get('signals', 0),
+            'Fouten': r.get('error_count', 0),
+            'Status': r.get('status', 'Onbekend'),
+        } for r in recent])
+        st.line_chart(scan.set_index('UTC')[['Metingen', 'Signalen']])
+        st.dataframe(scan.tail(15).iloc[::-1], hide_index=True, use_container_width=True)
+        st.caption('Meer metingen betekenen betere observatie, niet automatisch betere trades.')
+
+    st.subheader('🧠 Uitkomsten na 15 / 30 / 60 minuten')
+    st.caption('Voor de volledige leeranalyse is een export van data/learning.db nodig. '
+               'Het bestand wordt tijdelijk en alleen-lezen verwerkt, niet geüpload naar GitHub.')
+    uploaded = st.file_uploader('Learning database (optioneel)', type=['db'], key='v68_learning_db')
+    if uploaded is not None:
+        try:
+            baseline_rows, cohort_rows = _v68_learning_upload(uploaded, state)
+            st.write('**Alle verzamelde koerslabels (geen onafhankelijk geteste handelsresultaten)**')
+            st.dataframe(pd.DataFrame(baseline_rows), hide_index=True, use_container_width=True)
+            st.write('**Koerslabels rond A/B/C-paperinstappen (indien beschikbaar)**')
+            if cohort_rows:
+                st.dataframe(pd.DataFrame(cohort_rows), hide_index=True, use_container_width=True)
+            else:
+                st.info('Nog geen passende 15/30/60-minutenlabels rond de paperinstappen.')
+            st.caption('Dezelfde token kan meerdere gecorreleerde labels bijdragen. '
+                       'Een gematcht koersrendement is geen uitgevoerde swap, '
+                       'geen portefeuille-P/L en geen bewijs van voorspelkracht.')
+        except (ValueError, OSError, sqlite3.Error) as exc:
+            st.error('Learning database kon niet worden geanalyseerd: ' + str(exc))
+    else:
+        st.info('GitHub-paperprestaties en scanbetrouwbaarheid verschijnen hierboven automatisch. '
+                'Voeg learning.db toe voor de extra labelanalyse.')
+
+
+v68_performance_dashboard()
