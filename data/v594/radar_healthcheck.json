@@ -1,37 +1,37 @@
 {
-  "checked_at_utc": "2026-11-07T19:35:19+00:00",
-  "last_scan_utc": "2026-11-07T19:35:19+00:00",
+  "checked_at_utc": "2026-11-07T19:40:24+00:00",
+  "last_scan_utc": "2026-11-07T19:40:23+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 31,
-  "recorded": 11,
+  "selected": 38,
+  "recorded": 18,
   "selection": {
-    "new_search_tokens": 1,
-    "active_follow": 9,
-    "early_follow": 5,
-    "search_revisit": 0,
+    "new_search_tokens": 0,
+    "active_follow": 8,
+    "early_follow": 9,
+    "search_revisit": 5,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 19,
-      "revisit": 73,
+      "early": 12,
+      "revisit": 71,
       "rotation": 0
     },
-    "pinned_open": 3,
-    "selected_total": 31
+    "pinned_open": 2,
+    "selected_total": 38
   },
-  "signals_last_run": 1,
+  "signals_last_run": 3,
   "open_positions": [
     {
       "strategy": "B",
-      "token": "GAGDqXtsZyEb3meqYDVfZ61bpbeCmhQJpxXffhkapump",
-      "name": "Macca The Gator",
-      "pair": "8NV6b1xxHux7snhjgWszppFZm2e8kHeVSijfA795UVfS",
-      "opened_at": "2026-11-07T19:30:36+00:00",
-      "age_hours": 0.08,
-      "entry_market": 4.374e-05,
-      "last_price": 4.421e-05,
+      "token": "AJBZMJ4a4dLKvrXmjkrKwjaaQCdph5kssjadZizppump",
+      "name": "GTA6 Mendez",
+      "pair": "9seBidEsbUSTW8XbbacZB6ab2tY72P6xp51mFtPUWHp6",
+      "opened_at": "2026-11-07T19:40:22+00:00",
+      "age_hours": 0.0,
+      "entry_market": 6.183e-05,
+      "last_price": 6.183e-05,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 1.07,
-      "market_liquidity_usd": 15575.06
+      "gross_price_change_pct": 0.0,
+      "market_liquidity_usd": 18239.95
     },
     {
       "strategy": "C",
@@ -39,12 +39,12 @@
       "name": "CHILL",
       "pair": "GoM6pz6Nc2NATJvtR29Xa98GSQmJzt72rJNkEKypRZs8",
       "opened_at": "2026-11-07T17:40:24+00:00",
-      "age_hours": 1.92,
+      "age_hours": 2.0,
       "entry_market": 0.0007153,
-      "last_price": 0.0007354,
+      "last_price": 0.0007839,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 2.81,
-      "market_liquidity_usd": 66936.66
+      "gross_price_change_pct": 9.59,
+      "market_liquidity_usd": 69165.83
     }
   ],
   "closed_portfolios": {
@@ -53,8 +53,8 @@
       "realized_pnl_usd": 6.7954
     },
     "B": {
-      "count": 2,
-      "realized_pnl_usd": -2.1361
+      "count": 3,
+      "realized_pnl_usd": -16.7054
     },
     "C": {
       "count": 3,
