@@ -2,14 +2,18 @@
 name: GTA6 Learning Collector
 
 on:
+  # Automatische scan, ongeveer iedere 5 minuten.
   schedule:
-    - cron: '2-59/5 * * * *'
+    - cron: '7-59/5 * * * *'
 
+  # Handmatig starten blijft mogelijk.
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# Voorkom dat twee collectors tegelijk
+# dezelfde database aanpassen.
 concurrency:
   group: gta6-learning-db
   cancel-in-progress: false
@@ -44,25 +48,33 @@ jobs:
       - name: Verify Python engines
         run: |
           python -m py_compile \
+            collector.py \
             v591_paper_engine.py \
             v592_paper_runner.py \
             v594_health.py
 
+      # V6.1: nieuwe tokens zoeken
+      # en actieve tokens opnieuw meten.
       - name: Collect GTA6 market data
         run: python collector.py
 
-      - name: Run V5.9.2 paper engine
+      # V6.2: achtergrondpapertrading A/B/C.
+      - name: Run paper engine A B C
         run: python v592_paper_runner.py
 
-      - name: Record V5.9.4 scan history
+      # Scanhistoriek voor het dashboard.
+      - name: Record scan history
         run: python v594_health.py
 
-      - name: Save collector, portfolio and history
+      # Behoud bestaande SQLite-database,
+      # paperportfolio en historische rapporten.
+      - name: Save collector portfolio and history
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
           for attempt in 1 2 3; do
+
             git add \
               data/learning.db \
               data/latest_scan.json \
@@ -76,10 +88,10 @@ jobs:
             fi
 
             git commit -m \
-              "data: GTA6 collector V5.9.4 [skip ci]"
+              "data: GTA6 automatic collector [skip ci]"
 
             if git push origin HEAD:main; then
-              echo "All reports saved"
+              echo "Collector and paper results saved"
               exit 0
             fi
 
@@ -88,6 +100,9 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
+            # Bij een pushconflict eerst nieuwe
+            # marktmetingen en portfolioresultaten
+            # berekenen vanaf de nieuwste state.
             python collector.py
             python v592_paper_runner.py
             python v594_health.py
@@ -102,7 +117,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gta6-v594-${{ github.run_id }}
+          name: gta6-scans-${{ github.run_id }}
           path: |
             data/latest_scan.json
             data/v591/preview.json
