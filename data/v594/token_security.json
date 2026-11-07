@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "checked_utc": "2026-11-07T19:01:25+00:00",
+  "mode": "READ_ONLY_MINT_AUTHORITY_SCREENING",
+  "status": "OK",
+  "all_live_trades_blocked": true,
+  "tokens": [
+    {
+      "mint": "9RZeokzHNXoRyJkWDFdvcQTAzUhKpXm7RrqkUM3Fpump",
+      "sources": [
+        "open_paper_position"
+      ],
+      "program": "UNKNOWN",
+      "mint_authority": "UNKNOWN",
+      "freeze_authority": "UNKNOWN",
+      "extensions": [],
+      "security_gate": "BLOCK",
+      "live_trade_approval": "BLOCK",
+      "reasons": [
+        "UNKNOWN_PROGRAM_OWNER"
+      ],
+      "warnings": []
+    }
+  ],
+  "checked_count": 1,
+  "block_count": 1,
+  "basic_checks_clear_count": 0,
+  "notes": [
+    "No holder / LP lock / transferability / honeypot verification",
+    "Token-2022 is blocked pending dedicated extension audit",
+    "No wallet/private keys, no trades, no portfolio/database changes"
+  ],
+  "candidate_mints_total": 1
+}
