@@ -49,7 +49,9 @@ jobs:
             radar_missed_opportunities.py \
             radar_quote_monitor.py \
             radar_execution_safety.py \
-            radar_pretrade_safety.py
+            radar_pretrade_safety.py \
+            radar_pretrade_history.py \
+            radar_token_security.py
 
       - name: Collect GTA6 market data
         run: python collector.py
@@ -58,8 +60,13 @@ jobs:
         env:
           JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
         run: |
+          mkdir -p data/v594
           python radar_pretrade_safety.py > data/v594/pretrade_safety.json
           python -m json.tool data/v594/pretrade_safety.json
+
+      - name: Log shadow pretrade history
+        run: |
+          python radar_pretrade_history.py
 
       - name: Run paper engine A B C
         run: python v592_paper_runner.py
@@ -86,6 +93,13 @@ jobs:
           python radar_quote_monitor.py > data/v594/jupiter_quote_monitor.json
           python -m json.tool data/v594/jupiter_quote_monitor.json
 
+      - name: Token Security V1 (read-only, live blocked)
+        env:
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
+        run: |
+          python radar_token_security.py > data/v594/token_security.json
+          python -m json.tool data/v594/token_security.json
+
       - name: Execution Safety V1 (read-only, live blocked)
         run: |
           python radar_execution_safety.py > data/v594/execution_safety.json
@@ -110,7 +124,9 @@ jobs:
               data/v594/missed_opportunities.json \
               data/v594/jupiter_quote_monitor.json \
               data/v594/execution_safety.json \
-              data/v594/pretrade_safety.json
+              data/v594/pretrade_safety.json \
+              data/v594/pretrade_history.json \
+              data/v594/token_security.json
 
             if git diff --cached --quiet; then
               echo 'No changes'
@@ -130,12 +146,14 @@ jobs:
 
             python collector.py
             python radar_pretrade_safety.py > data/v594/pretrade_safety.json
+            python radar_pretrade_history.py
             python v592_paper_runner.py
             python v594_health.py
             mkdir -p data/v594
             python radar_healthcheck.py > data/v594/radar_healthcheck.json
             python radar_missed_opportunities.py > data/v594/missed_opportunities.json
             python radar_quote_monitor.py > data/v594/jupiter_quote_monitor.json
+            python radar_token_security.py > data/v594/token_security.json
             python radar_execution_safety.py > data/v594/execution_safety.json
             sleep 2
           done
@@ -157,5 +175,7 @@ jobs:
             data/v594/jupiter_quote_monitor.json
             data/v594/execution_safety.json
             data/v594/pretrade_safety.json
+            data/v594/pretrade_history.json
+            data/v594/token_security.json
           if-no-files-found: ignore
           retention-days: 14
