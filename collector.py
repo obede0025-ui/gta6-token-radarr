@@ -1,11 +1,8 @@
+"""GTA6 Learning Collector V6.7 — betrouwbare token-follow-up.
 
-"""GTA6 Learning Collector V6.6.
-
-Nieuwe tokens + actieve vervolgmetingen + roterende controle.
-Bestaande SQLite-tabellen, paperportfolio en leerlabels blijven intact.
-Geen automatische walletclaims: walletdata staat buiten deze collector.
+Behoudt de bestaande learning.db, outcome-labels, open papertrades en JSON-contracten.
+Geen echte orders. Geen walletintelligentie: die is nog niet gekoppeld aan GitHub.
 """
-
 import json
 import math
 import os
@@ -21,30 +18,28 @@ DB = Path(os.getenv('LEARNING_DB', 'data/learning.db'))
 LATEST = Path(os.getenv('LATEST_JSON', 'data/latest_scan.json'))
 PAPER_STATE = Path(os.getenv('PAPER_STATE', 'data/v591/portfolio.json'))
 API = 'https://api.dexscreener.com'
-
-SEARCHES = [
-    'GTA6', 'GTA VI', 'Grand Theft Auto', 'Vice City',
-    'Leonida', 'Lucia Camino', 'Jason Duval', 'Port Gellhorn',
-]
-KEYWORDS = [
-    'gta6', 'gta 6', 'gta vi', 'gtavi', 'grand theft auto',
-    'grandtheftauto', 'vice city', 'leonida', 'lucia camino',
-    'jason duval', 'port gellhorn', 'raul bautista',
-]
+SEARCHES = ['GTA6', 'GTA VI', 'Grand Theft Auto', 'Vice City',
+            'Leonida', 'Lucia Camino', 'Jason Duval', 'Port Gellhorn']
+KEYWORDS = ['gta6', 'gta 6', 'gta vi', 'gtavi', 'grand theft auto',
+            'grandtheftauto', 'vice city', 'leonida', 'lucia camino',
+            'jason duval', 'port gellhorn', 'raul bautista']
 ADDRESS = re.compile(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$')
 
+# Prioriteiten zijn *scanplanning*, niet de papertrade-risicofilters.
 ACTIVE_HOURS = 2
-ACTIVE_LIMIT = 100
-ROTATION_LIMIT = 35
+ACTIVE_LIMIT = 80
+EARLY_FOLLOW_HOURS = 3
+EARLY_FOLLOW_LIMIT = 90
+KNOWN_SEARCH_LIMIT = 35
+ROTATION_LIMIT = 20
 FOLLOW_MIN_LIQ = 5000.0
 FOLLOW_MIN_VOL = 50.0
 MIN_GAP_MINUTES = 3.5
+SEARCH_REVISIT_MINUTES = 12
 
 SESSION = requests.Session()
-SESSION.headers.update({
-    'User-Agent': 'GTA6-Learning-Research/6.6',
-    'Accept': 'application/json',
-})
+SESSION.headers.update({'User-Agent': 'GTA6-Learning-Research/6.7',
+                        'Accept': 'application/json'})
 
 
 def now():
@@ -53,8 +48,8 @@ def now():
 
 def num(value):
     try:
-        result = float(value)
-        return result if math.isfinite(result) else None
+        x = float(value)
+        return x if math.isfinite(x) else None
     except (ValueError, TypeError, OverflowError):
         return None
 
@@ -62,13 +57,9 @@ def num(value):
 def data_get(path, params=None):
     for attempt in range(3):
         try:
-            response = SESSION.get(
-                API + path, params=params, timeout=22
-            )
+            response = SESSION.get(API + path, params=params, timeout=22)
             if response.status_code in (429, 500, 502, 503, 504):
-                raise requests.HTTPError(
-                    f'HTTP {response.status_code}'
-                )
+                raise requests.HTTPError('HTTP ' + str(response.status_code))
             response.raise_for_status()
             return response.json()
         except (requests.RequestException, ValueError):
@@ -78,711 +69,335 @@ def data_get(path, params=None):
 
 
 def connect():
-    DB.parent.mkdir(parents=True, exist_ok=True)
+    # Een verdwenen DB niet stilzwijgend door een lege vervangen. GitHub commit
+    # anders mogelijk nieuwe, lege geschiedenis over het echte databestand.
+    if not DB.is_file():
+        raise FileNotFoundError(f'Learning DB ontbreekt: {DB}. Geen nieuwe DB aangemaakt.')
     conn = sqlite3.connect(str(DB), timeout=30)
-    conn.execute('PRAGMA busy_timeout=30000')
-    conn.execute('PRAGMA journal_mode=DELETE')
-
-    conn.execute('''CREATE TABLE IF NOT EXISTS tokens (
-        address TEXT PRIMARY KEY,
-        name TEXT,
-        symbol TEXT,
-        first_seen TEXT NOT NULL,
-        last_seen TEXT NOT NULL
-    )''')
-
-    conn.execute('''CREATE TABLE IF NOT EXISTS snapshots (
-        token_address TEXT NOT NULL,
-        pair_address TEXT NOT NULL,
-        scanned_at TEXT NOT NULL,
-        name TEXT,
-        symbol TEXT,
-        price_usd REAL,
-        liquidity_usd REAL,
-        volume_m5 REAL,
-        buys_m5 INTEGER,
-        sells_m5 INTEGER,
-        pair_age_hours REAL,
-        average_trade_usd REAL,
-        source TEXT,
-        PRIMARY KEY(token_address,pair_address,scanned_at)
-    )''')
-
-    conn.execute('''CREATE INDEX IF NOT EXISTS snapshots_lookup
-        ON snapshots(token_address,pair_address,scanned_at)
-    ''')
-
-    conn.execute('''CREATE TABLE IF NOT EXISTS outcomes (
-        token_address TEXT NOT NULL,
-        pair_address TEXT NOT NULL,
-        baseline_at TEXT NOT NULL,
-        horizon_minutes INTEGER NOT NULL,
-        observed_at TEXT NOT NULL,
-        baseline_price REAL NOT NULL,
-        future_price REAL NOT NULL,
-        return_pct REAL NOT NULL,
-        baseline_liquidity REAL,
-        future_liquidity REAL,
-        liquidity_change_pct REAL,
-        crash_30pct INTEGER NOT NULL,
-        liquidity_drop_50pct INTEGER,
-        PRIMARY KEY(
-            token_address,pair_address,
-            baseline_at,horizon_minutes
-        )
-    )''')
-
-    conn.execute('''CREATE TABLE IF NOT EXISTS runs (
-        started_at TEXT PRIMARY KEY,
-        finished_at TEXT,
-        discovered INTEGER,
-        snapshots INTEGER,
-        error_count INTEGER,
-        errors TEXT
-    )''')
-
-    conn.commit()
-    return conn
+    try:
+        conn.execute('PRAGMA busy_timeout=30000')
+        if conn.execute('PRAGMA quick_check').fetchone()[0] != 'ok':
+            raise sqlite3.DatabaseError('Learning DB integriteitscontrole mislukt')
+        existing = {row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        required = {'snapshots', 'tokens', 'outcomes', 'runs'}
+        if not required.issubset(existing):
+            raise sqlite3.DatabaseError('Learning DB mist tabellen: ' +
+                                        ', '.join(sorted(required - existing)))
+        return conn
+    except Exception:
+        conn.close()
+        raise
 
 
-def open_paper_addresses():
-    """Volg bestaande A/B/C-posities, ook zonder volume."""
-    if not PAPER_STATE.exists():
-        return set()
-
-    state = json.loads(
-        PAPER_STATE.read_text(encoding='utf-8')
-    )
-
-    if (
-        state.get('version') != 1
-        or not isinstance(state.get('open'), dict)
-    ):
-        raise ValueError(
-            'Onbekende paperportfolio; collector gestopt'
-        )
-
-    result = set()
-
+def paper_positions():
+    """Mint -> set met originele pairadressen uit de bestaande paperstate."""
+    if not PAPER_STATE.is_file():
+        raise FileNotFoundError('Paperportfolio ontbreekt; collector blokkeert om verlies te voorkomen')
+    state = json.loads(PAPER_STATE.read_text(encoding='utf-8'))
+    if state.get('version') != 1 or not isinstance(state.get('open'), dict):
+        raise ValueError('Ongeldige paperportfolio; niets gewijzigd')
+    pinned = {}
     for strategy in ('A', 'B', 'C'):
-        positions = state['open'].get(strategy) or {}
-
+        positions = state['open'].get(strategy)
         if not isinstance(positions, dict):
-            raise ValueError(
-                f'Ongeldige open paperposities {strategy}'
-            )
-
-        result.update(
-            a for a in positions
-            if ADDRESS.fullmatch(a)
-        )
-
-    return result
+            raise ValueError('Ongeldige open posities: ' + strategy)
+        for mint, position in positions.items():
+            if ADDRESS.fullmatch(mint):
+                pair = position.get('pair') if isinstance(position, dict) else None
+                pinned.setdefault(mint, set())
+                if isinstance(pair, str) and pair:
+                    pinned[mint].add(pair)
+    return pinned
 
 
 def discovery(conn, pinned):
-    addresses = {}
-    errors = []
+    selected, errors = {}, []
+    lookup = {r[0]: r[1:] for r in conn.execute(
+        'SELECT address, first_seen, last_seen FROM tokens')}
+    fresh_discovered, known_search = set(), set()
+    now_dt = datetime.now(timezone.utc)
 
-    previously_seen = {
-        r[0] for r in conn.execute(
-            'SELECT address FROM tokens'
-        )
-    }
-    raw_search = set()
+    def add(mint, source):
+        if isinstance(mint, str) and ADDRESS.fullmatch(mint):
+            selected.setdefault(mint, set()).add(source)
 
-    def add(address, source):
-        if (
-            isinstance(address, str)
-            and ADDRESS.fullmatch(address)
-        ):
-            addresses.setdefault(
-                address, set()
-            ).add(source)
+    def candidate(mint, source):
+        if not isinstance(mint, str) or not ADDRESS.fullmatch(mint):
+            return
+        if mint not in lookup:
+            fresh_discovered.add(mint)
+            add(mint, source)
+        else:
+            known_search.add(mint)
 
-    def search_candidate(address, source):
-        if (
-            isinstance(address, str)
-            and ADDRESS.fullmatch(address)
-        ):
-            raw_search.add(address)
-
-            # Nieuwe zoekresultaten direct scannen.
-            # Bekende adressen volgen via actief/rotatie.
-            if address not in previously_seen:
-                add(address, source)
-
-    # Nieuwe GTA6-gerelateerde tokens ontdekken.
+    # Nieuwe ontdekkingen worden altijd meegenomen.
     for term in SEARCHES:
         try:
-            payload = data_get(
-                '/latest/dex/search', {'q': term}
-            )
-
+            payload = data_get('/latest/dex/search', {'q': term})
             for pair in payload.get('pairs') or []:
-                if (
-                    not isinstance(pair, dict)
-                    or pair.get('chainId') != 'solana'
-                ):
+                if not isinstance(pair, dict) or pair.get('chainId') != 'solana':
                     continue
-
                 base = pair.get('baseToken') or {}
-                title = (
-                    f"{base.get('name', '')} "
-                    f"{base.get('symbol', '')}"
-                ).lower()
-
+                title = (str(base.get('name') or '') + ' ' +
+                         str(base.get('symbol') or '')).lower()
                 if any(k in title for k in KEYWORDS):
-                    search_candidate(
-                        base.get('address'),
-                        'search_new'
-                    )
+                    candidate(base.get('address'), 'search_new')
+        except (requests.RequestException, ValueError, TypeError, AttributeError) as exc:
+            errors.append('search ' + term + ': ' + str(exc)[:140])
 
-        except (
-            requests.RequestException,
-            ValueError,
-            TypeError,
-            AttributeError
-        ) as exc:
-            errors.append(
-                f'search {term}: {str(exc)[:140]}'
-            )
-
-    # Ook nieuwe profielen en boosts controleren.
-    for path in (
-        '/token-profiles/latest/v1',
-        '/token-boosts/latest/v1',
-        '/token-boosts/top/v1',
-    ):
+    for path in ('/token-profiles/latest/v1', '/token-boosts/latest/v1',
+                 '/token-boosts/top/v1'):
         try:
             payload = data_get(path)
-
-            for item in (
-                payload if isinstance(payload, list) else []
-            ):
-                if (
-                    not isinstance(item, dict)
-                    or item.get('chainId') != 'solana'
-                ):
+            for item in payload if isinstance(payload, list) else []:
+                if not isinstance(item, dict) or item.get('chainId') != 'solana':
                     continue
-
-                links = ' '.join(
-                    str(x.get('url') or '')
-                    for x in item.get('links') or []
-                    if isinstance(x, dict)
-                )
-
-                context = (
-                    f"{item.get('description') or ''} "
-                    f"{links}"
-                ).lower()
-
+                links = ' '.join(str(x.get('url') or '')
+                                 for x in item.get('links') or [] if isinstance(x, dict))
+                context = (str(item.get('description') or '') + ' ' + links).lower()
                 if any(k in context for k in KEYWORDS):
-                    search_candidate(
-                        item.get('tokenAddress'),
-                        'profile_new'
-                    )
+                    candidate(item.get('tokenAddress'), 'profile_new')
+        except (requests.RequestException, ValueError, TypeError) as exc:
+            errors.append('profile ' + path + ': ' + str(exc)[:140])
 
-        except (
-            requests.RequestException,
-            ValueError,
-            TypeError
-        ) as exc:
-            errors.append(
-                f'profile {path}: {str(exc)[:140]}'
-            )
-
-    # Bestaande tokens met recente activiteit.
-    cutoff = (
-        datetime.now(timezone.utc)
-        - timedelta(hours=ACTIVE_HOURS)
-    ).isoformat(timespec='seconds')
-
+    # Volg tokens met bestaand momentum ook als het aantal verkopen net hoger
+    # ligt. Koop/verkoop is een signaalfilter in de engine, geen scanverbod.
+    cutoff = (now_dt - timedelta(hours=ACTIVE_HOURS)).isoformat(timespec='seconds')
     active = conn.execute('''
         WITH ranked AS (
-            SELECT
-                token_address,
-                scanned_at,
-                liquidity_usd,
-                volume_m5,
-                buys_m5,
-                sells_m5,
-                pair_age_hours,
-                ROW_NUMBER() OVER (
-                    PARTITION BY token_address
-                    ORDER BY scanned_at DESC,
-                             liquidity_usd DESC
-                ) AS position
-            FROM snapshots
-            WHERE scanned_at >= ?
+          SELECT token_address, scanned_at, liquidity_usd, volume_m5,
+                 ROW_NUMBER() OVER(PARTITION BY token_address
+                                   ORDER BY scanned_at DESC, liquidity_usd DESC) AS rn
+          FROM snapshots WHERE scanned_at >= ?
         )
-        SELECT token_address
-        FROM ranked
-        WHERE position = 1
-          AND COALESCE(volume_m5,0) >= ?
-          AND COALESCE(liquidity_usd,0) >= ?
-          AND COALESCE(buys_m5,0)
-              > COALESCE(sells_m5,0)
-          AND pair_age_hours BETWEEN 0 AND 24
-        ORDER BY
-          CASE
-            WHEN volume_m5 >= 250
-             AND liquidity_usd >= 10000
-            THEN 1 ELSE 0
-          END DESC,
-          volume_m5 DESC,
-          scanned_at DESC
+        SELECT token_address FROM ranked WHERE rn=1
+          AND COALESCE(volume_m5,0)>=? AND COALESCE(liquidity_usd,0)>=?
+        ORDER BY volume_m5 DESC, scanned_at DESC LIMIT ?
+    ''', (cutoff, FOLLOW_MIN_VOL, FOLLOW_MIN_LIQ, ACTIVE_LIMIT)).fetchall()
+    for (mint,) in active:
+        add(mint, 'active_follow')
+
+    # Cruciaal: na eerste detectie minstens enkele uren blijven meten,
+    # ook als het eerste 5m-volume nul is. Anders ontstaan geen meetreeksen.
+    early_cutoff = (now_dt - timedelta(hours=EARLY_FOLLOW_HOURS)).isoformat(timespec='seconds')
+    early = conn.execute('''
+        WITH ranked AS (
+          SELECT token_address, scanned_at, pair_age_hours, volume_m5,
+                 ROW_NUMBER() OVER(PARTITION BY token_address
+                                   ORDER BY scanned_at DESC) AS rn
+          FROM snapshots WHERE scanned_at >= ?
+        )
+        SELECT r.token_address FROM ranked r
+        JOIN tokens t ON t.address=r.token_address
+        WHERE r.rn=1 AND t.first_seen>=?
+          AND (r.pair_age_hours BETWEEN 0 AND 24 OR r.pair_age_hours IS NULL)
+        ORDER BY COALESCE(r.volume_m5,0) DESC, r.scanned_at DESC
         LIMIT ?
-    ''', (
-        cutoff,
-        FOLLOW_MIN_VOL,
-        FOLLOW_MIN_LIQ,
-        ACTIVE_LIMIT
-    )).fetchall()
+    ''', (early_cutoff, early_cutoff, EARLY_FOLLOW_LIMIT)).fetchall()
+    for (mint,) in early:
+        add(mint, 'early_follow')
 
-    for (address,) in active:
-        add(address, 'active_follow')
+    # Zoekresultaten die we reeds kennen mogen opnieuw onderzocht worden,
+    # maar niet onbeperkt bij elke run. Oudste meting eerst.
+    revisit_cutoff = (now_dt - timedelta(minutes=SEARCH_REVISIT_MINUTES))
+    revisit = []
+    for mint in known_search:
+        last_seen = lookup[mint][1]
+        try:
+            last_dt = datetime.fromisoformat(last_seen.replace('Z', '+00:00'))
+            if last_dt.tzinfo is None:
+                last_dt = last_dt.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            continue
+        if last_dt <= revisit_cutoff:
+            revisit.append((last_dt, mint))
+    revisit.sort()
+    for _, mint in revisit[:KNOWN_SEARCH_LIMIT]:
+        add(mint, 'search_revisit')
 
-    # Oudere tokens roterend blijven controleren.
     rotation = conn.execute('''
-        SELECT address FROM tokens
-        ORDER BY last_seen ASC
-        LIMIT ?
+        SELECT address FROM tokens ORDER BY last_seen ASC LIMIT ?
     ''', (ROTATION_LIMIT,)).fetchall()
+    for (mint,) in rotation:
+        add(mint, 'history_rotation')
 
-    for (address,) in rotation:
-        add(address, 'history_rotation')
+    for mint in pinned:
+        add(mint, 'paper_open')
 
-    # Open paperposities krijgen altijd prioriteit.
-    for address in pinned:
-        add(address, 'paper_open')
-
-    print(json.dumps({
-        'new_search_tokens': len(
-            raw_search - previously_seen
-        ),
+    summary = {
+        'new_search_tokens': len(fresh_discovered),
         'active_follow': len(active),
+        'early_follow': len(early),
+        'search_revisit': min(len(revisit), KNOWN_SEARCH_LIMIT),
         'rotation': len(rotation),
         'pinned_open': len(pinned),
-        'selected_total': len(addresses),
-    }))
+        'selected_total': len(selected),
+    }
+    print(json.dumps(summary, ensure_ascii=False))
+    return selected, errors, summary
 
-    return addresses, errors
 
-
-def fetch_pairs(addresses):
-    found = {}
-    errors = []
-
+def fetch_pairs(addresses, pinned):
+    found, errors = {}, []
     for start in range(0, len(addresses), 30):
-        group = addresses[start:start + 30]
-
+        group = addresses[start:start+30]
         try:
-            payload = data_get(
-                '/tokens/v1/solana/' + ','.join(group)
-            )
-
+            payload = data_get('/tokens/v1/solana/' + ','.join(group))
             if not isinstance(payload, list):
-                raise ValueError(
-                    'Unexpected response type'
-                )
-
+                raise ValueError('Unexpected response type')
             for pair in payload:
-                if (
-                    not isinstance(pair, dict)
-                    or pair.get('chainId') != 'solana'
-                ):
+                if not isinstance(pair, dict) or pair.get('chainId') != 'solana':
                     continue
-
                 base = pair.get('baseToken') or {}
-                address = base.get('address')
-                pair_address = pair.get('pairAddress')
-
-                if (
-                    address not in group
-                    or not isinstance(pair_address, str)
-                    or not pair_address
-                ):
+                mint, pair_id = base.get('address'), pair.get('pairAddress')
+                if mint not in group or not isinstance(pair_id, str) or not pair_id:
                     continue
-
-                previous = found.get(address)
-
-                liquidity = num(
-                    (pair.get('liquidity') or {}).get('usd')
-                ) or 0
-
-                prev_liquidity = (
-                    num(
-                        (previous.get('liquidity') or {})
-                        .get('usd')
-                    ) or 0
-                ) if previous else -1
-
-                if liquidity > prev_liquidity:
-                    found[address] = pair
-
-        except (
-            requests.RequestException,
-            ValueError,
-            TypeError
-        ) as exc:
-            errors.append(
-                f'batch {start // 30 + 1}: '
-                f'{str(exc)[:140]}'
-            )
-
+                old = found.get(mint)
+                pinned_pairs = pinned.get(mint, set())
+                matching = pair_id in pinned_pairs
+                old_matching = old is not None and old.get('pairAddress') in pinned_pairs
+                liquidity = num((pair.get('liquidity') or {}).get('usd')) or 0
+                old_liq = (num((old.get('liquidity') or {}).get('usd')) or 0) if old else -1
+                if old is None or (matching and not old_matching) or (
+                    matching == old_matching and liquidity > old_liq
+                ):
+                    found[mint] = pair
+        except (requests.RequestException, ValueError, TypeError) as exc:
+            errors.append(f'batch {start//30+1}: {str(exc)[:140]}')
     return found, errors
 
 
-def save_snapshots(
-    conn, pairs, sources, stamp, pinned
-):
-    recorded = 0
-    skipped_short = 0
-
-    current = datetime.fromisoformat(stamp)
+def save_snapshots(conn, pairs, sources, stamp):
+    recorded, skipped_short, skipped_missing_price = 0, 0, 0
+    current = datetime.fromisoformat(stamp.replace('Z', '+00:00'))
+    if current.tzinfo is None:
+        current = current.replace(tzinfo=timezone.utc)
     current_ms = current.timestamp() * 1000
 
-    for address, pair in pairs.items():
-        pair_address = pair['pairAddress']
-
-        # Voorkom onnodig korte intervallen.
-        # Open posities blijven altijd opgevolgd.
-        if address not in pinned:
-            previous = conn.execute('''
-                SELECT scanned_at
-                FROM snapshots
-                WHERE token_address=?
-                  AND pair_address=?
-                ORDER BY scanned_at DESC
-                LIMIT 1
-            ''', (
-                address, pair_address
-            )).fetchone()
-
-            if previous:
-                try:
-                    delta = (
-                        current
-                        - datetime.fromisoformat(
-                            previous[0].replace(
-                                'Z', '+00:00'
-                            )
-                        )
-                    ).total_seconds() / 60
-
-                except (ValueError, TypeError):
-                    delta = MIN_GAP_MINUTES
-
-                if delta < MIN_GAP_MINUTES:
+    for mint, pair in pairs.items():
+        pair_id = pair['pairAddress']
+        prior = conn.execute('''SELECT scanned_at FROM snapshots
+            WHERE token_address=? AND pair_address=? ORDER BY scanned_at DESC LIMIT 1''',
+            (mint, pair_id)).fetchone()
+        if prior:
+            try:
+                past = datetime.fromisoformat(prior[0].replace('Z', '+00:00'))
+                if past.tzinfo is None:
+                    past = past.replace(tzinfo=timezone.utc)
+                gap = (current - past).total_seconds()/60
+                if gap < MIN_GAP_MINUTES:
                     skipped_short += 1
                     continue
-
+            except (ValueError, TypeError):
+                pass
         base = pair.get('baseToken') or {}
-        name = str(base.get('name') or '')[:200]
-        symbol = str(base.get('symbol') or '')[:60]
-
-        liquidity = num(
-            (pair.get('liquidity') or {}).get('usd')
-        )
-        volume = num(
-            (pair.get('volume') or {}).get('m5')
-        )
-
-        tx = (
-            (pair.get('txns') or {}).get('m5')
-            or {}
-        )
-        buys = int(num(tx.get('buys')) or 0)
-        sells = int(num(tx.get('sells')) or 0)
-
+        name, symbol = str(base.get('name') or '')[:200], str(base.get('symbol') or '')[:60]
+        price = num(pair.get('priceUsd'))
+        liq = num((pair.get('liquidity') or {}).get('usd'))
+        volume = num((pair.get('volume') or {}).get('m5'))
+        tx = (pair.get('txns') or {}).get('m5') or {}
+        buys, sells = int(num(tx.get('buys')) or 0), int(num(tx.get('sells')) or 0)
         created = num(pair.get('pairCreatedAt'))
-        age = (
-            max(
-                0,
-                (current_ms - created) / 3600000
-            )
-            if created else None
-        )
+        age = max(0, (current_ms-created)/3600000) if created else None
+        avg = volume/(buys+sells) if volume is not None and buys+sells>0 else None
 
-        average = (
-            volume / (buys + sells)
-            if volume is not None
-            and buys + sells > 0
-            else None
-        )
-
-        conn.execute('''
-            INSERT INTO tokens(
-                address, name, symbol,
-                first_seen, last_seen
-            )
-            VALUES(?,?,?,?,?)
-            ON CONFLICT(address) DO UPDATE SET
-                name=excluded.name,
-                symbol=excluded.symbol,
-                last_seen=excluded.last_seen
-        ''', (
-            address, name, symbol,
-            stamp, stamp
-        ))
-
-        cursor = conn.execute('''
-            INSERT OR IGNORE INTO snapshots(
-                token_address,
-                pair_address,
-                scanned_at,
-                name,
-                symbol,
-                price_usd,
-                liquidity_usd,
-                volume_m5,
-                buys_m5,
-                sells_m5,
-                pair_age_hours,
-                average_trade_usd,
-                source
-            )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
-        ''', (
-            address,
-            pair_address,
-            stamp,
-            name,
-            symbol,
-            num(pair.get('priceUsd')),
-            liquidity,
-            volume,
-            buys,
-            sells,
-            age,
-            average,
-            ','.join(
-                sorted(sources.get(address, []))
-            ),
-        ))
-
+        conn.execute('''INSERT INTO tokens(address,name,symbol,first_seen,last_seen)
+            VALUES(?,?,?,?,?) ON CONFLICT(address) DO UPDATE SET
+            name=excluded.name,symbol=excluded.symbol,last_seen=excluded.last_seen''',
+            (mint,name,symbol,stamp,stamp))
+        cursor = conn.execute('''INSERT OR IGNORE INTO snapshots(
+            token_address,pair_address,scanned_at,name,symbol,price_usd,liquidity_usd,
+            volume_m5,buys_m5,sells_m5,pair_age_hours,average_trade_usd,source)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+            (mint,pair_id,stamp,name,symbol,price,liq,volume,buys,sells,age,avg,
+             ','.join(sorted(sources.get(mint,[])))))
         recorded += cursor.rowcount
-
-    return recorded, skipped_short
+        if price is None or price <= 0:
+            skipped_missing_price += 1
+    return recorded, skipped_short, skipped_missing_price
 
 
 def build_outcomes(conn):
-    """Behoud bestaande 15-, 30- en 60-minutenlabels."""
     inserted = 0
-
-    for horizon in (15, 30, 60):
-        baselines = conn.execute('''
-            SELECT
-                s.token_address,
-                s.pair_address,
-                s.scanned_at,
-                s.price_usd,
-                s.liquidity_usd
-            FROM snapshots s
-            WHERE s.price_usd > 0
-              AND julianday('now')
-                  - julianday(s.scanned_at)
-                  >= ? / 1440.0
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM outcomes o
-                  WHERE o.token_address =
-                        s.token_address
-                    AND o.pair_address =
-                        s.pair_address
-                    AND o.baseline_at =
-                        s.scanned_at
-                    AND o.horizon_minutes = ?
-              )
-            ORDER BY s.scanned_at DESC
-            LIMIT 2000
-        ''', (
-            horizon, horizon
-        )).fetchall()
-
-        for (
-            address, pair, baseline_at,
-            price, liquidity
-        ) in baselines:
-
-            future = conn.execute('''
-                SELECT
-                    scanned_at,
-                    price_usd,
-                    liquidity_usd
-                FROM snapshots
-                WHERE token_address=?
-                  AND pair_address=?
-                  AND price_usd > 0
-                  AND julianday(scanned_at)
-                      >= julianday(?)
-                         + ? / 1440.0
-                  AND julianday(scanned_at)
-                      <= julianday(?)
-                         + (? + 20) / 1440.0
-                ORDER BY scanned_at ASC
-                LIMIT 1
-            ''', (
-                address,
-                pair,
-                baseline_at,
-                horizon,
-                baseline_at,
-                horizon
-            )).fetchone()
-
+    for horizon in (15,30,60):
+        baselines = conn.execute('''SELECT s.token_address,s.pair_address,s.scanned_at,
+            s.price_usd,s.liquidity_usd FROM snapshots s
+            WHERE s.price_usd>0 AND julianday('now')-julianday(s.scanned_at)>=?/1440.0
+              AND NOT EXISTS(SELECT 1 FROM outcomes o
+               WHERE o.token_address=s.token_address AND o.pair_address=s.pair_address
+                 AND o.baseline_at=s.scanned_at AND o.horizon_minutes=?)
+            ORDER BY s.scanned_at DESC LIMIT 2000''', (horizon,horizon)).fetchall()
+        for mint,pair,baseline,price,liquidity in baselines:
+            future=conn.execute('''SELECT scanned_at,price_usd,liquidity_usd
+                FROM snapshots WHERE token_address=? AND pair_address=? AND price_usd>0
+                AND julianday(scanned_at)>=julianday(?)+?/1440.0
+                AND julianday(scanned_at)<=julianday(?)+(?+20)/1440.0
+                ORDER BY scanned_at ASC LIMIT 1''',
+                (mint,pair,baseline,horizon,baseline,horizon)).fetchone()
             if future is None:
                 continue
-
-            (
-                observed_at,
-                future_price,
-                future_liquidity
-            ) = future
-
-            return_pct = 100 * (
-                future_price / price - 1
-            )
-
-            liquidity_change = (
-                100 * (
-                    future_liquidity / liquidity - 1
-                )
-                if liquidity
-                and future_liquidity is not None
-                else None
-            )
-
-            cursor = conn.execute('''
-                INSERT OR IGNORE INTO outcomes(
-                    token_address,
-                    pair_address,
-                    baseline_at,
-                    horizon_minutes,
-                    observed_at,
-                    baseline_price,
-                    future_price,
-                    return_pct,
-                    baseline_liquidity,
-                    future_liquidity,
-                    liquidity_change_pct,
-                    crash_30pct,
-                    liquidity_drop_50pct
-                )
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
-            ''', (
-                address,
-                pair,
-                baseline_at,
-                horizon,
-                observed_at,
-                price,
-                future_price,
-                return_pct,
-                liquidity,
-                future_liquidity,
-                liquidity_change,
-                int(return_pct <= -30),
-                (
-                    int(liquidity_change <= -50)
-                    if liquidity_change is not None
-                    else None
-                ),
-            ))
-
+            observed, future_price, future_liq = future
+            change = 100*(future_price/price-1)
+            liq_change = (100*(future_liq/liquidity-1)
+                          if liquidity and future_liq is not None else None)
+            cursor=conn.execute('''INSERT OR IGNORE INTO outcomes(
+                token_address,pair_address,baseline_at,horizon_minutes,observed_at,
+                baseline_price,future_price,return_pct,baseline_liquidity,future_liquidity,
+                liquidity_change_pct,crash_30pct,liquidity_drop_50pct)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                (mint,pair,baseline,horizon,observed,price,future_price,change,
+                 liquidity,future_liq,liq_change,int(change<=-30),
+                 int(liq_change<=-50) if liq_change is not None else None))
             inserted += cursor.rowcount
-
     return inserted
 
 
 def run():
-    started = now()
-
-    # Lees open posities voordat discovery begint.
-    pinned = open_paper_addresses()
-
+    started=now()
+    pinned=paper_positions()
     with connect() as conn:
-        addresses, errors = discovery(
-            conn, pinned
-        )
-
-        pairs, fetch_errors = fetch_pairs(
-            list(addresses)
-        )
-        errors.extend(fetch_errors)
-
-        recorded, skipped = save_snapshots(
-            conn,
-            pairs,
-            addresses,
-            started,
-            pinned
-        )
-
-        new_labels = build_outcomes(conn)
-        finished = now()
-
-        conn.execute('''
-            INSERT OR REPLACE INTO runs
-            VALUES(?,?,?,?,?,?)
-        ''', (
-            started,
-            finished,
-            len(addresses),
-            recorded,
-            len(errors),
-            json.dumps(errors),
-        ))
+        addresses,errors,selection=discovery(conn,pinned)
+        # Prioriteit: open posities, nieuwe vondsten, vroege kandidaten, actieve tokens.
+        def priority(mint):
+            src=addresses[mint]
+            return (0 if 'paper_open' in src else
+                    1 if 'search_new' in src or 'profile_new' in src else
+                    2 if 'early_follow' in src else
+                    3 if 'active_follow' in src else
+                    4 if 'search_revisit' in src else 5, mint)
+        tokens=sorted(addresses,key=priority)
+        pairs,more_errors=fetch_pairs(tokens,pinned)
+        errors.extend(more_errors)
+        recorded,skipped,bad_price=save_snapshots(conn,pairs,addresses,started)
+        new_labels=build_outcomes(conn)
+        finished=now()
+        conn.execute('''INSERT OR REPLACE INTO runs
+            (started_at,finished_at,discovered,snapshots,error_count,errors)
+            VALUES(?,?,?,?,?,?)''',
+            (started,finished,len(addresses),recorded,len(errors),json.dumps(errors)))
         conn.commit()
+        total_labels=conn.execute('SELECT COUNT(*) FROM outcomes').fetchone()[0]
+        total_snapshots=conn.execute('SELECT COUNT(*) FROM snapshots').fetchone()[0]
 
-        total_labels = conn.execute(
-            'SELECT COUNT(*) FROM outcomes'
-        ).fetchone()[0]
-
-        total_snapshots = conn.execute(
-            'SELECT COUNT(*) FROM snapshots'
-        ).fetchone()[0]
-
-    LATEST.parent.mkdir(
-        parents=True, exist_ok=True
-    )
-
-    summary = {
-        'started_at_utc': started,
-        'finished_at_utc': finished,
-        'discovered': len(addresses),
-        'recorded': recorded,
-        'skipped_short_interval': skipped,
-        'open_paper_tokens_followed': len(pinned),
-        'new_labels': new_labels,
-        'total_labels': total_labels,
-        'total_snapshots': total_snapshots,
-        'errors': errors[:25],
-        'note': (
-            'Research only. Snapshot gaps '
-            'and wallet risks remain unknown.'
-        ),
+    summary={
+        'started_at_utc':started, 'finished_at_utc':finished,
+        'discovered':len(addresses), 'recorded':recorded,
+        'skipped_short_interval':skipped,
+        'open_paper_tokens_followed':len(pinned),
+        'new_labels':new_labels, 'total_labels':total_labels,
+        'total_snapshots':total_snapshots, 'errors':errors[:25],
+        'selection':selection,
+        'pairs_with_market_data':len(pairs),
+        'invalid_price_snapshots':bad_price,
+        'note':'Research only: een marktmeting bevestigt geen tokenveiligheid of verkoopbaarheid.',
     }
-
-    LATEST.write_text(
-        json.dumps(
-            summary,
-            indent=2,
-            ensure_ascii=False
-        ) + '\n',
-        encoding='utf-8'
-    )
-
-    print(json.dumps(
-        summary, ensure_ascii=False
-    ))
-
-    if recorded == 0 and errors:
-        raise RuntimeError(
-            'No snapshots recorded; API errors detected'
-        )
+    LATEST.parent.mkdir(parents=True,exist_ok=True)
+    LATEST.write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+    print(json.dumps(summary,ensure_ascii=False))
+    if recorded==0 and errors:
+        raise RuntimeError('No snapshots recorded; API errors detected')
 
 
-if __name__ == '__main__':
+if __name__=='__main__':
     run()
