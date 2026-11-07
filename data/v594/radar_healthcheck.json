@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-07T23:25:24+00:00",
-  "last_scan_utc": "2026-11-07T23:25:23+00:00",
+  "checked_at_utc": "2026-11-07T23:30:38+00:00",
+  "last_scan_utc": "2026-11-07T23:30:37+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 51,
-  "recorded": 31,
+  "selected": 55,
+  "recorded": 35,
   "selection": {
-    "new_search_tokens": 0,
-    "active_follow": 8,
-    "early_follow": 9,
-    "search_revisit": 16,
+    "new_search_tokens": 1,
+    "active_follow": 10,
+    "early_follow": 24,
+    "search_revisit": 1,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 23,
-      "revisit": 20,
+      "early": 8,
+      "revisit": 56,
       "rotation": 0
     },
     "pinned_open": 2,
-    "selected_total": 51
+    "selected_total": 55
   },
-  "signals_last_run": 3,
+  "signals_last_run": 0,
   "open_positions": [
     {
       "strategy": "B",
@@ -26,10 +26,10 @@
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 1.5,
+      "age_hours": 1.59,
       "entry_market": 0.0001958,
       "last_price": 1.645e-06,
-      "last_market_age_minutes": 0.1,
+      "last_market_age_minutes": 0.0,
       "gross_price_change_pct": -99.16,
       "market_liquidity_usd": 1656.65
     },
@@ -39,12 +39,12 @@
       "name": "GTA VI",
       "pair": "9TyHyXsEYgouVUJ66vcJkr4BpPi65H2muAMuVeUyy9WM",
       "opened_at": "2026-11-07T23:25:19+00:00",
-      "age_hours": 0.0,
+      "age_hours": 0.09,
       "entry_market": 7.777e-05,
-      "last_price": 7.777e-05,
-      "last_market_age_minutes": 0.1,
-      "gross_price_change_pct": 0.0,
-      "market_liquidity_usd": 60370.94
+      "last_price": 7.705e-05,
+      "last_market_age_minutes": 0.0,
+      "gross_price_change_pct": -0.93,
+      "market_liquidity_usd": 60020.43
     },
     {
       "strategy": "C",
@@ -52,12 +52,12 @@
       "name": "GTA VI",
       "pair": "9TyHyXsEYgouVUJ66vcJkr4BpPi65H2muAMuVeUyy9WM",
       "opened_at": "2026-11-07T23:20:22+00:00",
-      "age_hours": 0.08,
+      "age_hours": 0.17,
       "entry_market": 7.317e-05,
-      "last_price": 7.777e-05,
-      "last_market_age_minutes": 0.1,
-      "gross_price_change_pct": 6.29,
-      "market_liquidity_usd": 60370.94
+      "last_price": 7.705e-05,
+      "last_market_age_minutes": 0.0,
+      "gross_price_change_pct": 5.3,
+      "market_liquidity_usd": 60020.43
     }
   ],
   "closed_portfolios": {
