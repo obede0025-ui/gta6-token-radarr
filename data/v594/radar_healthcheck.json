@@ -1,37 +1,50 @@
 {
-  "checked_at_utc": "2026-11-07T19:25:18+00:00",
-  "last_scan_utc": "2026-11-07T19:25:17+00:00",
+  "checked_at_utc": "2026-11-07T19:30:38+00:00",
+  "last_scan_utc": "2026-11-07T19:30:37+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 45,
-  "recorded": 25,
+  "selected": 40,
+  "recorded": 20,
   "selection": {
     "new_search_tokens": 0,
     "active_follow": 10,
-    "early_follow": 16,
+    "early_follow": 11,
     "search_revisit": 3,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 8,
-      "revisit": 69,
+      "early": 13,
+      "revisit": 73,
       "rotation": 0
     },
-    "pinned_open": 1,
-    "selected_total": 45
+    "pinned_open": 2,
+    "selected_total": 40
   },
-  "signals_last_run": 2,
+  "signals_last_run": 1,
   "open_positions": [
+    {
+      "strategy": "B",
+      "token": "GAGDqXtsZyEb3meqYDVfZ61bpbeCmhQJpxXffhkapump",
+      "name": "Macca The Gator",
+      "pair": "8NV6b1xxHux7snhjgWszppFZm2e8kHeVSijfA795UVfS",
+      "opened_at": "2026-11-07T19:30:36+00:00",
+      "age_hours": 0.0,
+      "entry_market": 4.374e-05,
+      "last_price": 4.374e-05,
+      "last_market_age_minutes": 0.0,
+      "gross_price_change_pct": 0.0,
+      "market_liquidity_usd": 15484.96
+    },
     {
       "strategy": "C",
       "token": "9RZeokzHNXoRyJkWDFdvcQTAzUhKpXm7RrqkUM3Fpump",
       "name": "CHILL",
       "pair": "GoM6pz6Nc2NATJvtR29Xa98GSQmJzt72rJNkEKypRZs8",
       "opened_at": "2026-11-07T17:40:24+00:00",
-      "age_hours": 1.75,
+      "age_hours": 1.84,
       "entry_market": 0.0007153,
-      "last_price": 0.0007471,
+      "last_price": 0.0007269,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 4.45,
-      "market_liquidity_usd": 67487.3
+      "gross_price_change_pct": 1.62,
+      "market_liquidity_usd": 66552.0
     },
     {
       "strategy": "C",
@@ -39,12 +52,12 @@
       "name": "GTA6 Mendez",
       "pair": "9seBidEsbUSTW8XbbacZB6ab2tY72P6xp51mFtPUWHp6",
       "opened_at": "2026-11-07T19:25:16+00:00",
-      "age_hours": 0.0,
+      "age_hours": 0.09,
       "entry_market": 6.165e-05,
-      "last_price": 6.165e-05,
+      "last_price": 5.877e-05,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 0.0,
-      "market_liquidity_usd": 18201.32
+      "gross_price_change_pct": -4.67,
+      "market_liquidity_usd": 17739.24
     }
   ],
   "closed_portfolios": {
