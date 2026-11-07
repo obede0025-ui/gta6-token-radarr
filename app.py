@@ -1212,3 +1212,111 @@ def recovery_panel_v2():
 
 
 recovery_panel_v2()
+
+# ============================================================
+# V5.8 FASE 1 — SOLANA HOLDER / WALLET RESEARCH (READ ONLY)
+# Voeg ONDERAAN de bestaande app.py toe. Geen oude code vervangen.
+# ============================================================
+
+def _v58_rpc(method, params):
+    endpoint = secret('SOLANA_RPC_URL', 'https://api.mainnet-beta.solana.com')
+    if not endpoint.startswith('https://'):
+        raise ValueError('SOLANA_RPC_URL moet met https:// beginnen')
+    response = requests.post(
+        endpoint,
+        json={'jsonrpc':'2.0','id':1,'method':method,'params':params},
+        timeout=25,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    if 'error' in payload:
+        raise RuntimeError(str(payload['error']))
+    return payload.get('result')
+
+
+def _v58_setup():
+    with db() as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS v58_holders (
+            mint TEXT NOT NULL, checked_at TEXT NOT NULL,
+            token_account TEXT NOT NULL, owner TEXT,
+            raw_amount TEXT NOT NULL, decimals INTEGER NOT NULL,
+            quantity REAL, supply_share_pct REAL,
+            PRIMARY KEY(mint,checked_at,token_account)
+        )''')
+        conn.execute('''CREATE INDEX IF NOT EXISTS idx_v58_mint_time
+            ON v58_holders(mint,checked_at)''')
+
+
+def _v58_snapshot(mint):
+    largest = _v58_rpc('getTokenLargestAccounts', [mint, {'commitment':'confirmed'}])
+    supply_result = _v58_rpc('getTokenSupply', [mint, {'commitment':'confirmed'}])
+    if not largest or 'value' not in largest or not supply_result:
+        raise RuntimeError('Onvolledig RPC-resultaat')
+    holders = largest['value'][:20]
+    accounts = [entry['address'] for entry in holders]
+    parsed = _v58_rpc('getMultipleAccounts', [accounts, {'encoding':'jsonParsed', 'commitment':'confirmed'}]) if accounts else {'value':[]}
+    account_data = (parsed or {}).get('value') or []
+    raw_supply = int(supply_result['value']['amount'])
+    if raw_supply <= 0:
+        raise RuntimeError('Tokenaanbod is nul; concentratie niet berekend')
+    stamp = datetime.now(timezone.utc).isoformat(timespec='microseconds')
+    rows = []
+    for idx, item in enumerate(holders):
+        info = (account_data[idx] or {}) if idx < len(account_data) else {}
+        data = info.get('data') or {}
+        details = (data.get('parsed') or {}).get('info') or {} if isinstance(data, dict) else {}
+        raw = int(item['amount'])
+        decimals = int(item['decimals'])
+        rows.append((mint,stamp,item['address'],details.get('owner'),str(raw),decimals,
+                     raw/(10**decimals),raw/raw_supply*100))
+    with db() as conn:
+        conn.executemany('''INSERT INTO v58_holders
+            (mint,checked_at,token_account,owner,raw_amount,decimals,quantity,supply_share_pct)
+            VALUES(?,?,?,?,?,?,?,?)''',rows)
+    return stamp, len(rows)
+
+
+def smart_money_panel_v58():
+    _v58_setup()
+    st.divider()
+    st.subheader('🔎 V5.8 — Solana wallets & tokenconcentratie (fase 1)')
+    st.caption('Alleen lezen: top 20 tokenaccounts en on-chain eigenaar waar beschikbaar. '
+               'Een groot saldo bewijst geen winstgevende trader. Balansveranderingen zijn niet automatisch koop/verkoop.')
+    mint = st.text_input('Solana-tokenadres (mint)',
+        value='D7eCYXewMoJ94xiXtbsiGu6XjyBEimwSpVyxYodnpump',
+        key='v58_mint').strip()
+    if st.button('🔍 Analyseer grootste tokenaccounts', key='v58_fetch'):
+        if not ADDRESS.fullmatch(mint):
+            st.error('Ongeldig Solana-mintadres')
+        else:
+            try:
+                with st.spinner('Solana RPC controleren...'):
+                    stamp, count = _v58_snapshot(mint)
+                st.success(f'{count} tokenaccounts opgeslagen om {be_time(stamp)}')
+                try:
+                    st.caption('Supabase: ' + backup_remote(force=True))
+                except (requests.RequestException, sqlite3.Error, RuntimeError, OSError, ValueError) as exc:
+                    st.error('Back-up van nieuwe V5.8-data mislukt: ' + str(exc))
+            except (requests.RequestException, ValueError, RuntimeError, KeyError, TypeError, OverflowError) as exc:
+                st.error('RPC-analyse mislukt: ' + str(exc))
+                st.caption('Publieke Solana RPC kan 403/429 teruggeven. Gebruik indien nodig een eigen HTTPS RPC via SOLANA_RPC_URL in Streamlit Secrets.')
+    if not ADDRESS.fullmatch(mint):
+        return
+    rows = select('''SELECT checked_at,token_account,owner,quantity,supply_share_pct
+        FROM v58_holders WHERE mint=? AND checked_at=(
+            SELECT MAX(checked_at) FROM v58_holders WHERE mint=?
+        ) ORDER BY supply_share_pct DESC''',(mint,mint))
+    if not rows:
+        st.info('Nog geen walletmetingen voor dit token. Klik op Analyseer grootste tokenaccounts.')
+        return
+    frame = pd.DataFrame(rows,columns=['Gemeten UTC','Tokenaccount','Eigenaar (wallet)','Hoeveelheid','Aandeel aanbod (%)'])
+    st.metric('Aandeel 20 grootste tokenaccounts',f"{frame['Aandeel aanbod (%)'].sum():.2f}%")
+    st.dataframe(frame,hide_index=True,use_container_width=True)
+    st.download_button('📥 Walletsnapshot CSV',frame.to_csv(index=False).encode('utf-8'),
+                       'v58_wallet_snapshot.csv','text/csv',key='v58_csv')
+    history_rows = select('''SELECT checked_at,COUNT(*),SUM(supply_share_pct)
+        FROM v58_holders WHERE mint=? GROUP BY checked_at ORDER BY checked_at DESC LIMIT 20''',(mint,))
+    st.caption(f'{len(history_rows)} snapshots opgeslagen voor dit mintadres.')
+
+
+smart_money_panel_v58()
