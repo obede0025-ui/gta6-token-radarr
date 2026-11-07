@@ -2,27 +2,27 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 4188,
-  "unique_pairs": 257,
-  "window_start_utc": "2026-11-06T20:35:16+00:00",
-  "window_end_utc": "2026-11-07T20:35:16+00:00",
+  "observations": 4108,
+  "unique_pairs": 250,
+  "window_start_utc": "2026-11-06T20:40:21+00:00",
+  "window_end_utc": "2026-11-07T20:40:21+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 3931,
-    "gaps_over_20_min": 1333,
-    "gap_rate_pct": 33.91,
-    "gaps_with_observed_rise_over_20pct": 15
+    "intervals": 3858,
+    "gaps_over_20_min": 1227,
+    "gap_rate_pct": 31.8,
+    "gaps_with_observed_rise_over_20pct": 11
   },
   "before_cooldown": {
-    "intervals": 2944,
-    "gaps_over_20_min": 954,
-    "gap_rate_pct": 32.4,
-    "gaps_with_observed_rise_over_20pct": 15
+    "intervals": 2833,
+    "gaps_over_20_min": 843,
+    "gap_rate_pct": 29.76,
+    "gaps_with_observed_rise_over_20pct": 11
   },
   "after_cooldown": {
-    "intervals": 878,
-    "gaps_over_20_min": 287,
-    "gap_rate_pct": 32.69,
+    "intervals": 916,
+    "gaps_over_20_min": 292,
+    "gap_rate_pct": 31.88,
     "gaps_with_observed_rise_over_20pct": 0
   },
   "top_potential_blind_spots": [
@@ -54,36 +54,12 @@
       "token": "CXRT8bpLxm2aeJ1FteTCKESm8nseeZ1b36S3f4CYpump",
       "pair": "BodZ7ruYsgF65hhZ2aYppRdtxik9onErSKWHPLhrB4xx",
       "name": "GTA6DOG",
-      "from_utc": "2026-11-06T20:37:59+00:00",
-      "to_utc": "2026-11-07T00:58:43+00:00",
-      "gap_minutes": 260.73,
-      "observed_price_change_pct": 190.39,
-      "volume_m5_at_return": 338.22,
-      "liquidity_usd_at_return": 27312.81,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "CXRT8bpLxm2aeJ1FteTCKESm8nseeZ1b36S3f4CYpump",
-      "pair": "BodZ7ruYsgF65hhZ2aYppRdtxik9onErSKWHPLhrB4xx",
-      "name": "GTA6DOG",
       "from_utc": "2026-11-07T06:49:46+00:00",
       "to_utc": "2026-11-07T11:30:39+00:00",
       "gap_minutes": 280.88,
       "observed_price_change_pct": 84.05,
       "volume_m5_at_return": 688.65,
       "liquidity_usd_at_return": 35212.58,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "BWJfBNeXpapG7uoqByp5KSwWgCQba8QcDmA2DQiEpump",
-      "pair": "5GxdoPcK2LJ6QYcJ3uvtC37tgsFHma55ULFkufTYe49R",
-      "name": "State of Leonida",
-      "from_utc": "2026-11-06T20:37:59+00:00",
-      "to_utc": "2026-11-07T00:58:43+00:00",
-      "gap_minutes": 260.73,
-      "observed_price_change_pct": 68.94,
-      "volume_m5_at_return": 356.81,
-      "liquidity_usd_at_return": 32238.31,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -120,18 +96,6 @@
       "observed_price_change_pct": 44.83,
       "volume_m5_at_return": 1.17,
       "liquidity_usd_at_return": 6927.56,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "519AMDtBqCpVk8CTYCg2i9kJQH62ZSkT5Uvfn71Upump",
-      "pair": "9xgF5yvxsjxtpHC11K8tG1b5iu7MXB7DbW9E6qKBrbzM",
-      "name": "Mission Passed",
-      "from_utc": "2026-11-06T20:37:59+00:00",
-      "to_utc": "2026-11-07T00:58:43+00:00",
-      "gap_minutes": 260.73,
-      "observed_price_change_pct": 38.7,
-      "volume_m5_at_return": 2.92,
-      "liquidity_usd_at_return": 5486.08,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -193,21 +157,9 @@
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 7910.64,
       "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "2gVNeu8dP7XiLoaWfUvUJXUM5AdXY8418aft8xhUpump",
-      "pair": "88FJjLwfn9dz3uGFt8tFxcwJugfGFTLDqEiTpt1uRypu",
-      "name": "GTA VI",
-      "from_utc": "2026-11-06T20:37:59+00:00",
-      "to_utc": "2026-11-07T00:58:43+00:00",
-      "gap_minutes": 260.73,
-      "observed_price_change_pct": 23.18,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 33549.98,
-      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 15,
+  "blind_spot_count": 11,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
