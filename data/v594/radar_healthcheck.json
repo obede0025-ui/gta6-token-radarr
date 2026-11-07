@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-07T17:30:39+00:00",
-  "last_scan_utc": "2026-11-07T17:30:39+00:00",
+  "checked_at_utc": "2026-11-07T17:35:16+00:00",
+  "last_scan_utc": "2026-11-07T17:35:16+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 47,
-  "recorded": 27,
+  "selected": 32,
+  "recorded": 12,
   "selection": {
-    "new_search_tokens": 0,
-    "active_follow": 10,
-    "early_follow": 18,
-    "search_revisit": 1,
+    "new_search_tokens": 2,
+    "active_follow": 8,
+    "early_follow": 2,
+    "search_revisit": 2,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 0,
-      "revisit": 77,
+      "early": 16,
+      "revisit": 76,
       "rotation": 0
     },
     "pinned_open": 1,
-    "selected_total": 47
+    "selected_total": 32
   },
-  "signals_last_run": 5,
+  "signals_last_run": 3,
   "open_positions": [
     {
       "strategy": "A",
@@ -26,12 +26,25 @@
       "name": "GTA VI",
       "pair": "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44",
       "opened_at": "2026-11-07T16:55:17+00:00",
-      "age_hours": 0.59,
+      "age_hours": 0.67,
       "entry_market": 9.381e-05,
-      "last_price": 0.0001143,
+      "last_price": 0.0001176,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 21.84,
-      "market_liquidity_usd": 25404.64
+      "gross_price_change_pct": 25.36,
+      "market_liquidity_usd": 25792.27
+    },
+    {
+      "strategy": "B",
+      "token": "9pqtMh3DnydKbAvTp97N9ht1mkUB8wvvsTefg4KzM8se",
+      "name": "LUCIA",
+      "pair": "EP6NqC6HbMSz56NKWq2a4ZBUnmTf7cqzhuWH8LsYmF1c",
+      "opened_at": "2026-11-07T17:35:15+00:00",
+      "age_hours": 0.0,
+      "entry_market": 6.555e-05,
+      "last_price": 6.555e-05,
+      "last_market_age_minutes": 0.0,
+      "gross_price_change_pct": 0.0,
+      "market_liquidity_usd": 30071.18
     }
   ],
   "closed_portfolios": {

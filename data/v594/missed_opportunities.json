@@ -1,0 +1,213 @@
+{
+  "version": "1.0",
+  "mode": "READ_ONLY_RETROSPECTIVE",
+  "analysis_window_hours": 24,
+  "observations": 3228,
+  "unique_pairs": 206,
+  "window_start_utc": "2026-11-06T17:35:15+00:00",
+  "window_end_utc": "2026-11-07T17:35:15+00:00",
+  "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
+  "overall": {
+    "intervals": 3022,
+    "gaps_over_20_min": 971,
+    "gap_rate_pct": 32.13,
+    "gaps_with_observed_rise_over_20pct": 15
+  },
+  "before_cooldown": {
+    "intervals": 2944,
+    "gaps_over_20_min": 954,
+    "gap_rate_pct": 32.4,
+    "gaps_with_observed_rise_over_20pct": 15
+  },
+  "after_cooldown": {
+    "intervals": 44,
+    "gaps_over_20_min": 0,
+    "gap_rate_pct": 0.0,
+    "gaps_with_observed_rise_over_20pct": 0
+  },
+  "top_potential_blind_spots": [
+    {
+      "token": "AQCXjW9h79HcxLeUVbC2K7ZvCiNqkr65rwQVRoRGsq7U",
+      "pair": "FDDWpVPRbhJHZxJjLtJv9viUb6whRAVtsAzAYijT1khx",
+      "name": "Vice City",
+      "from_utc": "2026-11-07T06:49:46+00:00",
+      "to_utc": "2026-11-07T11:30:39+00:00",
+      "gap_minutes": 280.88,
+      "observed_price_change_pct": 1660.93,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 0.0,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "5BAquUbn2maBjcwKLBc4VHVfVdT1fH4gPGsJpGtghUgV",
+      "pair": "9XUSXUr5TzYnfWHwbVdnkPD9ks9dA2awunt76suiu8pd",
+      "name": "GTA VI",
+      "from_utc": "2026-11-07T14:06:43+00:00",
+      "to_utc": "2026-11-07T15:00:35+00:00",
+      "gap_minutes": 53.87,
+      "observed_price_change_pct": 458.1,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 0.0,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "CXRT8bpLxm2aeJ1FteTCKESm8nseeZ1b36S3f4CYpump",
+      "pair": "BodZ7ruYsgF65hhZ2aYppRdtxik9onErSKWHPLhrB4xx",
+      "name": "GTA6DOG",
+      "from_utc": "2026-11-06T20:37:59+00:00",
+      "to_utc": "2026-11-07T00:58:43+00:00",
+      "gap_minutes": 260.73,
+      "observed_price_change_pct": 190.39,
+      "volume_m5_at_return": 338.22,
+      "liquidity_usd_at_return": 27312.81,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "CXRT8bpLxm2aeJ1FteTCKESm8nseeZ1b36S3f4CYpump",
+      "pair": "BodZ7ruYsgF65hhZ2aYppRdtxik9onErSKWHPLhrB4xx",
+      "name": "GTA6DOG",
+      "from_utc": "2026-11-07T06:49:46+00:00",
+      "to_utc": "2026-11-07T11:30:39+00:00",
+      "gap_minutes": 280.88,
+      "observed_price_change_pct": 84.05,
+      "volume_m5_at_return": 688.65,
+      "liquidity_usd_at_return": 35212.58,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "BWJfBNeXpapG7uoqByp5KSwWgCQba8QcDmA2DQiEpump",
+      "pair": "5GxdoPcK2LJ6QYcJ3uvtC37tgsFHma55ULFkufTYe49R",
+      "name": "State of Leonida",
+      "from_utc": "2026-11-06T20:37:59+00:00",
+      "to_utc": "2026-11-07T00:58:43+00:00",
+      "gap_minutes": 260.73,
+      "observed_price_change_pct": 68.94,
+      "volume_m5_at_return": 356.81,
+      "liquidity_usd_at_return": 32238.31,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "25NVbDfwuAVhb2XADxGCs6WQuPjU1RsgDfUG6GV132Tm",
+      "pair": "5ExM58QJPrwwpQaLkqZjjAJwymzqbtxAeJRbTAxgpQ19",
+      "name": "Grand Theft Auto VI -Vicecity",
+      "from_utc": "2026-11-07T00:58:43+00:00",
+      "to_utc": "2026-11-07T06:49:46+00:00",
+      "gap_minutes": 351.05,
+      "observed_price_change_pct": 63.39,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 13802.18,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "BWJfBNeXpapG7uoqByp5KSwWgCQba8QcDmA2DQiEpump",
+      "pair": "5GxdoPcK2LJ6QYcJ3uvtC37tgsFHma55ULFkufTYe49R",
+      "name": "State of Leonida",
+      "from_utc": "2026-11-07T00:58:43+00:00",
+      "to_utc": "2026-11-07T06:49:46+00:00",
+      "gap_minutes": 351.05,
+      "observed_price_change_pct": 59.31,
+      "volume_m5_at_return": 8130.0,
+      "liquidity_usd_at_return": 41252.83,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "519AMDtBqCpVk8CTYCg2i9kJQH62ZSkT5Uvfn71Upump",
+      "pair": "9xgF5yvxsjxtpHC11K8tG1b5iu7MXB7DbW9E6qKBrbzM",
+      "name": "Mission Passed",
+      "from_utc": "2026-11-07T00:58:43+00:00",
+      "to_utc": "2026-11-07T06:49:46+00:00",
+      "gap_minutes": 351.05,
+      "observed_price_change_pct": 44.83,
+      "volume_m5_at_return": 1.17,
+      "liquidity_usd_at_return": 6927.56,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "519AMDtBqCpVk8CTYCg2i9kJQH62ZSkT5Uvfn71Upump",
+      "pair": "9xgF5yvxsjxtpHC11K8tG1b5iu7MXB7DbW9E6qKBrbzM",
+      "name": "Mission Passed",
+      "from_utc": "2026-11-06T20:37:59+00:00",
+      "to_utc": "2026-11-07T00:58:43+00:00",
+      "gap_minutes": 260.73,
+      "observed_price_change_pct": 38.7,
+      "volume_m5_at_return": 2.92,
+      "liquidity_usd_at_return": 5486.08,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "8JCjZbMPXZPHXWwCdTh2skHN7NDEDuakNbP83ZdYpump",
+      "pair": "7ScZKCFVNGX1GjWvGsNPoBN2K7EmqKJQFei1fiDur1M8",
+      "name": "GTA VI",
+      "from_utc": "2026-11-07T00:58:43+00:00",
+      "to_utc": "2026-11-07T06:49:46+00:00",
+      "gap_minutes": 351.05,
+      "observed_price_change_pct": 31.47,
+      "volume_m5_at_return": 78.6,
+      "liquidity_usd_at_return": 32828.06,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "3nYhSBcKHdiBnduPe1rHuwpGqnhRXQAwD5vbGs36BAGS",
+      "pair": "A9oCVuzs8PepfLhQTHzb6fQHF3Lx7aEF6mTGcNH8bBBP",
+      "name": "Grand Theft Auto 6",
+      "from_utc": "2026-11-07T11:30:39+00:00",
+      "to_utc": "2026-11-07T11:59:56+00:00",
+      "gap_minutes": 29.28,
+      "observed_price_change_pct": 30.76,
+      "volume_m5_at_return": 16.09,
+      "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "3nYhSBcKHdiBnduPe1rHuwpGqnhRXQAwD5vbGs36BAGS",
+      "pair": "A9oCVuzs8PepfLhQTHzb6fQHF3Lx7aEF6mTGcNH8bBBP",
+      "name": "Grand Theft Auto 6",
+      "from_utc": "2026-11-07T12:21:17+00:00",
+      "to_utc": "2026-11-07T13:01:38+00:00",
+      "gap_minutes": 40.35,
+      "observed_price_change_pct": 30.74,
+      "volume_m5_at_return": 627.86,
+      "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "5BAquUbn2maBjcwKLBc4VHVfVdT1fH4gPGsJpGtghUgV",
+      "pair": "9XUSXUr5TzYnfWHwbVdnkPD9ks9dA2awunt76suiu8pd",
+      "name": "GTA VI",
+      "from_utc": "2026-11-07T13:36:19+00:00",
+      "to_utc": "2026-11-07T13:59:44+00:00",
+      "gap_minutes": 23.42,
+      "observed_price_change_pct": 29.63,
+      "volume_m5_at_return": 18457.36,
+      "liquidity_usd_at_return": 40495.82,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "519AMDtBqCpVk8CTYCg2i9kJQH62ZSkT5Uvfn71Upump",
+      "pair": "9xgF5yvxsjxtpHC11K8tG1b5iu7MXB7DbW9E6qKBrbzM",
+      "name": "Mission Passed",
+      "from_utc": "2026-11-07T06:49:46+00:00",
+      "to_utc": "2026-11-07T11:30:39+00:00",
+      "gap_minutes": 280.88,
+      "observed_price_change_pct": 24.55,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 7910.64,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "2gVNeu8dP7XiLoaWfUvUJXUM5AdXY8418aft8xhUpump",
+      "pair": "88FJjLwfn9dz3uGFt8tFxcwJugfGFTLDqEiTpt1uRypu",
+      "name": "GTA VI",
+      "from_utc": "2026-11-06T20:37:59+00:00",
+      "to_utc": "2026-11-07T00:58:43+00:00",
+      "gap_minutes": 260.73,
+      "observed_price_change_pct": 23.18,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 33549.98,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    }
+  ],
+  "blind_spot_count": 15,
+  "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
+  "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
+}
