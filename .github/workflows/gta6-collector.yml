@@ -1,6 +1,6 @@
 name: GTA6 Learning Collector
 
-# cron-job.org remains the only scheduler.
+# Existing external cron-job.org schedule unchanged.
 on:
   workflow_dispatch:
 
@@ -48,19 +48,24 @@ jobs:
             radar_healthcheck.py \
             radar_missed_opportunities.py \
             radar_quote_monitor.py \
-            radar_execution_safety.py
+            radar_execution_safety.py \
+            radar_pretrade_safety.py
 
       - name: Collect GTA6 market data
+        run: python collector.py
+
+      - name: Pre-Trade Safety V2 (shadow, read-only)
+        env:
+          JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
         run: |
-          python collector.py
+          python radar_pretrade_safety.py > data/v594/pretrade_safety.json
+          python -m json.tool data/v594/pretrade_safety.json
 
       - name: Run paper engine A B C
-        run: |
-          python v592_paper_runner.py
+        run: python v592_paper_runner.py
 
       - name: Record scan history
-        run: |
-          python v594_health.py
+        run: python v594_health.py
 
       - name: Radar Healthcheck V1
         run: |
@@ -70,8 +75,7 @@ jobs:
 
       - name: Missed Opportunities Audit V1 (read-only)
         run: |
-          python radar_missed_opportunities.py \
-            > data/v594/missed_opportunities.json
+          python radar_missed_opportunities.py > data/v594/missed_opportunities.json
           python -m json.tool data/v594/missed_opportunities.json
 
       - name: Jupiter Quote Monitor V1 (read-only)
@@ -79,14 +83,12 @@ jobs:
           JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
           SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
         run: |
-          python radar_quote_monitor.py \
-            > data/v594/jupiter_quote_monitor.json
+          python radar_quote_monitor.py > data/v594/jupiter_quote_monitor.json
           python -m json.tool data/v594/jupiter_quote_monitor.json
 
       - name: Execution Safety V1 (read-only, live blocked)
         run: |
-          python radar_execution_safety.py \
-            > data/v594/execution_safety.json
+          python radar_execution_safety.py > data/v594/execution_safety.json
           python -m json.tool data/v594/execution_safety.json
 
       - name: Save collector portfolio and history
@@ -107,7 +109,8 @@ jobs:
               data/v594/radar_healthcheck.json \
               data/v594/missed_opportunities.json \
               data/v594/jupiter_quote_monitor.json \
-              data/v594/execution_safety.json
+              data/v594/execution_safety.json \
+              data/v594/pretrade_safety.json
 
             if git diff --cached --quiet; then
               echo 'No changes'
@@ -117,7 +120,7 @@ jobs:
             git commit -m 'data: GTA6 automatic collector [skip ci]'
 
             if git push origin HEAD:main; then
-              echo 'Collector, paper, health, quotes, and safety report saved'
+              echo 'Collector, portfolio, audit and safety saved'
               exit 0
             fi
 
@@ -126,6 +129,7 @@ jobs:
             git reset --hard origin/main
 
             python collector.py
+            python radar_pretrade_safety.py > data/v594/pretrade_safety.json
             python v592_paper_runner.py
             python v594_health.py
             mkdir -p data/v594
@@ -152,5 +156,6 @@ jobs:
             data/v594/missed_opportunities.json
             data/v594/jupiter_quote_monitor.json
             data/v594/execution_safety.json
+            data/v594/pretrade_safety.json
           if-no-files-found: ignore
           retention-days: 14
