@@ -1453,3 +1453,481 @@ def smart_money_panel_v581():
 
 
 smart_money_panel_v581()
+
+# ============================================================
+# V5.8.2 — WALLET INTELLIGENCE
+# Toevoegen onderaan de bestaande app.py
+# ============================================================
+
+_SYSTEM_PROGRAM_V582 = '11111111111111111111111111111111'
+
+
+def _v582_latest_pair(mint):
+    with db() as conn:
+        stamps = [
+            x[0] for x in conn.execute(
+                'SELECT DISTINCT checked_at FROM v58_holders '
+                'WHERE mint=? ORDER BY checked_at DESC LIMIT 2',
+                (mint,)
+            )
+        ]
+
+        data = []
+
+        for stamp in stamps:
+            rows = conn.execute(
+                'SELECT token_account,owner,raw_amount,'
+                'decimals,supply_share_pct '
+                'FROM v58_holders '
+                'WHERE mint=? AND checked_at=?',
+                (mint, stamp)
+            ).fetchall()
+
+            accounts = [
+                dict(
+                    token_account=a,
+                    owner=b,
+                    raw_amount=c,
+                    decimals=d,
+                    supply_share_pct=e
+                )
+                for a, b, c, d, e in rows
+            ]
+
+            data.append((stamp, accounts))
+
+    return data
+
+
+def _v582_owner_summary(accounts):
+    by_owner = {}
+
+    for entry in accounts:
+        owner = (
+            entry.get('owner')
+            or 'ONBEKENDE_EIGENAAR_' + entry['token_account']
+        )
+
+        group = by_owner.setdefault(
+            owner,
+            {
+                'wallet': owner,
+                'accounts': 0,
+                'share': 0.0
+            }
+        )
+
+        group['accounts'] += 1
+        group['share'] += float(
+            entry.get('supply_share_pct') or 0
+        )
+
+    return sorted(
+        by_owner.values(),
+        key=lambda x: x['share'],
+        reverse=True
+    )
+
+
+def _v582_delta(current, older):
+    old = {
+        item['token_account']: item
+        for item in older
+    }
+
+    new = {
+        item['token_account']: item
+        for item in current
+    }
+
+    changes = []
+
+    for account, now in new.items():
+        earlier = old.get(account)
+
+        if earlier is None:
+            changes.append({
+                'Tokenaccount': account,
+                'Eigenaar': now.get('owner') or 'Onbekend',
+                'Type': 'Nieuw in top 20',
+                'Verschil tokens': None,
+                'Verschil aanbod (procentpunt)': None
+            })
+            continue
+
+        if int(now['decimals']) != int(earlier['decimals']):
+            changes.append({
+                'Tokenaccount': account,
+                'Eigenaar': now.get('owner') or 'Onbekend',
+                'Type': 'Decimals veranderd: onderzoeken',
+                'Verschil tokens': None,
+                'Verschil aanbod (procentpunt)': None
+            })
+            continue
+
+        diff = (
+            int(now['raw_amount'])
+            - int(earlier['raw_amount'])
+        )
+
+        if diff:
+            changes.append({
+                'Tokenaccount': account,
+                'Eigenaar': now.get('owner') or 'Onbekend',
+                'Type': (
+                    'Saldo gestegen'
+                    if diff > 0
+                    else 'Saldo gedaald'
+                ),
+                'Verschil tokens': (
+                    diff / (10 ** int(now['decimals']))
+                ),
+                'Verschil aanbod (procentpunt)': (
+                    float(now['supply_share_pct'])
+                    - float(earlier['supply_share_pct'])
+                )
+            })
+
+    for account, item in old.items():
+        if account not in new:
+            changes.append({
+                'Tokenaccount': account,
+                'Eigenaar': item.get('owner') or 'Onbekend',
+                'Type': 'Uit top 20; saldo onbekend',
+                'Verschil tokens': None,
+                'Verschil aanbod (procentpunt)': None
+            })
+
+    return changes
+
+
+def _v582_classify_owners(owners):
+    unique = [
+        address for address in dict.fromkeys(owners)
+        if ADDRESS.fullmatch(address)
+    ]
+
+    results = {}
+
+    for start in range(0, len(unique), 100):
+        portion = unique[start:start + 100]
+
+        response = _v58_rpc(
+            'getMultipleAccounts',
+            [
+                portion,
+                {
+                    'encoding': 'base64',
+                    'commitment': 'confirmed'
+                }
+            ]
+        )
+
+        accounts = (response or {}).get('value')
+
+        if accounts is None or len(accounts) != len(portion):
+            raise RuntimeError(
+                'Onvolledige accountinfo van RPC'
+            )
+
+        for address, value in zip(portion, accounts):
+            if value is None:
+                label = 'Geen accountinfo (onbekend)'
+
+            elif value.get('executable'):
+                label = 'Uitvoerbaar programma'
+
+            elif value.get('owner') == _SYSTEM_PROGRAM_V582:
+                label = (
+                    'System-account '
+                    '(type eigenaar niet bewezen)'
+                )
+
+            else:
+                label = (
+                    'Program-owned account / mogelijk PDA'
+                )
+
+            results[address] = label
+
+    return results
+
+
+def wallet_intelligence_v582():
+    st.divider()
+    st.subheader(
+        '🧠 V5.8.2 — Walletgedrag en eigenaarsonderzoek'
+    )
+
+    st.caption(
+        'Onderzoek op basis van top-20-tokenaccounts. '
+        'Geen bewezen smart-moneywallets, '
+        'geen gegarandeerde koop-/verkoopsignalen '
+        'en geen aanpassing aan Strategie A/B.'
+    )
+
+    mint = st.text_input(
+        'Tokenmint voor V5.8.2',
+        value=(
+            'D7eCYXewMoJ94xiXtbsiGu6XjyBEimwSpVyxYodnpump'
+        ),
+        key='v582_mint'
+    ).strip()
+
+    if not ADDRESS.fullmatch(mint):
+        st.error('Ongeldig tokenmintadres')
+        return
+
+    try:
+        observations = _v582_latest_pair(mint)
+
+    except sqlite3.Error as exc:
+        st.error(
+            'Lokale walletgeschiedenis niet leesbaar: '
+            + str(exc)
+        )
+        return
+
+    if not observations:
+        st.info(
+            'Nog geen lokale walletmeting. '
+            'Gebruik V5.8.1 hierboven.'
+        )
+        return
+
+    stamp, current = observations[0]
+
+    st.caption(
+        'Laatste lokale meting (UTC): ' + stamp
+    )
+
+    groups = _v582_owner_summary(current)
+
+    shares = sorted(
+        [
+            float(item.get('supply_share_pct') or 0)
+            for item in current
+        ],
+        reverse=True
+    )
+
+    a, b, c, d = st.columns(4)
+
+    a.metric(
+        'Top 3 accounts',
+        f'{sum(shares[:3]):.2f}%'
+    )
+
+    b.metric(
+        'Top 10 accounts',
+        f'{sum(shares[:10]):.2f}%'
+    )
+
+    c.metric(
+        'Top 20 accounts',
+        f'{sum(shares):.2f}%'
+    )
+
+    d.metric(
+        'Unieke eigenaaradressen*',
+        len({
+            item.get('owner')
+            for item in current
+            if item.get('owner')
+        })
+    )
+
+    st.caption(
+        '*Alleen eigenaars die de RPC kon teruggeven. '
+        'Niet noodzakelijk afzonderlijke personen of traders.'
+    )
+
+    st.subheader(
+        'Grootste eigenaars binnen de gemeten top 20'
+    )
+
+    owner_frame = pd.DataFrame(groups).rename(
+        columns={
+            'wallet': 'Eigenaaradres',
+            'accounts': 'Tokenaccounts in top 20',
+            'share': 'Aandeel totaal aanbod (%)'
+        }
+    )
+
+    st.dataframe(
+        owner_frame,
+        hide_index=True,
+        use_container_width=True
+    )
+
+    if len(observations) > 1:
+        earlier_stamp, earlier = observations[1]
+
+        changes = _v582_delta(current, earlier)
+
+        st.subheader(
+            'Verandering sinds vorige lokale meting'
+        )
+
+        st.caption(
+            'Vergeleken met: ' + earlier_stamp + ' UTC. '
+            'Een verdwenen account hoeft niets verkocht te hebben.'
+        )
+
+        if changes:
+            frame = pd.DataFrame(changes)
+
+            st.dataframe(
+                frame,
+                hide_index=True,
+                use_container_width=True
+            )
+
+            st.download_button(
+                '📥 Balansverschillen CSV',
+                frame.to_csv(index=False).encode('utf-8'),
+                'v582_wallet_changes.csv',
+                'text/csv',
+                key='v582_delta_csv'
+            )
+
+        else:
+            st.info(
+                'Geen verschillen in de overlappende '
+                'top-20-tokenaccounts gevonden.'
+            )
+
+    else:
+        st.info(
+            'Voor historische vergelijking zijn minimaal '
+            'twee lokale snapshots nodig.'
+        )
+
+    st.subheader('Onderzoek eigenaaradressen')
+
+    st.caption(
+        'Optioneel extra RPC-verzoek. '
+        'Dit identificeert nog geen specifieke '
+        'liquiditeitspools of exchanges.'
+    )
+
+    owners = [
+        group['wallet']
+        for group in groups
+        if ADDRESS.fullmatch(group['wallet'])
+    ]
+
+    if st.button(
+        '🔍 Controleer eigenaarstypes',
+        key='v582_classify'
+    ):
+        try:
+            labels = _v582_classify_owners(owners)
+            st.session_state[
+                'v582_owner_labels_' + mint
+            ] = labels
+
+        except (
+            requests.RequestException,
+            RuntimeError,
+            ValueError,
+            TypeError,
+            KeyError
+        ) as exc:
+            st.error(
+                'Eigenaarstypecontrole mislukt: '
+                + str(exc)
+            )
+
+    known = st.session_state.get(
+        'v582_owner_labels_' + mint,
+        {}
+    )
+
+    if known:
+        st.dataframe(
+            pd.DataFrame([
+                {
+                    'Eigenaaradres': address,
+                    'Accounttype': account_type
+                }
+                for address, account_type in known.items()
+            ]),
+            hide_index=True,
+            use_container_width=True
+        )
+
+    if owners:
+        chosen = st.selectbox(
+            'Adres voor beperkte transactiecontrole',
+            owners,
+            key='v582_owner'
+        )
+
+        if st.button(
+            '📜 Bekijk 10 recente transactiehandtekeningen',
+            key='v582_signatures'
+        ):
+            try:
+                records = _v58_rpc(
+                    'getSignaturesForAddress',
+                    [
+                        chosen,
+                        {
+                            'limit': 10,
+                            'commitment': 'confirmed'
+                        }
+                    ]
+                )
+
+                if not records:
+                    st.info(
+                        'Geen recente transactiehandtekeningen gevonden.'
+                    )
+
+                else:
+                    transactions = []
+
+                    for item in records:
+                        block_time = item.get('blockTime')
+
+                        transactions.append({
+                            'Signature': item.get('signature'),
+                            'UTC': (
+                                datetime.fromtimestamp(
+                                    block_time,
+                                    timezone.utc
+                                ).isoformat()
+                                if block_time else None
+                            ),
+                            'Status': (
+                                'Fout' if item.get('err')
+                                else 'Succes'
+                            )
+                        })
+
+                    st.dataframe(
+                        pd.DataFrame(transactions),
+                        hide_index=True,
+                        use_container_width=True
+                    )
+
+                    st.caption(
+                        'Transactiehandtekeningen tonen activiteit, '
+                        'geen gerealiseerde handelswinst.'
+                    )
+
+            except (
+                requests.RequestException,
+                RuntimeError,
+                ValueError,
+                TypeError,
+                KeyError
+            ) as exc:
+                st.error(
+                    'Transactiecontrole mislukt: '
+                    + str(exc)
+                )
+
+
+wallet_intelligence_v582()
