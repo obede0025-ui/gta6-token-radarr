@@ -1243,7 +1243,59 @@ def _v58_setup():
             ON v58_holders(mint,checked_at)''')
 
 
+
 def _v581_remote(config, name):
+    response = requests.get(
+        _object_url(config, name),
+        headers={"apikey": config[1]},
+        timeout=40
+    )
+
+    if response.status_code == 404:
+        return None
+
+    if response.status_code == 400:
+        try:
+            error = response.json()
+        except ValueError:
+            response.raise_for_status()
+
+        message = str(
+            error.get("message")
+            or error.get("error")
+            or ""
+        ).lower()
+
+        code = str(
+            error.get("code")
+            or error.get("errorCode")
+            or ""
+        ).lower()
+
+        if (
+            "object not found" in message
+            or code in ("nosuchkey", "objectnotfound")
+        ):
+            return None
+
+    response.raise_for_status()
+
+    value = response.json() if (
+        response.headers.get(
+            "Content-Type", ""
+        ).startswith("application/json")
+    ) else json.loads(response.content.decode("utf-8"))
+
+    if (
+        not isinstance(value, dict)
+        or value.get("schema_version") != 1
+    ):
+        raise ValueError(
+            "Onbekend wallet-JSON-formaat"
+        )
+
+    return value
+
     blob = _get_object(config, name)
     if blob is None:
         return None
