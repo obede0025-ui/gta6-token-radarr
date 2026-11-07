@@ -1,9 +1,9 @@
 
 name: GTA6 Learning Collector
 
-# V6.5 - Externe scheduler via cron-job.org.
-# Geen interne GitHub-schedule meer.
-# Handmatige en externe API-start blijven mogelijk.
+# V6.8 + Radar Healthcheck V1
+# Externe planning blijft via cron-job.org.
+# Geen tweede scheduler.
 
 on:
   workflow_dispatch:
@@ -11,7 +11,6 @@ on:
 permissions:
   contents: write
 
-# Voorkom gelijktijdige wijzigingen aan de database.
 concurrency:
   group: gta6-learning-db
   cancel-in-progress: false
@@ -32,7 +31,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -49,25 +48,30 @@ jobs:
             collector.py \
             v591_paper_engine.py \
             v592_paper_runner.py \
-            v594_health.py
+            v594_health.py \
+            radar_healthcheck.py
 
-      # V6.1 - Token discovery en marktmetingen.
       - name: Collect GTA6 market data
         run: |
           python collector.py
 
-      # V6.4 - Papertrading A/B/C met diagnostiek.
       - name: Run paper engine A B C
         run: |
           python v592_paper_runner.py
 
-      # Scanhistoriek en systeemcontrole.
       - name: Record scan history
         run: |
           python v594_health.py
 
-      # Bewaar bestaande learningdatabase,
-      # paperportfolio en historische rapporten.
+      - name: Radar Healthcheck V1
+        run: |
+          mkdir -p data/v594
+          python radar_healthcheck.py \
+            > data/v594/radar_healthcheck.json
+
+          python -m json.tool \
+            data/v594/radar_healthcheck.json
+
       - name: Save collector portfolio and history
         run: |
           git config user.name 'github-actions[bot]'
@@ -80,7 +84,8 @@ jobs:
               data/latest_scan.json \
               data/v591/portfolio.json \
               data/v591/preview.json \
-              data/v594/scan_history.json
+              data/v594/scan_history.json \
+              data/v594/radar_healthcheck.json
 
             if git diff --cached --quiet; then
               echo "No changes"
@@ -91,7 +96,7 @@ jobs:
               "data: GTA6 automatic collector [skip ci]"
 
             if git push origin HEAD:main; then
-              echo "Collector and paper results saved"
+              echo "Collector, portfolio and healthcheck saved"
               exit 0
             fi
 
@@ -100,11 +105,14 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Nieuwe marktmetingen uitvoeren vanaf
-            # de meest recente opgeslagen state.
+            # Herbereken alles vanuit de nieuwste state.
             python collector.py
             python v592_paper_runner.py
             python v594_health.py
+
+            mkdir -p data/v594
+            python radar_healthcheck.py \
+              > data/v594/radar_healthcheck.json
 
             sleep 2
           done
@@ -121,5 +129,6 @@ jobs:
             data/latest_scan.json
             data/v591/preview.json
             data/v594/scan_history.json
+            data/v594/radar_healthcheck.json
           if-no-files-found: ignore
           retention-days: 14
