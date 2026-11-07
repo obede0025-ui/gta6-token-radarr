@@ -1,56 +1,43 @@
 {
-  "checked_at_utc": "2026-11-07T20:05:21+00:00",
-  "last_scan_utc": "2026-11-07T20:05:21+00:00",
+  "checked_at_utc": "2026-11-07T20:10:24+00:00",
+  "last_scan_utc": "2026-11-07T20:10:24+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 73,
-  "recorded": 53,
+  "selected": 69,
+  "recorded": 49,
   "selection": {
-    "new_search_tokens": 2,
-    "active_follow": 8,
-    "early_follow": 10,
-    "search_revisit": 35,
+    "new_search_tokens": 4,
+    "active_follow": 6,
+    "early_follow": 18,
+    "search_revisit": 23,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 17,
-      "revisit": 0,
+      "early": 11,
+      "revisit": 22,
       "rotation": 0
     },
     "pinned_open": 2,
-    "selected_total": 73
+    "selected_total": 69
   },
-  "signals_last_run": 2,
+  "signals_last_run": 3,
   "open_positions": [
-    {
-      "strategy": "A",
-      "token": "9pqtMh3DnydKbAvTp97N9ht1mkUB8wvvsTefg4KzM8se",
-      "name": "LUCIA",
-      "pair": "EP6NqC6HbMSz56NKWq2a4ZBUnmTf7cqzhuWH8LsYmF1c",
-      "opened_at": "2026-11-07T20:00:44+00:00",
-      "age_hours": 0.08,
-      "entry_market": 3.387e-05,
-      "last_price": 4.068e-05,
-      "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 20.11,
-      "market_liquidity_usd": 17828.75
-    },
     {
       "strategy": "C",
       "token": "9RZeokzHNXoRyJkWDFdvcQTAzUhKpXm7RrqkUM3Fpump",
       "name": "CHILL",
       "pair": "GoM6pz6Nc2NATJvtR29Xa98GSQmJzt72rJNkEKypRZs8",
       "opened_at": "2026-11-07T17:40:24+00:00",
-      "age_hours": 2.42,
+      "age_hours": 2.5,
       "entry_market": 0.0007153,
-      "last_price": 0.0008528,
+      "last_price": 0.0008417,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 19.22,
-      "market_liquidity_usd": 72200.81
+      "gross_price_change_pct": 17.67,
+      "market_liquidity_usd": 71721.02
     }
   ],
   "closed_portfolios": {
     "A": {
-      "count": 1,
-      "realized_pnl_usd": 6.7954
+      "count": 2,
+      "realized_pnl_usd": 13.6221
     },
     "B": {
       "count": 4,
