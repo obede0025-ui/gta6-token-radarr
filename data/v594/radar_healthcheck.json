@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-07T17:25:18+00:00",
-  "last_scan_utc": "2026-11-07T17:25:18+00:00",
+  "checked_at_utc": "2026-11-07T17:30:39+00:00",
+  "last_scan_utc": "2026-11-07T17:30:39+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 31,
-  "recorded": 11,
+  "selected": 47,
+  "recorded": 27,
   "selection": {
-    "new_search_tokens": 1,
-    "active_follow": 8,
-    "early_follow": 1,
-    "search_revisit": 2,
+    "new_search_tokens": 0,
+    "active_follow": 10,
+    "early_follow": 18,
+    "search_revisit": 1,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 16,
-      "revisit": 76,
+      "early": 0,
+      "revisit": 77,
       "rotation": 0
     },
     "pinned_open": 1,
-    "selected_total": 31
+    "selected_total": 47
   },
-  "signals_last_run": 2,
+  "signals_last_run": 5,
   "open_positions": [
     {
       "strategy": "A",
@@ -26,25 +26,12 @@
       "name": "GTA VI",
       "pair": "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44",
       "opened_at": "2026-11-07T16:55:17+00:00",
-      "age_hours": 0.5,
+      "age_hours": 0.59,
       "entry_market": 9.381e-05,
-      "last_price": 0.0001087,
+      "last_price": 0.0001143,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 15.87,
-      "market_liquidity_usd": 24734.53
-    },
-    {
-      "strategy": "B",
-      "token": "bAvTZNzXs8heoyWwuHp6CtBAqqXm6Sv19FzFLAtpump",
-      "name": "GTA VI",
-      "pair": "NASG6oNhtzECx81v48WVts2jMFMrCt25ebhZyeXWu44",
-      "opened_at": "2026-11-07T13:27:54+00:00",
-      "age_hours": 3.96,
-      "entry_market": 8.733e-05,
-      "last_price": 0.0001087,
-      "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 24.47,
-      "market_liquidity_usd": 24734.53
+      "gross_price_change_pct": 21.84,
+      "market_liquidity_usd": 25404.64
     }
   ],
   "closed_portfolios": {
@@ -53,17 +40,15 @@
       "realized_pnl_usd": 0
     },
     "B": {
-      "count": 0,
-      "realized_pnl_usd": 0
+      "count": 1,
+      "realized_pnl_usd": 5.8119
     },
     "C": {
       "count": 1,
       "realized_pnl_usd": 5.7982
     }
   },
-  "alerts": [
-    "GECORRELEERD_MARKTRISICO: A,B volgen dezelfde token bAvTZNzXs8heoyWwuHp6CtBAqqXm6Sv19FzFLAtpump"
-  ],
-  "status": "AANDACHT",
+  "alerts": [],
+  "status": "OK",
   "disclaimer": "Uitsluitend papertrading. Marktprijzen zijn geen uitvoerbare verkoopquotes."
 }
