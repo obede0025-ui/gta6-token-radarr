@@ -1,40 +1,39 @@
-from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
-"""GTA6 V5.9.3 - read-only background dashboard."""
+
+"""GTA 6 Radar V5.9.3 — read-only achtergrondpapertradingdashboard."""
 
 import base64
 import json
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import requests
 import streamlit as st
 
-
 REPO = "obede0025-ui/gta6-token-radarr"
 BRANCH = "main"
-
-API_ROOT = (
-    f"https://api.github.com/repos/{REPO}/contents"
-)
+API_ROOT = f"https://api.github.com/repos/{REPO}/contents"
+BELGIUM = ZoneInfo("Europe/Brussels")
 
 
 def _v593_token():
+    """Optioneel read-only GitHub-token uit Streamlit Secrets."""
     try:
-        token = st.secrets.get("GITHUB_READ_TOKEN", "")
+        return str(st.secrets.get("GITHUB_READ_TOKEN", "")).strip()
     except (FileNotFoundError, KeyError, AttributeError):
-        token = ""
-
-    return str(token).strip()
+        return ""
 
 
 @st.cache_data(ttl=90, show_spinner=False)
 def _v593_read(path, token):
+    """Lees JSON van GitHub zonder de repository te wijzigen.
+
+    Deze functie blijft beschikbaar voor v594_dashboard.py.
+    """
     headers = {
         "Accept": "application/vnd.github+json",
-        "User-Agent": "GTA6Radar-V593"
+        "User-Agent": "GTA6Radar-V593",
     }
-
     if token:
         headers["Authorization"] = f"Bearer {token}"
 
@@ -42,319 +41,223 @@ def _v593_read(path, token):
         f"{API_ROOT}/{path}",
         params={"ref": BRANCH},
         headers=headers,
-        timeout=20
+        timeout=20,
     )
 
+    if response.status_code == 404:
+        raise FileNotFoundError(f"GitHub-bestand ontbreekt: {path}")
+
+    if response.status_code == 403:
+        raise RuntimeError(
+            "GitHub weigert de aanvraag (rechten of API-limiet)."
+        )
+
     response.raise_for_status()
+    payload = response.json()
 
-    wrapper = response.json()
+    if not isinstance(payload, dict) or payload.get("encoding") != "base64":
+        raise ValueError(f"Onbekend GitHub-bestandsformaat: {path}")
 
-    if (
-        not isinstance(wrapper, dict)
-        or wrapper.get("encoding") != "base64"
-    ):
-        raise ValueError(
-            f"GitHub gaf geen geldig bestand terug: {path}"
-        )
+    encoded = payload.get("content")
+    if not isinstance(encoded, str):
+        raise ValueError(f"Geen bestandsinhoud gevonden: {path}")
 
-    decoded = base64.b64decode(
-        wrapper["content"]
-    ).decode("utf-8")
-
+    decoded = base64.b64decode(encoded).decode("utf-8")
     result = json.loads(decoded)
-
     if not isinstance(result, dict):
-        raise ValueError(
-            f"Ongeldig JSON-object: {path}"
-        )
-
+        raise ValueError(f"JSON is geen object: {path}")
     return result
 
 
-def _v593_time(value):
+def _v593_datetime(value):
     if not value:
-        return "Onbekend"
+        return None
+    dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
+
+def _v593_time(value):
+    """Alle tijdstippen in Belgische tijd, automatisch CET/CEST."""
     try:
-        dt = datetime.fromisoformat(
-            str(value).replace("Z", "+00:00")
-        )
+        dt = _v593_datetime(value)
+        if dt is None:
+            return "Onbekend"
+        return dt.astimezone(BELGIUM).strftime("%d-%m-%Y %H:%M:%S")
+    except (ValueError, TypeError, OverflowError):
+        return "Ongeldig tijdstip"
 
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
 
-        return dt.astimezone(
-            timezone.utc
-        ).strftime("%d-%m-%Y %H:%M UTC")
-
-    except (TypeError, ValueError):
-        return str(value)
+def _v593_age(value):
+    try:
+        dt = _v593_datetime(value)
+        if dt is None:
+            return None
+        return (datetime.now(timezone.utc) - dt).total_seconds() / 60
+    except (ValueError, TypeError, OverflowError):
+        return None
 
 
 def _v593_open_rows(state):
     rows = []
-
     for strategy in ("A", "B"):
-        positions = (
-            state.get("open", {})
-            .get(strategy, {})
-        )
-
-        for address, item in positions.items():
+        positions = (state.get("open") or {}).get(strategy) or {}
+        for address, trade in positions.items():
             rows.append({
                 "Strategie": strategy,
-                "Token": item.get("name"),
+                "Token": trade.get("name", "Onbekend"),
                 "Mintadres": address,
-                "Pair": item.get("pair"),
-                "Instaptijd": item.get("opened_at"),
-                "Instapprijs $": item.get("entry_market"),
-                "Hoeveelheid": item.get("quantity")
+                "Pair": trade.get("pair"),
+                "Instaptijd België": _v593_time(trade.get("opened_at")),
+                "Instapprijs $": trade.get("entry_market"),
+                "Hoeveelheid": trade.get("quantity"),
             })
-
     return rows
 
 
 def _v593_closed_rows(state):
     rows = []
-
     for strategy in ("A", "B"):
-        trades = (
-            state.get("closed", {})
-            .get(strategy, [])
-        )
-
-        for item in trades:
+        for trade in (state.get("closed") or {}).get(strategy) or []:
             rows.append({
                 "Strategie": strategy,
-                "Token": item.get("name"),
-                "Mintadres": item.get("token"),
-                "Geopend": item.get("opened_at"),
-                "Gesloten": item.get("closed_at"),
-                "Reden": item.get("reason"),
-                "P/L $": item.get("pnl_usd")
+                "Token": trade.get("name", "Onbekend"),
+                "Mintadres": trade.get("token"),
+                "Geopend België": _v593_time(trade.get("opened_at")),
+                "Gesloten België": _v593_time(trade.get("closed_at")),
+                "Reden": trade.get("reason"),
+                "P/L $": trade.get("pnl_usd"),
             })
-
     return rows
 
 
 @st.fragment(run_every="120s")
 def v593_background_dashboard():
     st.divider()
-
-    st.subheader(
-        "🛰️ V5.9.3 - Achtergrondpapertrading"
-    )
-
+    st.subheader("🛰️ V5.9.3 — Achtergrondpapertrading")
     st.caption(
-        "Resultaten van GitHub Actions. "
-        "Deze portefeuille staat volledig los van "
-        "de huidige Streamlit-strategieën A/B."
+        "Afzonderlijke GitHub Actions-paperportefeuille. Alle tijden in "
+        "Belgische tijd (Europe/Brussels). Alleen-lezen."
     )
 
-    if st.button(
-        "🔄 Achtergrondresultaten vernieuwen",
-        key="v593_refresh"
-    ):
+    if st.button("🔄 Achtergrondresultaten vernieuwen", key="v593_refresh"):
         _v593_read.clear()
 
     try:
         token = _v593_token()
-
-        state = _v593_read(
-            "data/v591/portfolio.json",
-            token
-        )
-
-        report = _v593_read(
-            "data/v591/preview.json",
-            token
-        )
-
+        state = _v593_read("data/v591/portfolio.json", token)
+        report = _v593_read("data/v591/preview.json", token)
     except (
-        requests.RequestException,
-        ValueError,
-        KeyError,
-        UnicodeError
+        requests.RequestException, FileNotFoundError, RuntimeError,
+        ValueError, KeyError, UnicodeError, json.JSONDecodeError
     ) as exc:
-        st.error(
-            "GitHub-gegevens niet bereikbaar: "
-            + str(exc)
-        )
-
+        st.error(f"Kon GitHub-rapporten niet lezen: {exc}")
         st.info(
-            "Controleer of beide bestanden bestaan. "
-            "Voor een private GitHub-repository is "
-            "een read-only GitHub-token nodig."
+            "Controleer of de Learning Collector succesvol draaide en "
+            "beide JSON-bestanden op GitHub staan. Voor een private repo "
+            "is een read-only GITHUB_READ_TOKEN in Streamlit Secrets nodig."
         )
         return
 
-    if (
-        state.get("version") != 1
-        or report.get("mode") != "ISOLATED_PAPER_STATE"
+    if state.get("version") != 1:
+        st.error("Onbekende portefeuilleversie. Geen gegevens gewijzigd.")
+        return
+    if report.get("mode") != "ISOLATED_PAPER_STATE":
+        st.error("Dit is geen opgeslagen achtergrondpapertrade-rapport.")
+        return
+    if not isinstance(state.get("open"), dict) or not isinstance(
+        state.get("closed"), dict
     ):
-        st.error(
-            "Onbekende portfolio- of rapportversie."
-        )
+        st.error("Portefeuille heeft een onjuist gegevensformaat.")
         return
 
     cursor = state.get("cursor")
     report_cursor = report.get("last_processed")
+    generated = report.get("generated_utc")
+    last_observation = cursor[0] if isinstance(cursor, list) and cursor else None
 
     if cursor != report_cursor:
         st.warning(
-            "Portfolio en rapport komen mogelijk "
-            "niet uit dezelfde uitvoering."
+            "De portefeuille en het laatste rapport verwijzen niet "
+            "naar dezelfde marktmeting. Controleer GitHub Actions."
         )
 
-    st.write(
-        "**Laatste verwerking:**",
-        _v593_time(
-            cursor[0]
-            if isinstance(cursor, list) and cursor
-            else None
+    st.write("**Laatste marktmeting (België):**", _v593_time(last_observation))
+    st.write("**Laatste rapport (België):**", _v593_time(generated))
+
+    age = _v593_age(generated)
+    if age is None:
+        st.warning("De rapporttijd ontbreekt of is ongeldig.")
+    elif age < -5:
+        st.warning("Rapporttijd ligt in de toekomst. Controleer de klok.")
+    elif age > 20:
+        st.error(
+            f"Geen nieuw rapport sinds ongeveer {age:.0f} minuten. "
+            "Controleer de GitHub Actions-workflow."
         )
-    )
-
-    generated = report.get("generated_utc")
-
-    st.write(
-        "**Laatste rapport:**",
-        _v593_time(generated)
-    )
-
-    try:
-        dt = datetime.fromisoformat(
-            generated.replace("Z", "+00:00")
-        )
-
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-
-        minutes = (
-            datetime.now(timezone.utc)
-            - dt.astimezone(timezone.utc)
-        ).total_seconds() / 60
-
-        if minutes > 20:
-            st.warning(
-                "Laatste rapport ouder dan 20 minuten. "
-                "Controleer GitHub Actions."
-            )
-
-    except (ValueError, TypeError, AttributeError):
-        pass
+    else:
+        st.success(f"Recent achtergrondrapport beschikbaar ({max(age, 0):.0f} min oud).")
 
     run = report.get("run") or {}
-
-    c1, c2, c3 = st.columns(3)
-
-    c1.metric(
-        "Metingen laatste run",
-        run.get("observations", 0)
-    )
-
-    c2.metric(
-        "Signalen laatste run",
-        run.get("signals", 0)
-    )
-
-    c3.metric(
-        "Modus",
-        "PAPER"
-    )
+    a, b, c = st.columns(3)
+    a.metric("Metingen laatste run", run.get("observations", 0))
+    b.metric("Signalen laatste run", run.get("signals", 0))
+    c.metric("Modus", "PAPER")
 
     open_rows = _v593_open_rows(state)
     closed_rows = _v593_closed_rows(state)
-
-    pnl = sum(
-        float(item.get("P/L $") or 0)
-        for item in closed_rows
-    )
+    realized = sum(float(t.get("P/L $") or 0) for t in closed_rows)
 
     st.subheader("📊 Achtergrondportefeuille")
-
-    a, b, c, d = st.columns(4)
-
-    a.metric(
-        "Open A",
-        len(state["open"]["A"])
-    )
-
-    b.metric(
-        "Open B",
-        len(state["open"]["B"])
-    )
-
-    c.metric(
-        "Afgesloten",
-        len(closed_rows)
-    )
-
-    d.metric(
-        "Gerealiseerde P/L",
-        f"${pnl:+.2f}"
-    )
+    x, y, z, w = st.columns(4)
+    x.metric("Open A", len((state["open"].get("A") or {})))
+    y.metric("Open B", len((state["open"].get("B") or {})))
+    z.metric("Afgesloten", len(closed_rows))
+    w.metric("Gerealiseerde P/L", f"${realized:+.2f}")
 
     tab1, tab2, tab3 = st.tabs([
-        "📌 Open posities",
-        "✅ Afgesloten trades",
-        "📋 Laatste scan"
+        "📌 Open posities", "✅ Afgesloten trades", "📋 Laatste scan"
     ])
 
     with tab1:
         if open_rows:
-            df = pd.DataFrame(open_rows)
-
-            st.dataframe(
-                df,
-                hide_index=True,
-                use_container_width=True
-            )
-
+            frame = pd.DataFrame(open_rows)
+            st.dataframe(frame, hide_index=True, use_container_width=True)
             st.download_button(
                 "📥 Open trades CSV",
-                df.to_csv(index=False).encode("utf-8"),
+                frame.to_csv(index=False).encode("utf-8"),
                 "v593_open.csv",
                 "text/csv",
-                key="v593_open_csv"
+                key="v593_open_csv",
             )
         else:
-            st.info(
-                "Nog geen open achtergrondposities."
-            )
+            st.info("Nog geen open achtergrondposities.")
 
     with tab2:
         if closed_rows:
-            df = pd.DataFrame(closed_rows)
-
-            st.dataframe(
-                df,
-                hide_index=True,
-                use_container_width=True
-            )
-
+            frame = pd.DataFrame(closed_rows)
+            st.dataframe(frame, hide_index=True, use_container_width=True)
             st.download_button(
                 "📥 Gesloten trades CSV",
-                df.to_csv(index=False).encode("utf-8"),
+                frame.to_csv(index=False).encode("utf-8"),
                 "v593_closed.csv",
                 "text/csv",
-                key="v593_closed_csv"
+                key="v593_closed_csv",
             )
         else:
-            st.info(
-                "Nog geen afgesloten achtergrondtrades."
-            )
+            st.info("Nog geen afgesloten achtergrondtrades.")
 
     with tab3:
         st.json({
-            "last_processed": report_cursor,
+            "laatste_meting_belgie": _v593_time(last_observation),
+            "laatste_rapport_belgie": _v593_time(generated),
             "run": run,
-            "portfolio": report.get("portfolio", {})
+            "portfolio": report.get("portfolio", {}),
         })
 
     st.caption(
-        "Alleen-lezen dashboard. "
-        "Geen echte orders of gegarandeerde fills. "
-        "De papertrade-database en Supabase "
-        "worden niet gewijzigd."
+        "GitHub Actions heeft geen gegarandeerd scaninterval. "
+        "Virtuele fills, stop-losses en resultaten zijn simulaties. "
+        "Dit dashboard schrijft niet naar SQLite, GitHub of Supabase."
     )
