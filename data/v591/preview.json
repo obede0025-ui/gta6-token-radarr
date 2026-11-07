@@ -1,16 +1,16 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-07T13:27:56+00:00",
+  "generated_utc": "2026-11-07T13:28:30+00:00",
   "last_processed": [
-    "2026-11-07T13:27:54+00:00",
+    "2026-11-07T13:28:27+00:00",
     "wKy6tEDZj6jS1GUMmnSSTrR1bXJQa35s7VHcWHxhNbA",
     "i6Gkgadg8Je9QXwRiqjmiEU1ctpYY7dyf2RzTAFkkjZ"
   ],
   "run": {
-    "observations": 103,
+    "observations": 104,
     "opened": {
       "A": 0,
-      "B": 1,
+      "B": 0,
       "C": 0
     },
     "closed": {
@@ -18,16 +18,15 @@
       "B": 0,
       "C": 0
     },
-    "signals": 3,
+    "signals": 0,
     "signals_by_strategy": {
-      "A": 1,
-      "B": 2,
+      "A": 0,
+      "B": 0,
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 96,
-      "invalid_price": 4,
-      "market_safety_filters": 2
+      "no_momentum_signal": 100,
+      "invalid_price": 4
     }
   },
   "portfolio": {
