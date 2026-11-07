@@ -1931,3 +1931,6 @@ def wallet_intelligence_v582():
 
 
 wallet_intelligence_v582()
+
+from v593_dashboard import v593_background_dashboard
+v593_background_dashboard()
