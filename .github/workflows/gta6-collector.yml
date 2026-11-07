@@ -1,6 +1,6 @@
 name: GTA6 Learning Collector
 
-# Externe scheduler: cron-job.org; workflow_dispatch blijft ongewijzigd.
+# cron-job.org remains the only scheduler.
 on:
   workflow_dispatch:
 
@@ -47,7 +47,8 @@ jobs:
             v594_health.py \
             radar_healthcheck.py \
             radar_missed_opportunities.py \
-            radar_quote_monitor.py
+            radar_quote_monitor.py \
+            radar_execution_safety.py
 
       - name: Collect GTA6 market data
         run: |
@@ -82,6 +83,12 @@ jobs:
             > data/v594/jupiter_quote_monitor.json
           python -m json.tool data/v594/jupiter_quote_monitor.json
 
+      - name: Execution Safety V1 (read-only, live blocked)
+        run: |
+          python radar_execution_safety.py \
+            > data/v594/execution_safety.json
+          python -m json.tool data/v594/execution_safety.json
+
       - name: Save collector portfolio and history
         env:
           JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
@@ -99,7 +106,8 @@ jobs:
               data/v594/scan_history.json \
               data/v594/radar_healthcheck.json \
               data/v594/missed_opportunities.json \
-              data/v594/jupiter_quote_monitor.json
+              data/v594/jupiter_quote_monitor.json \
+              data/v594/execution_safety.json
 
             if git diff --cached --quiet; then
               echo 'No changes'
@@ -109,7 +117,7 @@ jobs:
             git commit -m 'data: GTA6 automatic collector [skip ci]'
 
             if git push origin HEAD:main; then
-              echo 'Collector, paper, health, audit and quotes saved'
+              echo 'Collector, paper, health, quotes, and safety report saved'
               exit 0
             fi
 
@@ -124,6 +132,7 @@ jobs:
             python radar_healthcheck.py > data/v594/radar_healthcheck.json
             python radar_missed_opportunities.py > data/v594/missed_opportunities.json
             python radar_quote_monitor.py > data/v594/jupiter_quote_monitor.json
+            python radar_execution_safety.py > data/v594/execution_safety.json
             sleep 2
           done
 
@@ -142,5 +151,6 @@ jobs:
             data/v594/radar_healthcheck.json
             data/v594/missed_opportunities.json
             data/v594/jupiter_quote_monitor.json
+            data/v594/execution_safety.json
           if-no-files-found: ignore
           retention-days: 14
