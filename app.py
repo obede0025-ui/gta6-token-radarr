@@ -1,160 +1,96 @@
-            [addresses, {'encoding': 'jsonParsed', 'commitment': 'confirmed'}]) if addresses else {'value': []}
-    parsed = (account_data or {}).get('value') or []
-    stamp = datetime.now(timezone.utc).isoformat(timespec='microseconds')
-    output = []
-    for index, item in enumerate(largest_accounts):
-        value = (parsed[index] or {}) if index < len(parsed) else {}
-        data = value.get('data') or {}
-        details = ((data.get('parsed') or {}).get('info') or {}) if isinstance(data, dict) else {}
-        amount = int(item['amount'])
-        decimals = int(item['decimals'])
-        output.append({
-            'token_account': item['address'],
-            'owner': details.get('owner'),
-            'raw_amount': str(amount),
-            'decimals': decimals,
-            'quantity': amount / 10**decimals,
-            'supply_share_pct': 100 * amount / raw_supply
-        })
-    if not output:
-        raise RuntimeError('Geen tokenaccounts gevonden')
-    return {'schema_version': 1, 'mint': mint, 'checked_at': stamp,
-            'accounts': output}
+"""GTA6 Radar V5.8.1: scanner, recovery and separate wallet backups."""
+import os
+import json
+import tempfile
+import threading
+import time
+from pathlib import Path
+from urllib.parse import quote
+from uuid import uuid4
+import re
+import sqlite3
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
+import pandas as pd
+import requests
+import streamlit as st
+
+st.set_page_config(page_title="GTA 6 Radar V5.8.1", page_icon="🎮", layout="wide")
+DB = os.getenv("GTA6_RADAR_DB", "gta6_radar.db")
+API = "https://api.dexscreener.com"
+LOCAL = ZoneInfo("Europe/Brussels")
+SEARCHES = ["GTA6", "GTA VI", "Grand Theft Auto", "Vice City", "Leonida", "Lucia Camino", "Jason Duval", "Port Gellhorn"]
+STRONG = ["gta6", "gta 6", "gta vi", "grand theft auto", "grandtheftauto", "gtavi"]
+RELATED = ["vice city", "leonida", "lucia camino", "jason duval", "port gellhorn", "raul bautista"]
+ADDRESS = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
+HTTP = requests.Session()
+HTTP.headers.update({"User-Agent": "GTA6RadarResearch/5.7.1", "Accept": "application/json"})
+_LOCK = threading.RLock()
+_LAST_BACKUP = 0.0
 
 
-def _v581_store_local(snapshot):
-    _v58_setup()
-    rows = [(
-        snapshot['mint'], snapshot['checked_at'], a['token_account'],
-        a['owner'], a['raw_amount'], a['decimals'],
-        a['quantity'], a['supply_share_pct']
-    ) for a in snapshot['accounts']]
-    with db() as conn:
-        conn.executemany('''INSERT OR IGNORE INTO v58_holders
-            (mint,checked_at,token_account,owner,raw_amount,decimals,quantity,supply_share_pct)
-            VALUES(?,?,?,?,?,?,?,?)''', rows)
-
-
-def _v581_diff(current, previous):
-    if not previous or previous.get('mint') != current['mint']:
-        return []
-    old = {x['token_account']: x for x in previous.get('accounts', [])}
-    new_ids = {x['token_account'] for x in current['accounts']}
-    changes = []
-    for item in current['accounts']:
-        prior = old.get(item['token_account'])
-        if prior is None:
-            changes.append({'Tokenaccount': item['token_account'], 'Eigenaar': item['owner'],
-                            'Signaal': 'Nieuw in top 20', 'Verschil tokens': None})
-            continue
-        raw_diff = int(item['raw_amount']) - int(prior['raw_amount'])
-        if raw_diff:
-            changes.append({'Tokenaccount': item['token_account'], 'Eigenaar': item['owner'],
-                'Signaal': 'Toename' if raw_diff > 0 else 'Afname',
-                'Verschil tokens': raw_diff / (10**int(item['decimals']))})
-    for account in old:
-        if account not in new_ids:
-            changes.append({'Tokenaccount': account, 'Eigenaar': old[account].get('owner'),
-                            'Signaal': 'Verdwenen uit top 20', 'Verschil tokens': None})
-    return changes
-
-
-def smart_money_panel_v581():
-    _v58_setup()
-    st.divider()
-    st.subheader('🔎 V5.8.1 — Solana walletanalyse')
-    st.caption('Onderzoek, geen tradingadvies: de grootste tokenaccounts kunnen liquiditeitspools of exchanges zijn. '
-               'Een balansverschil is niet automatisch een aankoop of verkoop.')
-    mint = st.text_input('Solana-token mintadres',
-        value='D7eCYXewMoJ94xiXtbsiGu6XjyBEimwSpVyxYodnpump',
-        key='v581_mint').strip()
-    if not ADDRESS.fullmatch(mint):
-        st.warning('Voer een geldig Solana-mintadres in')
-        return
-    cfg = _storage_config()
-    if cfg is None:
-        st.error('Supabase Secrets ontbreken; geen walletopslag mogelijk')
-        return
-    latest_name = 'radar/wallets/' + mint + '/latest.json'
-    version_prefix = 'radar/wallets/' + mint + '/versions/'
+def secret(key, default=""):
+    if os.getenv(key):
+        return os.environ[key]
     try:
-        previous = _v581_remote(cfg, latest_name)
-    except (requests.RequestException, ValueError, UnicodeError, KeyError) as exc:
-        st.error('Vorige walletmeting niet leesbaar: ' + str(exc))
-        return
-    if previous:
-        st.caption('Vorige veilige meting: ' + previous.get('checked_at', 'onbekend'))
-    current, compare_to = previous, None
-    if st.button('📡 Nieuwe walletmeting + aparte back-up', key='v581_run'):
-        try:
-            with st.spinner('Solana tokenaccounts controleren...'):
-                fresh = _v581_fetch(mint)
-                # Historische snapshot eerst apart bewaren: geen overschrijven.
-                version = (version_prefix
-                           + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
-                           + '_' + uuid4().hex[:10] + '.json')
-                blob = json.dumps(fresh, ensure_ascii=False).encode('utf-8')
-                _upload_object(cfg, version, blob, overwrite=False)
-                # Weigeren om een nieuwere remote snapshot door een oudere te vervangen.
-                latest_remote = _v581_remote(cfg, latest_name)
-                if latest_remote and latest_remote.get('checked_at', '') > fresh['checked_at']:
-                    raise RuntimeError('Supabase heeft inmiddels nieuwere walletgegevens')
-                _upload_object(cfg, latest_name, blob, overwrite=True)
-                _v581_store_local(fresh)
-            st.success(f"{len(fresh['accounts'])} accounts opgeslagen in aparte Supabase walletback-up")
-            st.caption('Versie: ' + version)
-            current, compare_to = fresh, previous
-        except (requests.RequestException, RuntimeError, sqlite3.Error, ValueError,
-                KeyError, TypeError, OSError, OverflowError) as exc:
-            st.error('Walletscan/back-up mislukt: ' + str(exc))
-            st.caption('Als er wel een versiebestand is maar geen latest.json, blijft het versiebestand behouden.')
-            return
-    if not current:
-        st.info('Nog geen aparte walletback-up. Start de eerste meting.')
-        return
-    accounts = current.get('accounts') or []
-    if not accounts:
-        st.warning('Wallet-back-up bevat geen accounts')
-        return
-    frame = pd.DataFrame(accounts)
-    st.metric('Aandeel 20 grootste tokenaccounts',
-              f"{sum(float(x['supply_share_pct']) for x in accounts):.2f}%")
-    st.dataframe(frame, hide_index=True, width='stretch')
-    changes = _v581_diff(current, compare_to)
-    if changes:
-        st.subheader('Veranderingen ten opzichte van vorige veilige meting')
-        st.dataframe(pd.DataFrame(changes), hide_index=True, width='stretch')
-    elif compare_to:
-        st.caption('Geen veranderingen tussen overlappende tokenaccounts gemeten.')
-    else:
-        st.caption('Voor een vergelijking is een tweede meting nodig.')
-    st.download_button('📥 Walletgegevens CSV', frame.to_csv(index=False).encode('utf-8'),
-                       'v581_wallets.csv', 'text/csv', key='v581_download')
+        return str(st.secrets.get(key, default))
+    except (FileNotFoundError, AttributeError, KeyError):
+        return default
 
 
-smart_money_panel_v581()
+def _storage_config():
+    host = secret("SUPABASE_URL").rstrip("/")
+    key = secret("SUPABASE_SECRET_KEY")
+    bucket = secret("SUPABASE_BACKUP_BUCKET", "gta6-private-backups")
+    object_name = secret("SUPABASE_BACKUP_OBJECT", "radar/gta6_radar.db").lstrip("/")
+    if not host or not key:
+        return None
+    if not host.startswith("https://") or "/rest/v1" in host or not key.startswith("sb_secret_"):
+        raise RuntimeError("Gebruik de Supabase Project URL zonder /rest/v1 en een sb_secret_ sleutel")
+    return host, key, bucket, object_name
 
-# ============================================================
-# V5.8.2 — WALLET INTELLIGENCE
-# Toevoegen onderaan de bestaande app.py
-# ============================================================
 
-_SYSTEM_PROGRAM_V582 = '11111111111111111111111111111111'
+def remote_settings():
+    """Backward compatible status check (never exposes credentials)."""
+    return _storage_config()
 
 
-def _v582_latest_pair(mint):
-    with db() as conn:
-        stamps = [
-            x[0] for x in conn.execute(
-                'SELECT DISTINCT checked_at FROM v58_holders '
-                'WHERE mint=? ORDER BY checked_at DESC LIMIT 2',
-                (mint,)
-            )
-        ]
+def _object_url(cfg, object_name):
+    host, key, bucket, _ = cfg
+    return host + "/storage/v1/object/" + quote(bucket, safe="") + "/" + quote(object_name, safe="/")
 
-        data = []
 
-        for stamp in stamps:
-            rows = conn.execute(
-                'SELECT token_account,owner,raw_amount,'
-                'decimals,supply_share_pct '
+def _get_object(cfg, object_name):
+    response = requests.get(_object_url(cfg, object_name), headers={"apikey": cfg[1]}, timeout=40)
+    if response.status_code == 404:
+        return None
+    response.raise_for_status()
+    return response.content
+
+
+def _upload_object(cfg, object_name, data, overwrite=False):
+    headers = {"apikey": cfg[1], "Content-Type": "application/octet-stream"}
+    if overwrite:
+        headers["x-upsert"] = "true"
+    response = requests.post(_object_url(cfg, object_name), headers=headers, data=data, timeout=60)
+    response.raise_for_status()
+
+
+def _inspect_database(blob):
+    """Inspect SQLite without modifying it. Count only ever-growing tables."""
+    with tempfile.NamedTemporaryFile(suffix=".db") as tmp:
+        tmp.write(blob)
+        tmp.flush()
+        with sqlite3.connect("file:" + tmp.name + "?mode=ro", uri=True) as c:
+            if c.execute("PRAGMA quick_check").fetchone()[0] != "ok":
+                raise sqlite3.DatabaseError("SQLite-integriteitscontrole mislukt")
+            tables = {r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            must_have = ("paper_v54", "paper_v542_b", "radar_v54", "v542_runs")
+            if not set(must_have).issubset(tables):
+                raise sqlite3.DatabaseError("Essentiële radartabellen ontbreken")
+            stats = {t: c.execute("SELECT COUNT(*) FROM " + t).fetchone()[0] for t in must_have}
+            # Timestamp guard catches a stale local DB with identical row counts.
+            stats["last_scan"] = c.execute("SELECT MAX(started_at) FROM v542_runs").fetchone()[0] or ""
+            stats["last_trade_a"] = c.execute("SELECT MAX(opened_at) FROM paper_v54").fetchone()[0] or ""
+            stats["last_trade_b"] = c.execute("SELECT MAX(opened_at) FROM paper_v542_b").fetchone()[0] or ""
