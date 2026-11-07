@@ -1,0 +1,34 @@
+
+name: GTA6 V5.9 Shadow Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shadow-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout data
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Simulate A/B using collector history
+        run: python v59_shadow_engine.py
+
+      - name: Save shadow report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gta6-v59-shadow-report-${{ github.run_id }}
+          path: data/v59_shadow_report.json
+          if-no-files-found: warn
+          retention-days: 14
