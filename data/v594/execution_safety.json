@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-07T23:05:21+00:00",
+  "checked_utc": "2026-11-07T23:10:28+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
@@ -15,8 +15,8 @@
       "strategies": [
         "A"
       ],
-      "roundtrip_pct": "-0.937",
-      "liquidity_usd": "72280.11",
+      "roundtrip_pct": "-0.922",
+      "liquidity_usd": "75190.12",
       "quote_gate": "PASS",
       "quote_gate_reasons": [],
       "live_trade_approval": "BLOCK",
@@ -30,7 +30,7 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-5.571",
+      "roundtrip_pct": "-5.558",
       "liquidity_usd": "1656.31",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
@@ -48,8 +48,8 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-2.901",
-      "liquidity_usd": "27077.72",
+      "roundtrip_pct": "-2.787",
+      "liquidity_usd": "28385.06",
       "quote_gate": "PASS",
       "quote_gate_reasons": [],
       "live_trade_approval": "BLOCK",
