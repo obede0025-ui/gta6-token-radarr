@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-08T11:05:26+00:00",
+  "checked_utc": "2026-11-08T11:10:28+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
@@ -17,8 +17,8 @@
       "strategies": [
         "A"
       ],
-      "roundtrip_pct": "-0.782",
-      "liquidity_usd": "49131.29",
+      "roundtrip_pct": "-0.989",
+      "liquidity_usd": "50888.49",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
         "QUOTE_REPORT_NOT_OK"
@@ -34,7 +34,7 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-5.579",
+      "roundtrip_pct": "-5.566",
       "liquidity_usd": "1627.15",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
@@ -53,7 +53,7 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-5.581",
+      "roundtrip_pct": "-5.568",
       "liquidity_usd": "1618.52",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
