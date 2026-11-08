@@ -632,6 +632,27 @@ def shadow_exit(
     else:
         status = "SCHADUWQUOTE_BESCHIKBAAR"
 
+    # Gebruik alleen recente, pair-consistente paperwaardes.
+    # Quote en paperwaarde zijn niet atomair gemeten:
+    # het verschil is indicatief, geen bewezen slippage.
+    paper_value = position["paper_exit"]
+    paper_comparable = (
+        paper_value is not None
+        and paper_value > 0
+        and fresh(position["mark_age"])
+        and fresh(position["scan_age"])
+        and not position["pair_changed"]
+        and quote_value is not None
+    )
+    quote_vs_paper_pct = (
+        (quote_value / paper_value) * 100
+        if paper_comparable else None
+    )
+    value_gap = (
+        paper_value - quote_value
+        if paper_comparable else None
+    )
+
     quote_pnl = None
 
     if (
@@ -658,6 +679,22 @@ def shadow_exit(
         "Jupiter P/L $": (
             float(round(quote_pnl, 6))
             if quote_pnl is not None else None
+        ),
+        "Paper verkoopwaarde $": (
+            float(round(paper_value, 6))
+            if paper_comparable else None
+        ),
+        "Jupiter / paper %": (
+            float(round(quote_vs_paper_pct, 2))
+            if quote_vs_paper_pct is not None else None
+        ),
+        "Paper minus quote $": (
+            float(round(value_gap, 6))
+            if value_gap is not None else None
+        ),
+        "Grote waardeafwijking": (
+            bool(quote_vs_paper_pct < Decimal("50"))
+            if quote_vs_paper_pct is not None else None
         ),
         "Schaduwstatus": status,
     }
@@ -1104,7 +1141,17 @@ def show_exit_risk_dashboard(select, secret):
             for row in shadow_rows
         )
 
-        a, b = st.columns(2)
+        large_gap_count = sum(
+            row["Grote waardeafwijking"] is True
+            for row in shadow_rows
+        )
+
+        a, b, c = st.columns(3)
+
+        c.metric(
+            "Quote <50% van paperwaarde",
+            large_gap_count,
+        )
 
         a.metric(
             "Exit geblokkeerd door liquiditeit",
