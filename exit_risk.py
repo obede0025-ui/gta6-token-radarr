@@ -729,7 +729,56 @@ def shadow_exit(
 
 
 # ============================================
-# 7. HOOFDDASHBOARD
+# 7. STRIKTERE UITSTAPREGELS: ALLEEN LEZEN
+# ============================================
+
+def compare_shadow_policy(row, minimum_paper_pct, minimum_recovery_pct):
+    """Vergelijk testregels met extra quote-eisen; voer nooit een order uit."""
+    signal = row["Uitstapsignaal"]
+    current_db = row["DB-exitstatus"]
+
+    result = {
+        "Trade-ID": row["Trade-ID"],
+        "Testsignaal": signal,
+        "Bestaande DB-status": current_db,
+        "Extra schaduwcontrole": "",
+        "Reden": "",
+        "Verkoop gesimuleerd": False,
+    }
+
+    if signal == "ONBETROUWBARE_MARKTDATA":
+        result["Extra schaduwcontrole"] = "GEEN_BESLISSING"
+        result["Reden"] = "VEROUDERDE_OF_INCONSISTENTE_MARKTDATA"
+    elif signal == "GEEN_EXIT":
+        result["Extra schaduwcontrole"] = "GEEN_EXITTRIGGER"
+        result["Reden"] = "GEEN_TAKE_STOP_OF_TIJDTRIGGER"
+    elif row["Jupiter verkoopquote $"] is None:
+        result["Extra schaduwcontrole"] = "BLOKKADE"
+        result["Reden"] = "GEEN_RECENTE_JUPITER_QUOTE"
+    elif row["Schaduwstatus"] == "LIQUIDITEIT_ONDER_GRENS":
+        result["Extra schaduwcontrole"] = "BLOKKADE"
+        result["Reden"] = "LIQUIDITEIT_ONDER_TESTGRENS"
+    elif row["Jupiter / paper %"] is None:
+        result["Extra schaduwcontrole"] = "GEEN_BESLISSING"
+        result["Reden"] = "GEEN_RECENTE_VERGELIJKBARE_PAPERWAARDE"
+    elif row["Quoteherstel % inzet"] is None:
+        result["Extra schaduwcontrole"] = "GEEN_BESLISSING"
+        result["Reden"] = "ONBEKENDE_INZET_OF_QUOTE"
+    elif row["Jupiter / paper %"] < minimum_paper_pct:
+        result["Extra schaduwcontrole"] = "BLOKKADE"
+        result["Reden"] = "QUOTE_VEEL_LAGER_DAN_PAPER"
+    elif row["Quoteherstel % inzet"] < minimum_recovery_pct:
+        result["Extra schaduwcontrole"] = "BLOKKADE"
+        result["Reden"] = "QUOTE_HERSTEL_ONDER_TESTGRENS"
+    else:
+        result["Extra schaduwcontrole"] = "QUOTE_NADER_CONTROLEREN"
+        result["Reden"] = "VOLDOET_AAN_TESTFILTERS_GEEN_FILLGARANTIE"
+
+    return result
+
+
+# ============================================
+# 8. HOOFDDASHBOARD
 # ============================================
 
 def show_exit_risk_dashboard(select, secret):
@@ -1231,6 +1280,48 @@ def show_exit_risk_dashboard(select, secret):
                 "Geen recente Jupiter-quotes voor de scenarioanalyse. "
                 "Vernieuw de quotes in het tweede tabblad."
             )
+
+        st.write("**Vergelijking: huidige posities versus striktere uitstapcontrole**")
+        st.caption(
+            "De bestaande DB-status blijft ongewijzigd. Dit extra model "
+            "controleert alleen aanvullende quotevoorwaarden voor de huidige "
+            "open posities; dit is geen reconstructie van historische exits."
+        )
+        min_paper_pct = st.slider(
+            "Minimale Jupiter-quote als % van paperwaarde",
+            min_value=0, max_value=100, value=50, step=5,
+            key="v620_min_paper_pct",
+        )
+        min_recovery_pct = st.slider(
+            "Minimaal quoteherstel als % van oorspronkelijke inzet",
+            min_value=0, max_value=100, value=5, step=5,
+            key="v620_min_recovery_pct",
+        )
+        policy_rows = [
+            compare_shadow_policy(row, min_paper_pct, min_recovery_pct)
+            for row in shadow_rows
+        ]
+        show_table(
+            policy_rows,
+            "radar_b_shadow_policy_comparison.csv",
+            "v620_shadow_policy_comparison_csv",
+        )
+        blocked_policy = sum(
+            row["Extra schaduwcontrole"] == "BLOKKADE"
+            for row in policy_rows
+        )
+        candidates = sum(
+            row["Extra schaduwcontrole"] == "QUOTE_NADER_CONTROLEREN"
+            for row in policy_rows
+        )
+        p1, p2 = st.columns(2)
+        p1.metric("Geblokkeerd door extra filters", blocked_policy)
+        p2.metric("Quotes voor nader onderzoek", candidates)
+        st.caption(
+            "QUOTE_NADER_CONTROLEREN betekent NIET dat een verkoop uitvoerbaar "
+            "of rendabel is. Dit model voert geen verkopen uit en verandert "
+            "geen B/B2-strategieregels of databasehistoriek."
+        )
 
         blocked_count = sum(
             row["Schaduwstatus"]
