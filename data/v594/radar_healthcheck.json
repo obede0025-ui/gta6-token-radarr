@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-08T19:40:28+00:00",
-  "last_scan_utc": "2026-11-08T19:40:27+00:00",
+  "checked_at_utc": "2026-11-08T19:45:30+00:00",
+  "last_scan_utc": "2026-11-08T19:45:29+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 38,
-  "recorded": 18,
+  "selected": 41,
+  "recorded": 21,
   "selection": {
-    "new_search_tokens": 0,
-    "active_follow": 9,
-    "early_follow": 5,
-    "search_revisit": 2,
+    "new_search_tokens": 2,
+    "active_follow": 8,
+    "early_follow": 6,
+    "search_revisit": 3,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 15,
-      "revisit": 56,
+      "early": 14,
+      "revisit": 61,
       "rotation": 0
     },
     "pinned_open": 4,
-    "selected_total": 38
+    "selected_total": 41
   },
-  "signals_last_run": 1,
+  "signals_last_run": 0,
   "open_positions": [
     {
       "strategy": "A",
@@ -26,12 +26,12 @@
       "name": "GTA VI",
       "pair": "J5XBDfcnQVrHaK7p1JkWWn7GcA2Zz2CknFSzHKmjBx63",
       "opened_at": "2026-11-08T16:10:27+00:00",
-      "age_hours": 3.5,
+      "age_hours": 3.58,
       "entry_market": 0.0003434,
-      "last_price": 0.000341,
+      "last_price": 0.000349,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": -0.7,
-      "market_liquidity_usd": 46196.89
+      "gross_price_change_pct": 1.63,
+      "market_liquidity_usd": 46727.58
     },
     {
       "strategy": "B",
@@ -39,7 +39,7 @@
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 21.75,
+      "age_hours": 21.84,
       "entry_market": 0.0001958,
       "last_price": 1.615e-06,
       "last_market_age_minutes": 0.0,
@@ -52,7 +52,7 @@
       "name": "GTA VI",
       "pair": "5KsS39Fd8mr4PS3siXdxgiqN8LScv9y1aW4JsvrMoUY3",
       "opened_at": "2026-11-08T00:20:20+00:00",
-      "age_hours": 19.34,
+      "age_hours": 19.42,
       "entry_market": 0.0001237,
       "last_price": 1.611e-06,
       "last_market_age_minutes": 0.0,
@@ -65,25 +65,12 @@
       "name": "GTA VI",
       "pair": "5LCajWDUN8SG2oULtYob8M9zrqtNKsBWMnzyspAFBWGJ",
       "opened_at": "2026-11-08T05:25:18+00:00",
-      "age_hours": 14.25,
+      "age_hours": 14.34,
       "entry_market": 3.007e-05,
       "last_price": 2.995e-08,
       "last_market_age_minutes": 0.0,
       "gross_price_change_pct": -99.9,
       "market_liquidity_usd": 0.0
-    },
-    {
-      "strategy": "C",
-      "token": "Fw6KLrzEZc9mDJYFzm4jEQTbTU4JRb3hjeqfQXRcEdUH",
-      "name": "GTA VI",
-      "pair": "J5XBDfcnQVrHaK7p1JkWWn7GcA2Zz2CknFSzHKmjBx63",
-      "opened_at": "2026-11-08T15:45:25+00:00",
-      "age_hours": 3.92,
-      "entry_market": 0.0003258,
-      "last_price": 0.000341,
-      "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 4.67,
-      "market_liquidity_usd": 46196.89
     }
   ],
   "closed_portfolios": {
@@ -96,12 +83,11 @@
       "realized_pnl_usd": -20.2986
     },
     "C": {
-      "count": 6,
-      "realized_pnl_usd": -20.5586
+      "count": 7,
+      "realized_pnl_usd": -20.3406
     }
   },
   "alerts": [
-    "GECORRELEERD_MARKTRISICO: A,C volgen dezelfde token Fw6KLrzEZc9mDJYFzm4jEQTbTU4JRb3hjeqfQXRcEdUH",
     "LAGE_LIQUIDITEIT: B/6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
     "LAGE_LIQUIDITEIT: B/HcSYQ8EkHf4oxzF5vXKdjWib4FkA7cgWUaUDKckXpump",
     "LAGE_LIQUIDITEIT: B/5Jf1Y8jDxrzdXeA3jDZN7rqrzwnbKJadksg4Xvmj4rp8"
