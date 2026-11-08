@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7142,
-  "unique_pairs": 369,
-  "window_start_utc": "2026-11-07T20:20:25+00:00",
-  "window_end_utc": "2026-11-08T20:20:25+00:00",
+  "observations": 7137,
+  "unique_pairs": 371,
+  "window_start_utc": "2026-11-07T20:25:20+00:00",
+  "window_end_utc": "2026-11-08T20:25:20+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 6773,
-    "gaps_over_20_min": 2964,
-    "gap_rate_pct": 43.76,
+    "intervals": 6766,
+    "gaps_over_20_min": 2970,
+    "gap_rate_pct": 43.9,
     "gaps_with_observed_rise_over_20pct": 5
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 6773,
-    "gaps_over_20_min": 2964,
-    "gap_rate_pct": 43.76,
+    "intervals": 6766,
+    "gaps_over_20_min": 2970,
+    "gap_rate_pct": 43.9,
     "gaps_with_observed_rise_over_20pct": 5
   },
   "top_potential_blind_spots": [
@@ -36,6 +36,18 @@
       "observed_price_change_pct": 39.53,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 133.74,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "8JCjZbMPXZPHXWwCdTh2skHN7NDEDuakNbP83ZdYpump",
+      "pair": "7ScZKCFVNGX1GjWvGsNPoBN2K7EmqKJQFei1fiDur1M8",
+      "name": "GTA VI",
+      "from_utc": "2026-11-08T19:25:20+00:00",
+      "to_utc": "2026-11-08T20:25:20+00:00",
+      "gap_minutes": 60.0,
+      "observed_price_change_pct": 37.26,
+      "volume_m5_at_return": 296.64,
+      "liquidity_usd_at_return": 35316.0,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -72,18 +84,6 @@
       "observed_price_change_pct": 22.16,
       "volume_m5_at_return": 152.78,
       "liquidity_usd_at_return": 16275.54,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "2wMTr4ZttVr5tmS4wLStee59wi8f9QQfMtT2Hoispump",
-      "pair": "99RTagSD6VDUCzjwmzi4q1RrAdtyAuYnR7xsXLfesz69",
-      "name": "Grand Theft Auto",
-      "from_utc": "2026-11-07T20:25:18+00:00",
-      "to_utc": "2026-11-07T21:25:18+00:00",
-      "gap_minutes": 60.0,
-      "observed_price_change_pct": 21.36,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 50339.25,
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
