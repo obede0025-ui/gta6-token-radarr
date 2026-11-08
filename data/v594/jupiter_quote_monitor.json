@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-08T15:15:30+00:00",
+  "checked_utc": "2026-11-08T15:20:30+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "OK",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 14835353744846,
+        "output_raw": 14839208001795,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,8 +21,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 14835353744846,
-        "output_raw": 23610708,
+        "input_raw": 14839208001795,
+        "output_raw": 23610621,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -30,16 +30,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.610708",
-      "roundtrip_pct": "-5.557",
+      "roundtrip_usdc": "23.610621",
+      "roundtrip_pct": "-5.558",
       "positions": [
         {
           "strategy": "B",
           "opened_at": "2026-11-07T21:55:17+00:00",
           "entry_market": 0.0001958,
           "position_quantity": 123925.97488433577,
-          "estimated_exit_usdc": "0.200171",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.7998",
+          "estimated_exit_usdc": "0.200122",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.7999",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 14821550784103,
+        "output_raw": 14825232065214,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,8 +64,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 14821550784103,
-        "output_raw": 23609626,
+        "input_raw": 14825232065214,
+        "output_raw": 23610091,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -73,16 +73,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.609626",
-      "roundtrip_pct": "-5.561",
+      "roundtrip_usdc": "23.610091",
+      "roundtrip_pct": "-5.560",
       "positions": [
         {
           "strategy": "B",
           "opened_at": "2026-11-08T00:20:20+00:00",
           "entry_market": 0.0001237,
           "position_quantity": 196157.68700366162,
-          "estimated_exit_usdc": "0.317116",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.6829",
+          "estimated_exit_usdc": "0.317031",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.6830",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -98,7 +98,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 87863011,
+        "output_raw": 87863012,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -107,16 +107,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 87863011,
-        "output_raw": 224,
-        "router": "dflow",
+        "input_raw": 87863012,
+        "output_raw": 225,
+        "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000224",
+      "roundtrip_usdc": "0.000225",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -124,9 +124,9 @@
           "opened_at": "2026-11-08T05:25:18+00:00",
           "entry_market": 3.007e-05,
           "position_quantity": 806940.66785344,
-          "estimated_exit_usdc": "0.000449",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.9996",
-          "exit_router": "metis",
+          "estimated_exit_usdc": "0.000451",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.9995",
+          "exit_router": "okx",
           "status": "QUOTE_AVAILABLE"
         }
       ],
