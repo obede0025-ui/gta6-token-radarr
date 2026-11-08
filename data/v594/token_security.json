@@ -1,10 +1,27 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-08T10:55:21+00:00",
+  "checked_utc": "2026-11-08T11:00:53+00:00",
   "mode": "READ_ONLY_MINT_AUTHORITY_SCREENING",
   "status": "OK",
   "all_live_trades_blocked": true,
   "tokens": [
+    {
+      "mint": "ZdwVPCu5sLACHkY2FozzKnF1rnTUTjRVjYddmS4EFVL",
+      "sources": [
+        "open_paper_position",
+        "pretrade_candidate"
+      ],
+      "program": "UNKNOWN",
+      "mint_authority": "UNKNOWN",
+      "freeze_authority": "UNKNOWN",
+      "extensions": [],
+      "security_gate": "BLOCK",
+      "live_trade_approval": "BLOCK",
+      "reasons": [
+        "UNKNOWN_PROGRAM_OWNER"
+      ],
+      "warnings": []
+    },
     {
       "mint": "6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
       "sources": [
@@ -54,13 +71,13 @@
       "warnings": []
     }
   ],
-  "checked_count": 3,
-  "block_count": 3,
+  "checked_count": 4,
+  "block_count": 4,
   "basic_checks_clear_count": 0,
   "notes": [
     "No holder / LP lock / transferability / honeypot verification",
     "Token-2022 is blocked pending dedicated extension audit",
     "No wallet/private keys, no trades, no portfolio/database changes"
   ],
-  "candidate_mints_total": 3
+  "candidate_mints_total": 4
 }
