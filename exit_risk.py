@@ -666,6 +666,14 @@ def shadow_exit(
 
     # Herstelpercentage is uitdrukkelijk een schatting op quote-basis,
     # geen uitvoerbare exit of gerealiseerde portefeuillegegevens.
+    # Dit is uitsluitend een discrepantiecontrole, geen automatische
+    # beslissing tot sluiten of vasthouden van een positie.
+    misleading_take_profit = (
+        signal == "TAKE_PROFIT"
+        and quote_pnl is not None
+        and quote_pnl < 0
+    )
+
     quote_risk = (
         "QUOTE_ONBEKEND"
         if recovery_pct is None else
@@ -699,6 +707,7 @@ def shadow_exit(
             if recovery_pct is not None else None
         ),
         "Quote-risico": quote_risk,
+        "Take-profit maar quote-verlies": misleading_take_profit,
         "Paper verkoopwaarde $": (
             float(round(paper_value, 6))
             if paper_comparable else None
@@ -1147,6 +1156,81 @@ def show_exit_risk_dashboard(select, secret):
             "radar_b_shadow_exit.csv",
             "v617_shadow_csv",
         )
+
+        misleading_ids = [
+            row["Trade-ID"] for row in shadow_rows
+            if row["Take-profit maar quote-verlies"] is True
+        ]
+        if misleading_ids:
+            st.error(
+                "MISLEIDEND TAKE-PROFIT SIGNAAL bij trade-ID's "
+                + ", ".join(map(str, misleading_ids))
+                + ": de actuele Jupiter-quote ligt onder de oorspronkelijke "
+                "inzet, ondanks een positief koerssignaal. "
+                "Geen trade wordt automatisch afgesloten."
+            )
+
+        # Sensitiviteitsanalyse op de verkoopquote (geen veronderstelde fill).
+        # Alleen posities met een geldige verse quote worden meegenomen;
+        # ontbrekende quotes tellen NIET als een verkoopwaarde van $0.
+        quoted_rows = [
+            row for row in shadow_rows
+            if row["Jupiter verkoopquote $"] is not None
+            and row["Jupiter P/L $"] is not None
+        ]
+        if quoted_rows:
+            st.write("**Uitstapscenario's op basis van actuele quotes**")
+            extra_haircut = st.slider(
+                "Extra veiligheidsmarge op Jupiter-quote (%)",
+                min_value=0,
+                max_value=30,
+                value=10,
+                step=5,
+                key="v618_exit_haircut",
+            )
+            scenario_rows = []
+            for row in quoted_rows:
+                q = Decimal(str(row["Jupiter verkoopquote $"]))
+                pnl = Decimal(str(row["Jupiter P/L $"]))
+                stake = q - pnl
+                stressed_value = q * (
+                    Decimal("1") - Decimal(str(extra_haircut)) / 100
+                )
+                scenario_rows.append({
+                    "Trade-ID": row["Trade-ID"],
+                    "Inzet $": float(round(stake, 6)),
+                    "Indicatieve Jupiter-quote $": float(round(q, 6)),
+                    "Indicatieve quote-P/L $": float(round(pnl, 6)),
+                    "Scenario verkoopwaarde $": float(round(stressed_value, 6)),
+                    "Scenario P/L $": float(round(stressed_value - stake, 6)),
+                    "Liquiditeitsblokkade": (
+                        row["Schaduwstatus"] == "LIQUIDITEIT_ONDER_GRENS"
+                    ),
+                })
+            show_table(
+                scenario_rows,
+                "radar_b_exit_scenarios.csv",
+                "v618_exit_scenarios_csv",
+            )
+            total_pnl = sum(
+                Decimal(str(row["Scenario P/L $"])) for row in scenario_rows
+            )
+            st.metric(
+                "Hypothetische P/L van posities met verse quote",
+                f"${total_pnl:+,.4f}",
+            )
+            st.caption(
+                "Deze P/L veronderstelt uitsluitend voor analyse dat de "
+                "indicatieve quote tegen het gekozen extra waardeverlies "
+                "gerealiseerd kan worden. Dat is NIET bewezen, zeker niet "
+                "bij een liquiditeitsblokkade. Geen historische backtest, "
+                "geen nieuwe papertrades en geen echte verkopen."
+            )
+        else:
+            st.info(
+                "Geen recente Jupiter-quotes voor de scenarioanalyse. "
+                "Vernieuw de quotes in het tweede tabblad."
+            )
 
         blocked_count = sum(
             row["Schaduwstatus"]
