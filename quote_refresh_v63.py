@@ -1,4 +1,4 @@
-"""Rate-limited local Jupiter quote-refresh wrapper. No keys are persisted."""
+"""Manual quote refresh with cache. Does not persist credentials or place orders."""
 import argparse
 import json
 import os
@@ -13,22 +13,28 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--min-seconds", type=int, default=900)
     args = parser.parse_args()
-    if args.min_seconds < 60:
-        parser.error("minimum refresh interval is 60 seconds")
+    if args.min_seconds < 900:
+        parser.error("minimum refresh interval is 900 seconds")
     output = Path(args.output)
-    if output.exists() and time.time() - output.stat().st_mtime < args.min_seconds:
-        print("CACHE_HIT: no Jupiter requests")
-        return
+    if output.exists():
+        try:
+            existing = json.loads(output.read_text(encoding="utf-8"))
+            checked = existing.get("status") == "OK"
+        except (OSError, ValueError, TypeError):
+            checked = False
+        if checked and time.time() - output.stat().st_mtime < args.min_seconds:
+            print("CACHE_HIT: no Jupiter requests")
+            return
     if not os.getenv("JUPITER_API_KEY"):
         print("NOT_CONFIGURED: no quote refresh attempted")
         return
-    monitor = Path(__file__).with_name("radar_quote_monitor.py")
+    monitor = Path(__file__).with_name("v63_quote_monitor.py")
     command = [sys.executable, str(monitor), "--state", args.state]
-    response = subprocess.run(command, capture_output=True, text=True, timeout=180, check=True)
+    response = subprocess.run(command, capture_output=True, text=True, timeout=240, check=True)
     data = json.loads(response.stdout)
-    # Failure, partial and rate limit are not cached as good results.
+    # Never treat incomplete quotes as fully successful.
     if data.get("status") != "OK":
-        print("QUOTE_STATUS_" + str(data.get("status")))
+        print("QUOTE_STATUS_" + str(data.get("status")) + ": not cached")
         return
     output.parent.mkdir(parents=True, exist_ok=True)
     tmp = output.with_name(output.name + ".tmp")
