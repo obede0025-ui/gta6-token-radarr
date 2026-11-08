@@ -2834,3 +2834,6 @@ def v68_performance_dashboard():
 v68_performance_dashboard()
 from v610_strategy_comparison import v610_strategy_b_comparison
 v610_strategy_b_comparison(select)
+
+from v613_position_audit import show_position_audit
+show_position_audit(select)
