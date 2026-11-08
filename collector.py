@@ -5,6 +5,7 @@ Behoudt bestaande learning.db, outcome-labels, open papertrades
 en JSON-contracten. Geen echte orders.
 """
 
+import argparse
 import json
 import math
 import os
@@ -1021,5 +1022,209 @@ def run():
         )
 
 
+
+# ================================================
+# SNELLE MARKTMONITOR (V6.21) - VOLLEDIG READ-ONLY
+# ================================================
+# Start op een eigen continu draaiende host:
+#   python collector.py --fast-monitor --interval 60
+# Test een cyclus:
+#   python collector.py --fast-monitor --once
+# Deze monitor schrijft NOOIT naar learning.db, laatste-scan JSON,
+# portfolio's of een wallet. De bestaande 5-minutenloop blijft intact.
+FAST_MAX_TOKENS = 30
+FAST_ACTIVE_LIMIT = 20
+FAST_ALERT_PRICE_DROP_PCT = 20.0
+FAST_ALERT_LIQ_DROP_PCT = 40.0
+
+
+def fast_watch_addresses():
+    """Selecteer open paperposities en recente actieve tokens zonder DB-writes."""
+    pinned = paper_positions()
+    addresses = set(pinned)
+
+    b2_path = Path("data/v611/b2_portfolio.json")
+    if b2_path.is_file():
+        state = json.loads(b2_path.read_text(encoding="utf-8"))
+        if state.get("version") != 1 or not isinstance(state.get("open"), dict):
+            raise ValueError("Ongeldige B2-portefeuille: monitor gestopt")
+        addresses.update(
+            mint for mint in state["open"]
+            if isinstance(mint, str) and ADDRESS.fullmatch(mint)
+        )
+
+    # Open posities krijgen absolute prioriteit, ook bij nul liquiditeit.
+    if len(addresses) > FAST_MAX_TOKENS:
+        raise ValueError("Te veel open posities voor fast-monitor veiligheidslimiet")
+
+    if not DB.is_file():
+        raise FileNotFoundError("Bestaande learning.db niet gevonden")
+
+    uri = DB.resolve().as_uri() + "?mode=ro"
+    with sqlite3.connect(uri, uri=True, timeout=15) as conn:
+        cutoff = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(
+            timespec="seconds"
+        )
+        active = conn.execute("""
+            WITH ranked AS (
+                SELECT token_address, volume_m5, liquidity_usd,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY token_address
+                           ORDER BY scanned_at DESC
+                       ) AS rn
+                FROM snapshots WHERE scanned_at >= ?
+            )
+            SELECT token_address
+            FROM ranked
+            WHERE rn=1 AND COALESCE(volume_m5,0)>=?
+                  AND COALESCE(liquidity_usd,0)>=?
+            ORDER BY volume_m5 DESC
+            LIMIT ?
+        """, (
+            cutoff, FOLLOW_MIN_VOL, FOLLOW_MIN_LIQ,
+            min(FAST_ACTIVE_LIMIT, FAST_MAX_TOKENS - len(addresses)),
+        )).fetchall()
+
+    # Sorteer actieve tokens alleen om de selectie deterministisch te houden.
+    ordered = sorted(addresses)
+    ordered.extend(
+        mint for (mint,) in active
+        if ADDRESS.fullmatch(str(mint or "")) and mint not in addresses
+    )
+    return ordered[:FAST_MAX_TOKENS], pinned, addresses
+
+
+def fast_monitor_once(previous):
+    """Een verse marktpoll; previous bestaat alleen in werkgeheugen."""
+    stamp = now()
+    tokens, pinned, open_mints = fast_watch_addresses()
+    observations, errors = fetch_pairs(tokens, pinned)
+    current = {}
+    alerts = []
+
+    for mint in tokens:
+        pair = observations.get(mint)
+        if pair is None:
+            if mint in open_mints:
+                alerts.append({
+                    "mint": mint, "type": "MARKET_DATA_UNAVAILABLE",
+                    "severity": "UNKNOWN",
+                })
+            continue
+
+        price = num(pair.get("priceUsd"))
+        liquidity = num((pair.get("liquidity") or {}).get("usd"))
+        pair_id = pair.get("pairAddress")
+        if (
+            price is None or price <= 0 or liquidity is None
+            or liquidity < 0 or not pair_id
+        ):
+            if mint in open_mints:
+                alerts.append({
+                    "mint": mint, "type": "MARKET_DATA_INVALID",
+                    "severity": "UNKNOWN",
+                })
+            continue
+
+        current[mint] = {
+            "price": price, "liquidity": liquidity, "pair": pair_id,
+            "scanned_at": stamp,
+        }
+        old = previous.get(mint)
+        if old is None:
+            continue
+
+        # Nooit beweging over verschillende pairs interpreteren.
+        if old.get("pair") != pair_id:
+            alerts.append({
+                "mint": mint, "type": "PAIR_CHANGED",
+                "severity": "HIGH", "open_position": mint in open_mints,
+            })
+            continue
+
+        old_price = num(old.get("price"))
+        old_liq = num(old.get("liquidity"))
+        if old_price is not None and old_price > 0:
+            drop_pct = 100 * (1 - price / old_price)
+            if drop_pct >= FAST_ALERT_PRICE_DROP_PCT:
+                alerts.append({
+                    "mint": mint, "type": "PRICE_DROP",
+                    "drop_pct": round(drop_pct, 2),
+                    "severity": "HIGH",
+                    "open_position": mint in open_mints,
+                })
+        if old_liq is not None and old_liq > 0:
+            drop_pct = 100 * (1 - liquidity / old_liq)
+            if drop_pct >= FAST_ALERT_LIQ_DROP_PCT:
+                alerts.append({
+                    "mint": mint, "type": "LIQUIDITY_DROP",
+                    "drop_pct": round(drop_pct, 2),
+                    "severity": "HIGH",
+                    "open_position": mint in open_mints,
+                })
+        if mint in open_mints and liquidity < 10000:
+            alerts.append({
+                "mint": mint, "type": "OPEN_POSITION_LOW_LIQUIDITY",
+                "liquidity_usd": round(liquidity, 2),
+                "severity": "HIGH",
+            })
+
+    # Bij API-storingen blijven vorige baselines bestaan. Geen nepprijzen.
+    merged = dict(previous)
+    merged.update(current)
+    output = {
+        "mode": "FAST_MONITOR_READ_ONLY",
+        "timestamp_utc": stamp,
+        "tracked": len(tokens),
+        "observed": len(current),
+        "open_positions": len(open_mints),
+        "alerts": alerts,
+        "errors": errors[:10],
+        "warning": (
+            "Geen orders of databasewijzigingen. "
+            "Dexscreener-prijs en liquiditeit bewijzen geen verkoopbaarheid."
+        ),
+    }
+    print(json.dumps(output, ensure_ascii=False), flush=True)
+    return merged
+
+
+def run_fast_monitor(interval_seconds=60, once=False):
+    """Optionele 24/7 modus; wordt niet door GitHub Actions gestart."""
+    if not 30 <= interval_seconds <= 300:
+        raise ValueError("Monitorinterval moet tussen 30 en 300 sec liggen")
+
+    previous = {}
+    while True:
+        started = time.monotonic()
+        try:
+            previous = fast_monitor_once(previous)
+        except (
+            OSError, ValueError, sqlite3.Error, requests.RequestException,
+        ) as exc:
+            print(json.dumps({
+                "mode": "FAST_MONITOR_READ_ONLY",
+                "status": "MONITOR_ERROR",
+                "error": str(exc)[:200],
+            }), flush=True)
+            if once:
+                raise
+
+        if once:
+            return
+
+        remaining = interval_seconds - (time.monotonic() - started)
+        if remaining > 0:
+            time.sleep(remaining)
+
+
 if __name__ == "__main__":
-    run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fast-monitor", action="store_true")
+    parser.add_argument("--once", action="store_true")
+    parser.add_argument("--interval", type=int, default=60)
+    args = parser.parse_args()
+    if args.fast_monitor:
+        run_fast_monitor(args.interval, args.once)
+    else:
+        run()
