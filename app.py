@@ -2834,15 +2834,6 @@ def v68_performance_dashboard():
 v68_performance_dashboard()
 from v610_strategy_comparison import v610_strategy_b_comparison
 v610_strategy_b_comparison(select)
+from exit_risk import show_exit_risk_dashboard
+show_exit_risk_dashboard(select, secret)
 
-from v613_position_audit import show_position_audit
-show_position_audit(select)
-
-from v614_blocked_exit_quotes import show_blocked_exit_quotes
-show_blocked_exit_quotes(select, secret)
-
-from v615_exit_risk import show_exit_risk
-show_exit_risk(select)
-
-from v616_paper_exit_simulator import show_paper_exit_simulator
-show_paper_exit_simulator(select)
