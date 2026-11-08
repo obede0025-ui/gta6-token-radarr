@@ -30,14 +30,6 @@ def examine(db_path, now=None):
         if conn.execute("PRAGMA quick_check").fetchone()[0]!="ok":
             raise ValueError("DB integrity error")
         rows=conn.execute("""
-            SELECT s.scanned_at,s.token_address,s.pair_address,s.name,
-                   s.price_usd,s.liquidity_usd,s.volume_m5,s.buys_m5,
-                   s.sells_m5,s.pair_age_hours
-            FROM snapshots s
-            WHERE s.scanned_at >= ?
-            ORDER BY s.scanned_at DESC, s.token_address DESC
-            LIMIT 500
-        """, ((now.timestamp()-MAX_OBSERVATION_AGE_SECONDS),)).fetchall() if False else conn.execute("""
             SELECT scanned_at,token_address,pair_address,name,price_usd,
                    liquidity_usd,volume_m5,buys_m5,sells_m5,pair_age_hours
             FROM snapshots
