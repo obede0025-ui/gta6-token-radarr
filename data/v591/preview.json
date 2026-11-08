@@ -1,10 +1,10 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-08T10:00:48+00:00",
+  "generated_utc": "2026-11-08T10:05:20+00:00",
   "last_processed": [
-    "2026-11-08T10:00:46+00:00",
-    "kaAnvvdnvznkvTbh8ymX4U8Cg8Vz7qPvZKuaX2Mpump",
-    "3rFKZ8rS38Xj9Vb4a1qkWwiWMJhRn7JpqK7XJCNdcaKF"
+    "2026-11-08T10:05:19+00:00",
+    "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump",
+    "5E3dXLXGwmTDCokA51WYYaKttjFZBwqCoyUHBUi5gt2m"
   ],
   "run": {
     "observations": 17,
@@ -30,31 +30,31 @@
     "diagnostics": {
       "by_strategy": {
         "A": {
+          "te_weinig_opeenvolgende_metingen": 7,
           "momentumvoorwaarden_niet_gehaald": 4,
-          "volume_5m_te_laag": 4,
-          "te_weinig_opeenvolgende_metingen": 9
+          "volume_5m_te_laag": 6
         },
         "B": {
+          "te_weinig_opeenvolgende_metingen": 7,
           "momentumvoorwaarden_niet_gehaald": 4,
-          "volume_5m_te_laag": 4,
-          "te_weinig_opeenvolgende_metingen": 9
+          "volume_5m_te_laag": 6
         },
         "C": {
-          "momentumvoorwaarden_niet_gehaald": 4,
-          "volume_5m_te_laag": 5,
-          "te_weinig_opeenvolgende_metingen": 8
+          "te_weinig_opeenvolgende_metingen": 5,
+          "volume_5m_te_laag": 8,
+          "momentumvoorwaarden_niet_gehaald": 4
         }
       },
       "spacing": {
-        "interval_geldig": 9,
-        "interval_te_lang": 7,
+        "interval_te_lang": 4,
+        "interval_geldig": 12,
         "geen_vorige_meting": 1
       },
       "market_filters": {
-        "paarleeftijd_ongeldig": 4,
-        "liquiditeit_te_laag_of_onbekend": 13,
-        "volume_5m_te_laag_of_onbekend": 13,
-        "buys_niet_hoger_dan_sells": 15
+        "volume_5m_te_laag_of_onbekend": 12,
+        "paarleeftijd_ongeldig": 7,
+        "buys_niet_hoger_dan_sells": 13,
+        "liquiditeit_te_laag_of_onbekend": 10
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
