@@ -1,30 +1,28 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-08T13:40:23+00:00",
+  "checked_utc": "2026-11-08T13:45:29+00:00",
   "status": "OK",
   "live_orders_enabled": false,
   "candidates": [
     {
-      "mint": "2CdwqeYFSYpfrbQ8jp8qKzWiDJNU3jKTTUjDJ9zPzw2h",
-      "pair": "D46Mp2YmijUuxfKrUPHwZCjSJ5ApUZ9ut9sUQDYb4o7Z",
+      "mint": "HNB5NzunuJU2t4o9qXz3xib2gULjZMvSCfTyARNKABuZ",
+      "pair": "7w2nbD4UKpSw9KmPCgwZ448UtXW4AaQMt8W2vnWZTrKW",
       "name": "Jason Duval",
       "strategy": "A",
-      "scanned_at_utc": "2026-11-08T13:40:22+00:00",
+      "scanned_at_utc": "2026-11-08T13:45:27+00:00",
       "market_age_min": 0.03,
-      "price_usd": "0.00005267",
-      "liquidity_usd": "19420.46",
-      "volume_5m_usd": "31383.12",
-      "quote_gate": "BLOCK",
-      "reasons": [
-        "LIQUIDITY_BELOW_20000"
-      ],
-      "roundtrip_pct": "-0.754",
+      "price_usd": "0.00001603",
+      "liquidity_usd": "22284.73",
+      "volume_5m_usd": "215534.22",
+      "quote_gate": "PASS",
+      "reasons": [],
+      "roundtrip_pct": "-0.675",
       "live_trade_approval": "BLOCK"
     }
   ],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
   "candidate_count": 1,
-  "quote_gate_passed": 0,
-  "quote_gate_blocked": 1
+  "quote_gate_passed": 1,
+  "quote_gate_blocked": 0
 }
