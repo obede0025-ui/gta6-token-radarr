@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-08T19:20:30+00:00",
+  "checked_utc": "2026-11-08T19:25:26+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
@@ -18,28 +18,10 @@
         "A",
         "C"
       ],
-      "roundtrip_pct": "-0.428",
-      "liquidity_usd": "46084.05",
+      "roundtrip_pct": "-0.450",
+      "liquidity_usd": "46012.98",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
-        "QUOTE_REPORT_NOT_OK"
-      ],
-      "live_trade_approval": "BLOCK",
-      "live_trade_reasons": [
-        "TOKEN_CONTRACT_AND_HOLDER_RISK_NOT_VERIFIED",
-        "REAL_TRANSACTION_EXECUTION_NOT_VALIDATED"
-      ]
-    },
-    {
-      "mint": "3XrXLwVXqih8fAfejLaj69DDPzkN2yHUVEWyAzrtuQ1Q",
-      "strategies": [
-        "A"
-      ],
-      "roundtrip_pct": "-1.443",
-      "liquidity_usd": "14716.16",
-      "quote_gate": "BLOCK",
-      "quote_gate_reasons": [
-        "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
         "QUOTE_REPORT_NOT_OK"
       ],
       "live_trade_approval": "BLOCK",
@@ -53,14 +35,13 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": null,
+      "roundtrip_pct": "-5.573",
       "liquidity_usd": "1627.15",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
-        "BUY_OR_SELL_QUOTE_MISSING",
         "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
         "QUOTE_REPORT_NOT_OK",
-        "ROUNDTRIP_UNKNOWN"
+        "ROUNDTRIP_COST_TOO_HIGH"
       ],
       "live_trade_approval": "BLOCK",
       "live_trade_reasons": [
@@ -73,14 +54,13 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": null,
+      "roundtrip_pct": "-5.581",
       "liquidity_usd": "1618.52",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
-        "BUY_OR_SELL_QUOTE_MISSING",
         "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
         "QUOTE_REPORT_NOT_OK",
-        "ROUNDTRIP_UNKNOWN"
+        "ROUNDTRIP_COST_TOO_HIGH"
       ],
       "live_trade_approval": "BLOCK",
       "live_trade_reasons": [
@@ -110,7 +90,7 @@
     }
   ],
   "quote_gate_passed": 0,
-  "quote_gate_blocked": 5,
+  "quote_gate_blocked": 4,
   "status": "ATTENTION",
   "all_live_trades_blocked": true,
   "notes": [
