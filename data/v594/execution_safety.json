@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-08T15:40:30+00:00",
+  "checked_utc": "2026-11-08T15:45:30+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
@@ -17,7 +17,7 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-5.550",
+      "roundtrip_pct": "-5.555",
       "liquidity_usd": "1627.15",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
@@ -36,7 +36,7 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-5.560",
+      "roundtrip_pct": "-5.562",
       "liquidity_usd": "1618.52",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
@@ -75,7 +75,26 @@
         "C"
       ],
       "roundtrip_pct": null,
-      "liquidity_usd": "34594.41",
+      "liquidity_usd": "34592.31",
+      "quote_gate": "BLOCK",
+      "quote_gate_reasons": [
+        "BUY_OR_SELL_QUOTE_MISSING",
+        "QUOTE_REPORT_NOT_OK",
+        "ROUNDTRIP_UNKNOWN"
+      ],
+      "live_trade_approval": "BLOCK",
+      "live_trade_reasons": [
+        "TOKEN_CONTRACT_AND_HOLDER_RISK_NOT_VERIFIED",
+        "REAL_TRANSACTION_EXECUTION_NOT_VALIDATED"
+      ]
+    },
+    {
+      "mint": "Fw6KLrzEZc9mDJYFzm4jEQTbTU4JRb3hjeqfQXRcEdUH",
+      "strategies": [
+        "C"
+      ],
+      "roundtrip_pct": null,
+      "liquidity_usd": "45148.87",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
         "BUY_OR_SELL_QUOTE_MISSING",
@@ -90,7 +109,7 @@
     }
   ],
   "quote_gate_passed": 0,
-  "quote_gate_blocked": 4,
+  "quote_gate_blocked": 5,
   "status": "ATTENTION",
   "all_live_trades_blocked": true,
   "notes": [
