@@ -52,7 +52,8 @@ jobs:
             radar_pretrade_safety.py \
             radar_pretrade_history.py \
             radar_token_security.py \
-            v611_b2_shadow.py
+            v611_b2_shadow.py \
+            radar_execution_accuracy.py
 
       - name: Collect GTA6 market data
         run: python collector.py
@@ -112,6 +113,14 @@ jobs:
           python radar_execution_safety.py > data/v594/execution_safety.json
           python -m json.tool data/v594/execution_safety.json
 
+      - name: Execution Accuracy Monitor V1 (B and B2, read-only)
+        env:
+          JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
+        run: |
+          python radar_execution_accuracy.py
+          python -m json.tool data/v612/execution_accuracy.json
+
       - name: Save collector portfolio and history
         env:
           JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
@@ -135,7 +144,9 @@ jobs:
               data/v594/pretrade_history.json \
               data/v594/token_security.json \
               data/v611/b2_portfolio.json \
-              data/v611/b2_report.json
+              data/v611/b2_report.json \
+              data/v612/execution_accuracy.json \
+              data/v612/execution_accuracy_history.json
 
             if git diff --cached --quiet; then
               echo 'No changes'
@@ -165,6 +176,7 @@ jobs:
             python radar_quote_monitor.py > data/v594/jupiter_quote_monitor.json
             python radar_token_security.py > data/v594/token_security.json
             python radar_execution_safety.py > data/v594/execution_safety.json
+            python radar_execution_accuracy.py
             sleep 2
           done
 
@@ -189,5 +201,7 @@ jobs:
             data/v594/token_security.json
             data/v611/b2_portfolio.json
             data/v611/b2_report.json
+            data/v612/execution_accuracy.json
+            data/v612/execution_accuracy_history.json
           if-no-files-found: ignore
           retention-days: 14
