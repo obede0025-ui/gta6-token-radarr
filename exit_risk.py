@@ -654,6 +654,7 @@ def shadow_exit(
     )
 
     quote_pnl = None
+    recovery_pct = None
 
     if (
         quote_value is not None
@@ -661,6 +662,19 @@ def shadow_exit(
         and stake > 0
     ):
         quote_pnl = quote_value - stake
+        recovery_pct = (quote_value / stake) * 100
+
+    # Herstelpercentage is uitdrukkelijk een schatting op quote-basis,
+    # geen uitvoerbare exit of gerealiseerde portefeuillegegevens.
+    quote_risk = (
+        "QUOTE_ONBEKEND"
+        if recovery_pct is None else
+        "KRITIEK_ONDER_5_PCT_INZET"
+        if recovery_pct < Decimal("5") else
+        "ERNSTIG_ONDER_50_PCT_INZET"
+        if recovery_pct < Decimal("50") else
+        "QUOTE_NIET_KRITIEK"
+    )
 
     return {
         "Trade-ID": position["id"],
@@ -680,6 +694,11 @@ def shadow_exit(
             float(round(quote_pnl, 6))
             if quote_pnl is not None else None
         ),
+        "Quoteherstel % inzet": (
+            float(round(recovery_pct, 3))
+            if recovery_pct is not None else None
+        ),
+        "Quote-risico": quote_risk,
         "Paper verkoopwaarde $": (
             float(round(paper_value, 6))
             if paper_comparable else None
@@ -1135,6 +1154,18 @@ def show_exit_risk_dashboard(select, secret):
             for row in shadow_rows
         )
 
+        critical_recovery = [
+            row["Trade-ID"] for row in shadow_rows
+            if row["Quote-risico"] == "KRITIEK_ONDER_5_PCT_INZET"
+        ]
+
+        if critical_recovery:
+            st.error(
+                "Kritieke indicatieve exitwaarde (<5% van inzet) bij "
+                "trade-ID's: " + ", ".join(map(str, critical_recovery))
+                + ". Dit is geen bevestigde of uitgevoerde verkoop."
+            )
+
         available_count = sum(
             row["Schaduwstatus"]
             == "SCHADUWQUOTE_BESCHIKBAAR"
@@ -1151,6 +1182,11 @@ def show_exit_risk_dashboard(select, secret):
         c.metric(
             "Quote <50% van paperwaarde",
             large_gap_count,
+        )
+
+        st.metric(
+            "Kritiek: quote <5% van inzet",
+            len(critical_recovery),
         )
 
         a.metric(
