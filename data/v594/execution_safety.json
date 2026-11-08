@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-08T00:25:23+00:00",
+  "checked_utc": "2026-11-08T00:30:42+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
@@ -15,8 +15,26 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-5.563",
-      "liquidity_usd": "1628.4",
+      "roundtrip_pct": "-5.568",
+      "liquidity_usd": "1627.15",
+      "quote_gate": "BLOCK",
+      "quote_gate_reasons": [
+        "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
+        "ROUNDTRIP_COST_TOO_HIGH"
+      ],
+      "live_trade_approval": "BLOCK",
+      "live_trade_reasons": [
+        "TOKEN_CONTRACT_AND_HOLDER_RISK_NOT_VERIFIED",
+        "REAL_TRANSACTION_EXECUTION_NOT_VALIDATED"
+      ]
+    },
+    {
+      "mint": "HcSYQ8EkHf4oxzF5vXKdjWib4FkA7cgWUaUDKckXpump",
+      "strategies": [
+        "B"
+      ],
+      "roundtrip_pct": "-5.568",
+      "liquidity_usd": "1664.66",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
         "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
@@ -31,31 +49,12 @@
     {
       "mint": "3kQbP4tTBtUQ13TifHEon7X6ms9MhYtTr43m612owo5P",
       "strategies": [
-        "B",
         "C"
       ],
-      "roundtrip_pct": "-2.385",
-      "liquidity_usd": "56454.69",
+      "roundtrip_pct": "-2.325",
+      "liquidity_usd": "55480.11",
       "quote_gate": "PASS",
       "quote_gate_reasons": [],
-      "live_trade_approval": "BLOCK",
-      "live_trade_reasons": [
-        "TOKEN_CONTRACT_AND_HOLDER_RISK_NOT_VERIFIED",
-        "REAL_TRANSACTION_EXECUTION_NOT_VALIDATED"
-      ]
-    },
-    {
-      "mint": "HcSYQ8EkHf4oxzF5vXKdjWib4FkA7cgWUaUDKckXpump",
-      "strategies": [
-        "B"
-      ],
-      "roundtrip_pct": "-5.564",
-      "liquidity_usd": "1633.53",
-      "quote_gate": "BLOCK",
-      "quote_gate_reasons": [
-        "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
-        "ROUNDTRIP_COST_TOO_HIGH"
-      ],
       "live_trade_approval": "BLOCK",
       "live_trade_reasons": [
         "TOKEN_CONTRACT_AND_HOLDER_RISK_NOT_VERIFIED",
