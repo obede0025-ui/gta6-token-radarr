@@ -1,22 +1,22 @@
 {
-  "checked_at_utc": "2026-11-08T19:15:29+00:00",
-  "last_scan_utc": "2026-11-08T19:15:28+00:00",
+  "checked_at_utc": "2026-11-08T19:20:28+00:00",
+  "last_scan_utc": "2026-11-08T19:20:26+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 37,
-  "recorded": 17,
+  "selected": 48,
+  "recorded": 28,
   "selection": {
-    "new_search_tokens": 2,
-    "active_follow": 6,
-    "early_follow": 5,
-    "search_revisit": 2,
+    "new_search_tokens": 1,
+    "active_follow": 7,
+    "early_follow": 3,
+    "search_revisit": 15,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 13,
-      "revisit": 55,
+      "early": 17,
+      "revisit": 67,
       "rotation": 0
     },
     "pinned_open": 4,
-    "selected_total": 37
+    "selected_total": 48
   },
   "signals_last_run": 2,
   "open_positions": [
@@ -26,12 +26,25 @@
       "name": "GTA VI",
       "pair": "J5XBDfcnQVrHaK7p1JkWWn7GcA2Zz2CknFSzHKmjBx63",
       "opened_at": "2026-11-08T16:10:27+00:00",
-      "age_hours": 3.08,
+      "age_hours": 3.17,
       "entry_market": 0.0003434,
-      "last_price": 0.0003379,
+      "last_price": 0.00034,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": -1.6,
-      "market_liquidity_usd": 45886.98
+      "gross_price_change_pct": -0.99,
+      "market_liquidity_usd": 46084.05
+    },
+    {
+      "strategy": "A",
+      "token": "3XrXLwVXqih8fAfejLaj69DDPzkN2yHUVEWyAzrtuQ1Q",
+      "name": "State of Leonida",
+      "pair": "FRjgANKnZ5DTdezrM3H31jzG9MnYuej7PmtYZ4TwwsYE",
+      "opened_at": "2026-11-08T19:20:26+00:00",
+      "age_hours": 0.0,
+      "entry_market": 1.093e-05,
+      "last_price": 1.093e-05,
+      "last_market_age_minutes": 0.0,
+      "gross_price_change_pct": 0.0,
+      "market_liquidity_usd": 14716.16
     },
     {
       "strategy": "B",
@@ -39,7 +52,7 @@
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 21.34,
+      "age_hours": 21.42,
       "entry_market": 0.0001958,
       "last_price": 1.615e-06,
       "last_market_age_minutes": 0.0,
@@ -52,7 +65,7 @@
       "name": "GTA VI",
       "pair": "5KsS39Fd8mr4PS3siXdxgiqN8LScv9y1aW4JsvrMoUY3",
       "opened_at": "2026-11-08T00:20:20+00:00",
-      "age_hours": 18.92,
+      "age_hours": 19.0,
       "entry_market": 0.0001237,
       "last_price": 1.611e-06,
       "last_market_age_minutes": 0.0,
@@ -65,7 +78,7 @@
       "name": "GTA VI",
       "pair": "5LCajWDUN8SG2oULtYob8M9zrqtNKsBWMnzyspAFBWGJ",
       "opened_at": "2026-11-08T05:25:18+00:00",
-      "age_hours": 13.84,
+      "age_hours": 13.92,
       "entry_market": 3.007e-05,
       "last_price": 2.995e-08,
       "last_market_age_minutes": 0.0,
@@ -78,12 +91,12 @@
       "name": "GTA VI",
       "pair": "J5XBDfcnQVrHaK7p1JkWWn7GcA2Zz2CknFSzHKmjBx63",
       "opened_at": "2026-11-08T15:45:25+00:00",
-      "age_hours": 3.5,
+      "age_hours": 3.58,
       "entry_market": 0.0003258,
-      "last_price": 0.0003379,
+      "last_price": 0.00034,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 3.71,
-      "market_liquidity_usd": 45886.98
+      "gross_price_change_pct": 4.36,
+      "market_liquidity_usd": 46084.05
     }
   ],
   "closed_portfolios": {
