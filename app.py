@@ -2843,3 +2843,6 @@ show_blocked_exit_quotes(select, secret)
 
 from v615_exit_risk import show_exit_risk
 show_exit_risk(select)
+
+from v616_paper_exit_simulator import show_paper_exit_simulator
+show_paper_exit_simulator(select)
