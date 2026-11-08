@@ -1037,6 +1037,122 @@ FAST_ACTIVE_LIMIT = 20
 FAST_ALERT_PRICE_DROP_PCT = 20.0
 FAST_ALERT_LIQ_DROP_PCT = 40.0
 
+# Servermodus haalt de actuele open portefeuilles van de bestaande publieke
+# GitHub-repository; geen lokale database, wallet of schrijfcredentials nodig.
+# Wijzigbaar via FAST_MONITOR_REPO voor een andere publieke repository.
+FAST_SERVER_REPO = os.getenv(
+    "FAST_MONITOR_REPO", "obede0025-ui/gta6-token-radarr"
+).strip()
+FAST_PORTFOLIO_REFRESH_SECONDS = 300
+FAST_DISCOVERY_SECONDS = 120
+FAST_DISCOVERY_TTL_SECONDS = 1800
+
+
+def server_json(path):
+    """Lees bestaande GitHub-data zonder te klonen of bestanden te wijzigen."""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", FAST_SERVER_REPO):
+        raise ValueError("FAST_MONITOR_REPO moet owner/repository bevatten")
+    url = (
+        "https://raw.githubusercontent.com/"
+        + FAST_SERVER_REPO + "/main/" + path
+    )
+    response = SESSION.get(url, timeout=20)
+    response.raise_for_status()
+    data = response.json()
+    if not isinstance(data, dict):
+        raise ValueError("Ongeldig portfolio JSON: " + path)
+    return data
+
+
+def server_watch_addresses(cache):
+    """Watchlist op basis van GitHub-portefeuilles en verse Dexscreener-search."""
+    clock = time.monotonic()
+    errors = []
+
+    # Complete refresh atomair: eerdere posities blijven bewaard bij fouten.
+    if clock - cache.get("portfolio_attempt", float("-inf")) >= FAST_PORTFOLIO_REFRESH_SECONDS:
+        cache["portfolio_attempt"] = clock
+        try:
+            abc = server_json("data/v591/portfolio.json")
+            b2 = server_json("data/v611/b2_portfolio.json")
+            if (abc.get("version") != 1 or b2.get("version") != 1
+                    or not isinstance(abc.get("open"), dict)
+                    or not isinstance(b2.get("open"), dict)):
+                raise ValueError("Portfolioformaat gewijzigd: refresh geweigerd")
+            pinned = {}
+            for strategy in ("A", "B", "C"):
+                positions = abc["open"].get(strategy)
+                if not isinstance(positions, dict):
+                    raise ValueError("Ongeldige open-posities: " + strategy)
+                for mint, position in positions.items():
+                    if ADDRESS.fullmatch(str(mint or "")):
+                        pair = position.get("pair") if isinstance(position, dict) else None
+                        pinned.setdefault(mint, set())
+                        if isinstance(pair, str) and pair:
+                            pinned[mint].add(pair)
+            for mint, position in b2["open"].items():
+                if ADDRESS.fullmatch(str(mint or "")):
+                    pair = position.get("pair") if isinstance(position, dict) else None
+                    pinned.setdefault(mint, set())
+                    if isinstance(pair, str) and pair:
+                        pinned[mint].add(pair)
+            if len(pinned) > FAST_MAX_TOKENS:
+                raise ValueError("Open posities overschrijden fast-monitor capaciteit")
+            cache["pinned"] = pinned
+            cache["portfolio_ok_at"] = now()
+        except (requests.RequestException, ValueError, TypeError, KeyError) as exc:
+            errors.append("PORTFOLIO_REFRESH_FAILED: " + type(exc).__name__)
+
+    pinned = cache.get("pinned")
+    if pinned is None:
+        raise ValueError(
+            "Geen betrouwbare portefeuillelijst ontvangen van GitHub. "
+            "Servermonitor start niet zonder bekende posities."
+        )
+    open_mints = set(pinned)
+
+    if clock - cache.get("discovery_attempt", float("-inf")) >= FAST_DISCOVERY_SECONDS:
+        cache["discovery_attempt"] = clock
+        candidates = cache.setdefault("candidates", {})
+        matched = 0
+        for term in SEARCHES:
+            try:
+                payload = data_get("/latest/dex/search", {"q": term})
+                if not isinstance(payload, dict):
+                    continue
+                for pair in payload.get("pairs") or []:
+                    if not isinstance(pair, dict) or pair.get("chainId") != "solana":
+                        continue
+                    base = pair.get("baseToken") or {}
+                    mint = base.get("address")
+                    title = (
+                        str(base.get("name") or "") + " "
+                        + str(base.get("symbol") or "")
+                    ).lower()
+                    if not ADDRESS.fullmatch(str(mint or "")):
+                        continue
+                    if not any(key in title for key in KEYWORDS):
+                        continue
+                    volume = num((pair.get("volume") or {}).get("m5")) or 0.0
+                    candidates[mint] = (clock, volume)
+                    matched += 1
+            except (requests.RequestException, ValueError, TypeError) as exc:
+                errors.append("DISCOVERY_FAILED: " + term + ": " + type(exc).__name__)
+        cache["discovery_matches"] = matched
+
+    candidates = cache.setdefault("candidates", {})
+    for mint, (seen, _) in list(candidates.items()):
+        if clock - seen > FAST_DISCOVERY_TTL_SECONDS:
+            del candidates[mint]
+
+    # Open posities absoluut eerst; ontdekking volgens recente handelsactiviteit.
+    ordered = sorted(open_mints)
+    ranked = sorted(candidates, key=lambda mint: (
+        -candidates[mint][1], -candidates[mint][0], mint
+    ))
+    ordered.extend(mint for mint in ranked if mint not in open_mints)
+    return ordered[:FAST_MAX_TOKENS], pinned, open_mints, errors
+
 
 def fast_watch_addresses():
     """Selecteer open paperposities en recente actieve tokens zonder DB-writes."""
@@ -1094,11 +1210,18 @@ def fast_watch_addresses():
     return ordered[:FAST_MAX_TOKENS], pinned, addresses
 
 
-def fast_monitor_once(previous):
+def fast_monitor_once(previous, watchlist=None):
     """Een verse marktpoll; previous bestaat alleen in werkgeheugen."""
     stamp = now()
-    tokens, pinned, open_mints = fast_watch_addresses()
+    if watchlist is None:
+        tokens, pinned, open_mints = fast_watch_addresses()
+        source_errors = []
+        mode = "FAST_MONITOR_READ_ONLY"
+    else:
+        tokens, pinned, open_mints, source_errors = watchlist
+        mode = "FAST_MONITOR_SERVER_READ_ONLY"
     observations, errors = fetch_pairs(tokens, pinned)
+    errors = source_errors + errors
     current = {}
     alerts = []
 
@@ -1170,10 +1293,10 @@ def fast_monitor_once(previous):
             })
 
     # Bij API-storingen blijven vorige baselines bestaan. Geen nepprijzen.
-    merged = dict(previous)
+    merged = {mint: value for mint, value in previous.items() if mint in tokens}
     merged.update(current)
     output = {
-        "mode": "FAST_MONITOR_READ_ONLY",
+        "mode": mode,
         "timestamp_utc": stamp,
         "tracked": len(tokens),
         "observed": len(current),
@@ -1189,16 +1312,18 @@ def fast_monitor_once(previous):
     return merged
 
 
-def run_fast_monitor(interval_seconds=60, once=False):
+def run_fast_monitor(interval_seconds=60, once=False, server=False):
     """Optionele 24/7 modus; wordt niet door GitHub Actions gestart."""
     if not 30 <= interval_seconds <= 300:
         raise ValueError("Monitorinterval moet tussen 30 en 300 sec liggen")
 
     previous = {}
+    cache = {}
     while True:
         started = time.monotonic()
         try:
-            previous = fast_monitor_once(previous)
+            watchlist = server_watch_addresses(cache) if server else None
+            previous = fast_monitor_once(previous, watchlist=watchlist)
         except (
             OSError, ValueError, sqlite3.Error, requests.RequestException,
         ) as exc:
@@ -1221,10 +1346,14 @@ def run_fast_monitor(interval_seconds=60, once=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--fast-monitor", action="store_true")
+    parser.add_argument("--server", action="store_true",
+                        help="Zelfstandige servermodus zonder lokale DB")
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--interval", type=int, default=60)
     args = parser.parse_args()
+    if args.server and not args.fast_monitor:
+        parser.error("--server vereist --fast-monitor")
     if args.fast_monitor:
-        run_fast_monitor(args.interval, args.once)
+        run_fast_monitor(args.interval, args.once, server=args.server)
     else:
         run()
