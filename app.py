@@ -2837,3 +2837,6 @@ v610_strategy_b_comparison(select)
 
 from v613_position_audit import show_position_audit
 show_position_audit(select)
+
+from v614_blocked_exit_quotes import show_blocked_exit_quotes
+show_blocked_exit_quotes(select, secret)
