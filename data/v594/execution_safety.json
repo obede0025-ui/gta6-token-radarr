@@ -1,25 +1,28 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-08T00:15:29+00:00",
+  "checked_utc": "2026-11-08T00:20:26+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
     "max_report_age_minutes": "12",
     "max_stake_usdc": "25"
   },
-  "report_integrity_issues": [],
+  "report_integrity_issues": [
+    "QUOTE_REPORT_NOT_OK"
+  ],
   "tokens": [
     {
       "mint": "6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-5.557",
-      "liquidity_usd": "1656.65",
+      "roundtrip_pct": "-5.558",
+      "liquidity_usd": "1628.4",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
         "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
+        "QUOTE_REPORT_NOT_OK",
         "ROUNDTRIP_COST_TOO_HIGH"
       ],
       "live_trade_approval": "BLOCK",
@@ -34,10 +37,33 @@
         "B",
         "C"
       ],
-      "roundtrip_pct": "-2.373",
-      "liquidity_usd": "58081.82",
-      "quote_gate": "PASS",
-      "quote_gate_reasons": [],
+      "roundtrip_pct": null,
+      "liquidity_usd": "58495.22",
+      "quote_gate": "BLOCK",
+      "quote_gate_reasons": [
+        "BUY_OR_SELL_QUOTE_MISSING",
+        "QUOTE_REPORT_NOT_OK",
+        "ROUNDTRIP_UNKNOWN"
+      ],
+      "live_trade_approval": "BLOCK",
+      "live_trade_reasons": [
+        "TOKEN_CONTRACT_AND_HOLDER_RISK_NOT_VERIFIED",
+        "REAL_TRANSACTION_EXECUTION_NOT_VALIDATED"
+      ]
+    },
+    {
+      "mint": "HcSYQ8EkHf4oxzF5vXKdjWib4FkA7cgWUaUDKckXpump",
+      "strategies": [
+        "B"
+      ],
+      "roundtrip_pct": null,
+      "liquidity_usd": "26386.09",
+      "quote_gate": "BLOCK",
+      "quote_gate_reasons": [
+        "BUY_OR_SELL_QUOTE_MISSING",
+        "QUOTE_REPORT_NOT_OK",
+        "ROUNDTRIP_UNKNOWN"
+      ],
       "live_trade_approval": "BLOCK",
       "live_trade_reasons": [
         "TOKEN_CONTRACT_AND_HOLDER_RISK_NOT_VERIFIED",
@@ -45,9 +71,9 @@
       ]
     }
   ],
-  "quote_gate_passed": 1,
-  "quote_gate_blocked": 1,
-  "status": "OK",
+  "quote_gate_passed": 0,
+  "quote_gate_blocked": 3,
+  "status": "ATTENTION",
   "all_live_trades_blocked": true,
   "notes": [
     "No private keys, swaps, transaction signing, or state changes.",
