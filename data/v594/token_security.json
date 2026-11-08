@@ -1,10 +1,27 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-08T16:05:23+00:00",
+  "checked_utc": "2026-11-08T16:10:31+00:00",
   "mode": "READ_ONLY_MINT_AUTHORITY_SCREENING",
   "status": "OK",
   "all_live_trades_blocked": true,
   "tokens": [
+    {
+      "mint": "Fw6KLrzEZc9mDJYFzm4jEQTbTU4JRb3hjeqfQXRcEdUH",
+      "sources": [
+        "open_paper_position",
+        "pretrade_candidate"
+      ],
+      "program": "SPL_TOKEN",
+      "mint_authority": null,
+      "freeze_authority": null,
+      "extensions": [],
+      "security_gate": "BASIC_CHECKS_CLEAR",
+      "live_trade_approval": "BLOCK",
+      "reasons": [],
+      "warnings": [
+        "Not a safety certification: LP lock, holder concentration, and transferability unverified"
+      ]
+    },
     {
       "mint": "6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
       "sources": [
@@ -68,22 +85,6 @@
         "UNKNOWN_PROGRAM_OWNER"
       ],
       "warnings": []
-    },
-    {
-      "mint": "Fw6KLrzEZc9mDJYFzm4jEQTbTU4JRb3hjeqfQXRcEdUH",
-      "sources": [
-        "open_paper_position"
-      ],
-      "program": "SPL_TOKEN",
-      "mint_authority": null,
-      "freeze_authority": null,
-      "extensions": [],
-      "security_gate": "BASIC_CHECKS_CLEAR",
-      "live_trade_approval": "BLOCK",
-      "reasons": [],
-      "warnings": [
-        "Not a safety certification: LP lock, holder concentration, and transferability unverified"
-      ]
     }
   ],
   "checked_count": 5,
