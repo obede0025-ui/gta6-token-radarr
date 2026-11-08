@@ -1,27 +1,10 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-08T05:25:22+00:00",
+  "checked_utc": "2026-11-08T05:30:40+00:00",
   "mode": "READ_ONLY_MINT_AUTHORITY_SCREENING",
   "status": "OK",
   "all_live_trades_blocked": true,
   "tokens": [
-    {
-      "mint": "5Jf1Y8jDxrzdXeA3jDZN7rqrzwnbKJadksg4Xvmj4rp8",
-      "sources": [
-        "open_paper_position",
-        "pretrade_candidate"
-      ],
-      "program": "UNKNOWN",
-      "mint_authority": "UNKNOWN",
-      "freeze_authority": "UNKNOWN",
-      "extensions": [],
-      "security_gate": "BLOCK",
-      "live_trade_approval": "BLOCK",
-      "reasons": [
-        "UNKNOWN_PROGRAM_OWNER"
-      ],
-      "warnings": []
-    },
     {
       "mint": "6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
       "sources": [
@@ -40,6 +23,22 @@
     },
     {
       "mint": "HcSYQ8EkHf4oxzF5vXKdjWib4FkA7cgWUaUDKckXpump",
+      "sources": [
+        "open_paper_position"
+      ],
+      "program": "UNKNOWN",
+      "mint_authority": "UNKNOWN",
+      "freeze_authority": "UNKNOWN",
+      "extensions": [],
+      "security_gate": "BLOCK",
+      "live_trade_approval": "BLOCK",
+      "reasons": [
+        "UNKNOWN_PROGRAM_OWNER"
+      ],
+      "warnings": []
+    },
+    {
+      "mint": "5Jf1Y8jDxrzdXeA3jDZN7rqrzwnbKJadksg4Xvmj4rp8",
       "sources": [
         "open_paper_position"
       ],
