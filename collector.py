@@ -1100,6 +1100,7 @@ def server_watch_addresses(cache):
                 raise ValueError("Open posities overschrijden fast-monitor capaciteit")
             cache["pinned"] = pinned
             cache["portfolio_ok_at"] = now()
+            cache["portfolio_ok_clock"] = clock
         except (requests.RequestException, ValueError, TypeError, KeyError) as exc:
             errors.append("PORTFOLIO_REFRESH_FAILED: " + type(exc).__name__)
 
@@ -1108,6 +1109,11 @@ def server_watch_addresses(cache):
         raise ValueError(
             "Geen betrouwbare portefeuillelijst ontvangen van GitHub. "
             "Servermonitor start niet zonder bekende posities."
+        )
+    if clock - cache.get("portfolio_ok_clock", float("-inf")) > 1200:
+        raise ValueError(
+            "GitHub-portefeuillegegevens zijn ouder dan 20 minuten; "
+            "fast-monitor weigert verouderde open-posities te volgen"
         )
     open_mints = set(pinned)
 
@@ -1253,6 +1259,13 @@ def fast_monitor_once(previous, watchlist=None):
             "price": price, "liquidity": liquidity, "pair": pair_id,
             "scanned_at": stamp,
         }
+        # Ook op de allereerste meting direct lage liquiditeit signaleren.
+        if mint in open_mints and liquidity < 10000:
+            alerts.append({
+                "mint": mint, "type": "OPEN_POSITION_LOW_LIQUIDITY",
+                "liquidity_usd": round(liquidity, 2),
+                "severity": "HIGH",
+            })
         old = previous.get(mint)
         if old is None:
             continue
@@ -1285,13 +1298,6 @@ def fast_monitor_once(previous, watchlist=None):
                     "severity": "HIGH",
                     "open_position": mint in open_mints,
                 })
-        if mint in open_mints and liquidity < 10000:
-            alerts.append({
-                "mint": mint, "type": "OPEN_POSITION_LOW_LIQUIDITY",
-                "liquidity_usd": round(liquidity, 2),
-                "severity": "HIGH",
-            })
-
     # Bij API-storingen blijven vorige baselines bestaan. Geen nepprijzen.
     merged = {mint: value for mint, value in previous.items() if mint in tokens}
     merged.update(current)
