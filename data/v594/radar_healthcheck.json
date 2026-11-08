@@ -1,22 +1,22 @@
 {
-  "checked_at_utc": "2026-11-08T00:30:39+00:00",
-  "last_scan_utc": "2026-11-08T00:30:39+00:00",
+  "checked_at_utc": "2026-11-08T00:35:19+00:00",
+  "last_scan_utc": "2026-11-08T00:35:18+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 35,
-  "recorded": 15,
+  "selected": 32,
+  "recorded": 12,
   "selection": {
-    "new_search_tokens": 1,
+    "new_search_tokens": 0,
     "active_follow": 6,
     "early_follow": 7,
-    "search_revisit": 2,
+    "search_revisit": 0,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 12,
-      "revisit": 56,
+      "early": 11,
+      "revisit": 57,
       "rotation": 0
     },
     "pinned_open": 3,
-    "selected_total": 35
+    "selected_total": 32
   },
   "signals_last_run": 0,
   "open_positions": [
@@ -26,7 +26,7 @@
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 2.59,
+      "age_hours": 2.67,
       "entry_market": 0.0001958,
       "last_price": 1.615e-06,
       "last_market_age_minutes": 0.0,
@@ -39,25 +39,12 @@
       "name": "GTA VI",
       "pair": "5KsS39Fd8mr4PS3siXdxgiqN8LScv9y1aW4JsvrMoUY3",
       "opened_at": "2026-11-08T00:20:20+00:00",
-      "age_hours": 0.17,
+      "age_hours": 0.25,
       "entry_market": 0.0001237,
       "last_price": 1.65e-06,
       "last_market_age_minutes": 0.0,
       "gross_price_change_pct": -98.67,
       "market_liquidity_usd": 1664.66
-    },
-    {
-      "strategy": "C",
-      "token": "3kQbP4tTBtUQ13TifHEon7X6ms9MhYtTr43m612owo5P",
-      "name": "GTA VI",
-      "pair": "9TyHyXsEYgouVUJ66vcJkr4BpPi65H2muAMuVeUyy9WM",
-      "opened_at": "2026-11-07T23:20:22+00:00",
-      "age_hours": 1.17,
-      "entry_market": 7.317e-05,
-      "last_price": 6.581e-05,
-      "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": -10.06,
-      "market_liquidity_usd": 55480.11
     }
   ],
   "closed_portfolios": {
@@ -70,8 +57,8 @@
       "realized_pnl_usd": -20.2986
     },
     "C": {
-      "count": 4,
-      "realized_pnl_usd": -7.1141
+      "count": 5,
+      "realized_pnl_usd": -12.2274
     }
   },
   "alerts": [

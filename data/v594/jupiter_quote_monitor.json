@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-08T00:30:40+00:00",
+  "checked_utc": "2026-11-08T00:35:19+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "OK",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 14860139945918,
+        "output_raw": 14869624463286,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,8 +21,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 14860139945918,
-        "output_raw": 23608075,
+        "input_raw": 14869624463286,
+        "output_raw": 23607170,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -30,16 +30,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.608075",
-      "roundtrip_pct": "-5.568",
+      "roundtrip_usdc": "23.60717",
+      "roundtrip_pct": "-5.571",
       "positions": [
         {
           "strategy": "B",
           "opened_at": "2026-11-07T21:55:17+00:00",
           "entry_market": 0.0001958,
           "position_quantity": 123925.97488433577,
-          "estimated_exit_usdc": "0.199889",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.8001",
+          "estimated_exit_usdc": "0.199718",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.8003",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 14841592953850,
+        "output_raw": 14850986138524,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,8 +64,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 14841592953850,
-        "output_raw": 23607912,
+        "input_raw": 14850986138524,
+        "output_raw": 23606527,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -73,59 +73,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.607912",
-      "roundtrip_pct": "-5.568",
+      "roundtrip_usdc": "23.606527",
+      "roundtrip_pct": "-5.574",
       "positions": [
         {
           "strategy": "B",
           "opened_at": "2026-11-08T00:20:20+00:00",
           "entry_market": 0.0001237,
           "position_quantity": 196157.68700366162,
-          "estimated_exit_usdc": "0.316735",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.6833",
-          "exit_router": "metis",
-          "status": "QUOTE_AVAILABLE"
-        }
-      ],
-      "warnings": [
-        "Indicative roundtrip only; no execution, possible spread/price impact"
-      ]
-    },
-    {
-      "mint": "3kQbP4tTBtUQ13TifHEon7X6ms9MhYtTr43m612owo5P",
-      "strategies": [
-        "C"
-      ],
-      "buy_quote": {
-        "input_raw": 25000000,
-        "output_raw": 374654995416,
-        "router": "metis",
-        "mode": "ultra",
-        "fee_bps": 10,
-        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        "error_code": null,
-        "quote_only": true
-      },
-      "sell_back_quote": {
-        "input_raw": 374654995416,
-        "output_raw": 24418802,
-        "router": "okx",
-        "mode": "ultra",
-        "fee_bps": 10,
-        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        "error_code": null,
-        "quote_only": true
-      },
-      "roundtrip_usdc": "24.418802",
-      "roundtrip_pct": "-2.325",
-      "positions": [
-        {
-          "strategy": "C",
-          "opened_at": "2026-11-07T23:20:22+00:00",
-          "entry_market": 7.317e-05,
-          "position_quantity": 331620.9632684562,
-          "estimated_exit_usdc": "21.603671",
-          "estimated_net_pnl_usdc_before_network_cost": "-3.3963",
+          "estimated_exit_usdc": "0.316483",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.6835",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -141,5 +98,5 @@
     "Roundtrip ignores network/priority/rent costs; position exit comparison also ignores those costs.",
     "Existing GitHub A/B/C paper portfolio unchanged."
   ],
-  "tracked_tokens": 3
+  "tracked_tokens": 2
 }
