@@ -2840,3 +2840,6 @@ show_position_audit(select)
 
 from v614_blocked_exit_quotes import show_blocked_exit_quotes
 show_blocked_exit_quotes(select, secret)
+
+from v615_exit_risk import show_exit_risk
+show_exit_risk(select)
