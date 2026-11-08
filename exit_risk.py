@@ -1,5 +1,5 @@
 
-"""GTA6 Radar - Unified Exit Risk Dashboard V6.17
+"""GTA6 Radar - Unified Exit Risk Dashboard V6.20
 
 Combineert:
 - Open Position Audit
@@ -788,7 +788,7 @@ def show_exit_risk_dashboard(select, secret):
     )
 
     st.caption(
-        "V6.17 — Gecombineerde positiecontrole, "
+        "V6.20 — Gecombineerde positiecontrole, "
         "Jupiter-verkoopquotes, risicoanalyse, "
         "papervergelijking en schaduwtest. "
         "Geen orders of databasewijzigingen."
