@@ -1,45 +1,32 @@
 {
-  "checked_at_utc": "2026-11-08T11:15:30+00:00",
-  "last_scan_utc": "2026-11-08T11:15:30+00:00",
+  "checked_at_utc": "2026-11-08T11:20:27+00:00",
+  "last_scan_utc": "2026-11-08T11:20:27+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 32,
-  "recorded": 12,
+  "selected": 29,
+  "recorded": 9,
   "selection": {
     "new_search_tokens": 0,
-    "active_follow": 4,
-    "early_follow": 2,
-    "search_revisit": 4,
+    "active_follow": 5,
+    "early_follow": 1,
+    "search_revisit": 1,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 11,
-      "revisit": 56,
+      "early": 12,
+      "revisit": 57,
       "rotation": 0
     },
     "pinned_open": 4,
-    "selected_total": 32
+    "selected_total": 29
   },
-  "signals_last_run": 2,
+  "signals_last_run": 1,
   "open_positions": [
-    {
-      "strategy": "A",
-      "token": "ZdwVPCu5sLACHkY2FozzKnF1rnTUTjRVjYddmS4EFVL",
-      "name": "GTA VI",
-      "pair": "G4nr86aX7e7ec2V9FsN8VtfAu9gc1ekSyRHPxudeMPei",
-      "opened_at": "2026-11-08T11:00:49+00:00",
-      "age_hours": 0.24,
-      "entry_market": 3.061e-05,
-      "last_price": 3.661e-05,
-      "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 19.6,
-      "market_liquidity_usd": 52229.3
-    },
     {
       "strategy": "B",
       "token": "6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 13.34,
+      "age_hours": 13.42,
       "entry_market": 0.0001958,
       "last_price": 1.615e-06,
       "last_market_age_minutes": 0.0,
@@ -52,7 +39,7 @@
       "name": "GTA VI",
       "pair": "5KsS39Fd8mr4PS3siXdxgiqN8LScv9y1aW4JsvrMoUY3",
       "opened_at": "2026-11-08T00:20:20+00:00",
-      "age_hours": 10.92,
+      "age_hours": 11.0,
       "entry_market": 0.0001237,
       "last_price": 1.611e-06,
       "last_market_age_minutes": 0.0,
@@ -65,7 +52,7 @@
       "name": "GTA VI",
       "pair": "5LCajWDUN8SG2oULtYob8M9zrqtNKsBWMnzyspAFBWGJ",
       "opened_at": "2026-11-08T05:25:18+00:00",
-      "age_hours": 5.84,
+      "age_hours": 5.92,
       "entry_market": 3.007e-05,
       "last_price": 2.995e-08,
       "last_market_age_minutes": 0.0,
@@ -75,8 +62,8 @@
   ],
   "closed_portfolios": {
     "A": {
-      "count": 3,
-      "realized_pnl_usd": 19.985
+      "count": 4,
+      "realized_pnl_usd": 26.2482
     },
     "B": {
       "count": 8,
