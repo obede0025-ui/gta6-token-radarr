@@ -1116,6 +1116,13 @@ def show_exit_risk_dashboard(select, secret):
             available_count,
         )
 
+        st.warning(
+            "Een positieve paper-P/L is niet automatisch realiseerbaar: "
+            "bij dunne liquiditeit kan de Jupiter-verkoopquote sterk "
+            "afwijken van de getoonde marktprijs. Dit is uitsluitend "
+            "een schaduwmeting; er worden geen posities gesloten."
+        )
+
         st.info(
             "Deze schaduwtest simuleert GEEN verkoop. "
             "Hij toont uitsluitend welke bestaande "
