@@ -50,6 +50,17 @@ class ForwardQuoteTests(unittest.TestCase):
   r=evaluate(self.state,self.m1,self.t+timedelta(minutes=16),self.quote)
   self.assertEqual(r["jupiter_requests"],0)
   self.assertEqual(self.state["positions"][MINT]["status"],"WINDOW_EXPIRED")
+ def test_delayed_but_current_quote_is_allowed(self):
+  self.add(seconds=5)
+  result=evaluate(self.state,self.m1,self.t+timedelta(seconds=186),self.quote)
+  self.assertEqual(result["jupiter_requests"],2)
+  self.assertEqual(self.state["positions"][MINT]["entry_lag_seconds"],181.0)
+  self.assertEqual(self.state["positions"][MINT]["status"],"ACTIVE")
+ def test_over_six_minutes_is_stale(self):
+  self.add(seconds=5)
+  result=evaluate(self.state,self.m1,self.t+timedelta(seconds=366),self.quote)
+  self.assertEqual(result["jupiter_requests"],0)
+  self.assertEqual(self.state["positions"][MINT]["status"],"SKIPPED_STALE")
  def test_invalid_quote_does_not_make_position(self):
   self.add()
   def fail(a,b,n):raise ValueError("Failed route")
