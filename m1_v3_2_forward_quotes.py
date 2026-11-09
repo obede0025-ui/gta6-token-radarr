@@ -97,6 +97,13 @@ def evaluate(state, m1_state, now, quote_fn):
             continue
         mint=p["mint"]
         if p["status"] == "NEEDS_ENTRY":
+            if elapsed > MAX_ENTRY_LAG_SECONDS:
+                p["status"] = "SKIPPED_STALE"
+                continue
+            live = sum(v["status"] == "ACTIVE" for v in state["positions"].values())
+            if live >= MAX_ACTIVE:
+                p["status"] = "SKIPPED_CAPACITY"
+                continue
             if requests_used >= MAX_REQUESTS:
                 continue
             try:

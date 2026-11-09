@@ -61,4 +61,11 @@ class ForwardQuoteTests(unittest.TestCase):
   r=evaluate(self.state,self.m1,self.t+timedelta(seconds=10),self.quote)
   self.assertEqual(r["jupiter_requests"],4)
   self.assertEqual(r["active"],2)
+  later=evaluate(self.state,self.m1,self.t+timedelta(seconds=80),self.quote)
+  self.assertEqual(later["active"],2)
+ def test_pending_entries_do_not_start_after_latency_limit(self):
+  for i in range(4):self.add(f"mint{i}")
+  evaluate(self.state,self.m1,self.t+timedelta(seconds=10),self.quote)
+  evaluate(self.state,self.m1,self.t+timedelta(seconds=200),self.quote)
+  self.assertEqual(sum(p["status"]=="SKIPPED_STALE" for p in self.state["positions"].values()),2)
 if __name__=="__main__":unittest.main()
