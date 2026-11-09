@@ -67,5 +67,6 @@ class ForwardQuoteTests(unittest.TestCase):
   for i in range(4):self.add(f"mint{i}")
   evaluate(self.state,self.m1,self.t+timedelta(seconds=10),self.quote)
   evaluate(self.state,self.m1,self.t+timedelta(seconds=200),self.quote)
-  self.assertEqual(sum(p["status"]=="SKIPPED_STALE" for p in self.state["positions"].values()),2)
+  self.assertEqual(sum(p["status"]=="SKIPPED_CAPACITY" for p in self.state["positions"].values()),2)
+  self.assertEqual(sum(p["entry_token_raw"] is not None for p in self.state["positions"].values()),2)
 if __name__=="__main__":unittest.main()
