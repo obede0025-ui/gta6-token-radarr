@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-09T01:40:30+00:00",
+  "checked_utc": "2026-11-09T01:45:32+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "PARTIAL",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 97028469071,
+        "output_raw": 97028459301,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,16 +21,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 97028469071,
-        "output_raw": 218,
-        "router": "metis",
+        "input_raw": 97028459301,
+        "output_raw": 220,
+        "router": "dflow",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000218",
+      "roundtrip_usdc": "0.00022",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -38,9 +38,9 @@
           "opened_at": "2026-11-09T01:00:50+00:00",
           "entry_market": 3.238e-05,
           "position_quantity": 749373.2514624132,
-          "estimated_exit_usdc": "0.000388",
+          "estimated_exit_usdc": "0.00039",
           "estimated_net_pnl_usdc_before_network_cost": "-24.9996",
-          "exit_router": "dflow",
+          "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
       ],
@@ -56,7 +56,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 391204706534,
+        "output_raw": 436823708062,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -65,8 +65,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 391204706534,
-        "output_raw": 24237398,
+        "input_raw": 436823708062,
+        "output_raw": 24230582,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -74,16 +74,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "24.237398",
-      "roundtrip_pct": "-3.050",
+      "roundtrip_usdc": "24.230582",
+      "roundtrip_pct": "-3.078",
       "positions": [
         {
           "strategy": "A",
           "opened_at": "2026-11-09T01:10:24+00:00",
           "entry_market": 5.924e-05,
           "position_quantity": 409600.03177503275,
-          "estimated_exit_usdc": "25.374153",
-          "estimated_net_pnl_usdc_before_network_cost": "0.3742",
+          "estimated_exit_usdc": "22.723932",
+          "estimated_net_pnl_usdc_before_network_cost": "-2.2761",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         },
@@ -92,8 +92,8 @@
           "opened_at": "2026-11-09T01:10:24+00:00",
           "entry_market": 5.924e-05,
           "position_quantity": 409600.03177503275,
-          "estimated_exit_usdc": "25.374178",
-          "estimated_net_pnl_usdc_before_network_cost": "0.3742",
+          "estimated_exit_usdc": "22.723932",
+          "estimated_net_pnl_usdc_before_network_cost": "-2.2761",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -103,46 +103,62 @@
       ]
     },
     {
+      "mint": "3xK6pGrKAMjmjDGBMM5AYx9Y4R4AwiBJX2kj4313uwwC",
+      "strategies": [
+        "A"
+      ],
+      "buy_quote": {
+        "input_raw": 25000000,
+        "output_raw": 1629828292187,
+        "router": "metis",
+        "mode": "ultra",
+        "fee_bps": 10,
+        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "error_code": null,
+        "quote_only": true
+      },
+      "sell_back_quote": null,
+      "roundtrip_usdc": null,
+      "roundtrip_pct": null,
+      "positions": [
+        {
+          "strategy": "A",
+          "opened_at": "2026-11-09T01:45:29+00:00",
+          "entry_market": 1.521e-05,
+          "position_quantity": 1595312.6812855317,
+          "estimated_exit_usdc": null,
+          "estimated_net_pnl_usdc_before_network_cost": null,
+          "exit_router": null,
+          "status": "HTTP_429"
+        }
+      ],
+      "warnings": [
+        "ROUNDTRIP_HTTP_429"
+      ]
+    },
+    {
       "mint": "6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
       "strategies": [
         "B"
       ],
-      "buy_quote": {
-        "input_raw": 25000000,
-        "output_raw": 15182184863207,
-        "router": "metis",
-        "mode": "ultra",
-        "fee_bps": 10,
-        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        "error_code": null,
-        "quote_only": true
-      },
-      "sell_back_quote": {
-        "input_raw": 15182184863207,
-        "output_raw": 23595336,
-        "router": "metis",
-        "mode": "ultra",
-        "fee_bps": 10,
-        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        "error_code": null,
-        "quote_only": true
-      },
-      "roundtrip_usdc": "23.595336",
-      "roundtrip_pct": "-5.619",
+      "buy_quote": null,
+      "sell_back_quote": null,
+      "roundtrip_usdc": null,
+      "roundtrip_pct": null,
       "positions": [
         {
           "strategy": "B",
           "opened_at": "2026-11-07T21:55:17+00:00",
           "entry_market": 0.0001958,
           "position_quantity": 123925.97488433577,
-          "estimated_exit_usdc": "0.195546",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.8045",
-          "exit_router": "metis",
-          "status": "QUOTE_AVAILABLE"
+          "estimated_exit_usdc": null,
+          "estimated_net_pnl_usdc_before_network_cost": null,
+          "exit_router": null,
+          "status": "HTTP_429"
         }
       ],
       "warnings": [
-        "Indicative roundtrip only; no execution, possible spread/price impact"
+        "ROUNDTRIP_HTTP_429"
       ]
     },
     {
@@ -227,5 +243,5 @@
     "Roundtrip ignores network/priority/rent costs; position exit comparison also ignores those costs.",
     "Existing GitHub A/B/C paper portfolio unchanged."
   ],
-  "tracked_tokens": 6
+  "tracked_tokens": 7
 }
