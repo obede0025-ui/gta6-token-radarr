@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_utc": "2026-11-09T17:15:41+00:00",
+  "updated_utc": "2026-11-09T17:20:38+00:00",
   "runs": [
     {
       "checked_utc": "2026-11-07T19:01:24+00:00",
@@ -4726,6 +4726,22 @@
       "quote_gate_passed": 0,
       "quote_gate_blocked": 0,
       "candidates": []
+    },
+    {
+      "checked_utc": "2026-11-09T17:20:37+00:00",
+      "status": "OK",
+      "candidate_count": 1,
+      "quote_gate_passed": 1,
+      "quote_gate_blocked": 0,
+      "candidates": [
+        {
+          "mint": "Ha88FjpiSxyWmhMr8Z6b23tBMxywztP3ey6nFwkjMUgE",
+          "strategy": "A",
+          "quote_gate": "PASS",
+          "reasons": [],
+          "roundtrip_pct": "-0.342"
+        }
+      ]
     }
   ]
 }
