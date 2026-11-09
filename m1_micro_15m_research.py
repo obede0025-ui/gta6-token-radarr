@@ -63,13 +63,12 @@ def evaluate(db_path,shadow_path,now=None):
             # No future price data beyond now; same pair only.
             rows=conn.execute("""SELECT scanned_at,price_usd,liquidity_usd
                FROM snapshots WHERE token_address=? AND pair_address=?
-               AND scanned_at>? AND scanned_at<=?
-               ORDER BY scanned_at ASC""",
-               (mint,e["pair"],stamp,min(now,deadline+timedelta(minutes=MAX_LAG)).isoformat())
-            ).fetchall()
+               ORDER BY scanned_at ASC""",(mint,e["pair"])).fetchall()
             hit=False
             for tstr,p,liq in rows:
                 t=parsed(tstr)
+                if t<=t0 or t>now or t>deadline+timedelta(minutes=MAX_LAG):
+                    continue
                 price=positive(p)
                 if price is None:continue
                 change=price/entry-1
