@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-09T01:10:26+00:00",
-  "last_scan_utc": "2026-11-09T01:10:25+00:00",
+  "checked_at_utc": "2026-11-09T01:15:33+00:00",
+  "last_scan_utc": "2026-11-09T01:15:33+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 42,
-  "recorded": 21,
+  "selected": 79,
+  "recorded": 58,
   "selection": {
-    "new_search_tokens": 2,
-    "active_follow": 8,
-    "early_follow": 9,
-    "search_revisit": 3,
+    "new_search_tokens": 7,
+    "active_follow": 10,
+    "early_follow": 17,
+    "search_revisit": 25,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 17,
-      "revisit": 79,
+      "early": 11,
+      "revisit": 58,
       "rotation": 0
     },
-    "pinned_open": 5,
-    "selected_total": 42
+    "pinned_open": 6,
+    "selected_total": 79
   },
-  "signals_last_run": 4,
+  "signals_last_run": 3,
   "open_positions": [
     {
       "strategy": "A",
@@ -26,9 +26,9 @@
       "name": "State of Leonida",
       "pair": "8BZrG7t5esK4jXdhfYhMrFmJkTgJVSmNvzFJZr8VYC1d",
       "opened_at": "2026-11-09T01:00:50+00:00",
-      "age_hours": 0.16,
+      "age_hours": 0.25,
       "entry_market": 3.238e-05,
-      "last_price": 2.392e-11,
+      "last_price": 2.398e-11,
       "last_market_age_minutes": 0.0,
       "gross_price_change_pct": -100.0,
       "market_liquidity_usd": 0.0
@@ -39,12 +39,12 @@
       "name": "GTA6 KODAK BLACK",
       "pair": "BKaAgFUMhQVgXA3BQzyabMibSMvietUiaPU95praUhx7",
       "opened_at": "2026-11-09T01:10:24+00:00",
-      "age_hours": 0.0,
+      "age_hours": 0.09,
       "entry_market": 5.924e-05,
-      "last_price": 5.924e-05,
+      "last_price": 5.76e-05,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 0.0,
-      "market_liquidity_usd": 17663.15
+      "gross_price_change_pct": -2.77,
+      "market_liquidity_usd": 17356.2
     },
     {
       "strategy": "B",
@@ -52,10 +52,10 @@
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 27.25,
+      "age_hours": 27.34,
       "entry_market": 0.0001958,
       "last_price": 1.615e-06,
-      "last_market_age_minutes": 60.0,
+      "last_market_age_minutes": 65.1,
       "gross_price_change_pct": -99.18,
       "market_liquidity_usd": 1627.15
     },
@@ -65,7 +65,7 @@
       "name": "GTA VI",
       "pair": "5KsS39Fd8mr4PS3siXdxgiqN8LScv9y1aW4JsvrMoUY3",
       "opened_at": "2026-11-08T00:20:20+00:00",
-      "age_hours": 24.84,
+      "age_hours": 24.92,
       "entry_market": 0.0001237,
       "last_price": 1.609e-06,
       "last_market_age_minutes": 0.0,
@@ -78,7 +78,7 @@
       "name": "GTA VI",
       "pair": "5LCajWDUN8SG2oULtYob8M9zrqtNKsBWMnzyspAFBWGJ",
       "opened_at": "2026-11-08T05:25:18+00:00",
-      "age_hours": 19.75,
+      "age_hours": 19.84,
       "entry_market": 3.007e-05,
       "last_price": 2.995e-08,
       "last_market_age_minutes": 0.0,
@@ -91,12 +91,12 @@
       "name": "Vice city",
       "pair": "2rXCdHtAEF4h71jXqREvTdvHYgCv9c7J3jU2SpYivFqt",
       "opened_at": "2026-11-09T00:30:38+00:00",
-      "age_hours": 0.66,
+      "age_hours": 0.75,
       "entry_market": 5.744e-05,
-      "last_price": 5.595e-05,
+      "last_price": 1.725e-06,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": -2.59,
-      "market_liquidity_usd": 17147.33
+      "gross_price_change_pct": -97.0,
+      "market_liquidity_usd": 1750.58
     },
     {
       "strategy": "C",
@@ -104,12 +104,12 @@
       "name": "GTA6 KODAK BLACK",
       "pair": "BKaAgFUMhQVgXA3BQzyabMibSMvietUiaPU95praUhx7",
       "opened_at": "2026-11-09T01:10:24+00:00",
-      "age_hours": 0.0,
+      "age_hours": 0.09,
       "entry_market": 5.924e-05,
-      "last_price": 5.924e-05,
+      "last_price": 5.76e-05,
       "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 0.0,
-      "market_liquidity_usd": 17663.15
+      "gross_price_change_pct": -2.77,
+      "market_liquidity_usd": 17356.2
     }
   ],
   "closed_portfolios": {
@@ -132,7 +132,8 @@
     "VEROUDERDE_POSITIEMETING: B/6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
     "LAGE_LIQUIDITEIT: B/6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
     "LAGE_LIQUIDITEIT: B/HcSYQ8EkHf4oxzF5vXKdjWib4FkA7cgWUaUDKckXpump",
-    "LAGE_LIQUIDITEIT: B/5Jf1Y8jDxrzdXeA3jDZN7rqrzwnbKJadksg4Xvmj4rp8"
+    "LAGE_LIQUIDITEIT: B/5Jf1Y8jDxrzdXeA3jDZN7rqrzwnbKJadksg4Xvmj4rp8",
+    "LAGE_LIQUIDITEIT: C/3DjMTYh64TaCR9vxas8X7z8GpaM6ULGncpBHfbXBpump"
   ],
   "status": "AANDACHT",
   "disclaimer": "Uitsluitend papertrading. Marktprijzen zijn geen uitvoerbare verkoopquotes."
