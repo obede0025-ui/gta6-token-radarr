@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-09T14:40:37+00:00",
+  "checked_utc": "2026-11-09T14:45:34+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "PARTIAL",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 97028479166,
+        "output_raw": 97028472785,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,8 +21,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 97028479166,
-        "output_raw": 217,
+        "input_raw": 97028472785,
+        "output_raw": 218,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -30,7 +30,7 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000217",
+      "roundtrip_usdc": "0.000218",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -38,7 +38,7 @@
           "opened_at": "2026-11-09T01:00:50+00:00",
           "entry_market": 3.238e-05,
           "position_quantity": 749373.2514624132,
-          "estimated_exit_usdc": "0.000386",
+          "estimated_exit_usdc": "0.000387",
           "estimated_net_pnl_usdc_before_network_cost": "-24.9996",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 447638244,
+        "output_raw": 447638087,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,16 +64,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 447638244,
-        "output_raw": 1086,
-        "router": "dflow",
+        "input_raw": 447638087,
+        "output_raw": 1088,
+        "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.001086",
+      "roundtrip_usdc": "0.001088",
       "roundtrip_pct": "-99.996",
       "positions": [
         {
@@ -81,7 +81,7 @@
           "opened_at": "2026-11-09T01:45:29+00:00",
           "entry_market": 1.521e-05,
           "position_quantity": 1595312.6812855317,
-          "estimated_exit_usdc": "0.002179",
+          "estimated_exit_usdc": "0.002184",
           "estimated_net_pnl_usdc_before_network_cost": "-24.9978",
           "exit_router": "okx",
           "status": "QUOTE_AVAILABLE"
@@ -98,7 +98,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 15268473276376,
+        "output_raw": 15212056161258,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -107,8 +107,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 15268473276376,
-        "output_raw": 23588433,
+        "input_raw": 15212056161258,
+        "output_raw": 23604721,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -116,16 +116,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.588433",
-      "roundtrip_pct": "-5.646",
+      "roundtrip_usdc": "23.604721",
+      "roundtrip_pct": "-5.581",
       "positions": [
         {
           "strategy": "B",
           "opened_at": "2026-11-07T21:55:17+00:00",
           "entry_market": 0.0001958,
           "position_quantity": 123925.97488433577,
-          "estimated_exit_usdc": "0.194442",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.8056",
+          "estimated_exit_usdc": "0.195158",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.8048",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -141,7 +141,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 15257615092626,
+        "output_raw": 15198651359383,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
