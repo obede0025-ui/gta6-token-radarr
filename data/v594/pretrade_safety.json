@@ -1,12 +1,49 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-09T01:05:25+00:00",
+  "checked_utc": "2026-11-09T01:10:25+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [],
+  "candidates": [
+    {
+      "mint": "CXz596uKfWb5tkyz5Vh5a9QCKKh38io6hdgGrKKcpump",
+      "pair": "BKaAgFUMhQVgXA3BQzyabMibSMvietUiaPU95praUhx7",
+      "name": "GTA6 KODAK BLACK",
+      "strategy": "A",
+      "scanned_at_utc": "2026-11-09T01:10:24+00:00",
+      "market_age_min": 0.02,
+      "price_usd": "0.00005924",
+      "liquidity_usd": "17663.15",
+      "volume_5m_usd": "1516.75",
+      "quote_gate": "BLOCK",
+      "reasons": [
+        "LIQUIDITY_BELOW_20000",
+        "ROUNDTRIP_COST_TOO_HIGH"
+      ],
+      "roundtrip_pct": "-3.074",
+      "live_trade_approval": "BLOCK"
+    },
+    {
+      "mint": "CXz596uKfWb5tkyz5Vh5a9QCKKh38io6hdgGrKKcpump",
+      "pair": "BKaAgFUMhQVgXA3BQzyabMibSMvietUiaPU95praUhx7",
+      "name": "GTA6 KODAK BLACK",
+      "strategy": "C",
+      "scanned_at_utc": "2026-11-09T01:10:24+00:00",
+      "market_age_min": 0.02,
+      "price_usd": "0.00005924",
+      "liquidity_usd": "17663.15",
+      "volume_5m_usd": "1516.75",
+      "quote_gate": "BLOCK",
+      "reasons": [
+        "LIQUIDITY_BELOW_20000",
+        "ROUNDTRIP_COST_TOO_HIGH"
+      ],
+      "roundtrip_pct": "-3.027",
+      "live_trade_approval": "BLOCK"
+    }
+  ],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 0,
+  "candidate_count": 2,
   "quote_gate_passed": 0,
-  "quote_gate_blocked": 0
+  "quote_gate_blocked": 2
 }
