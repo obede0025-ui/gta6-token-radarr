@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-09T04:30:46+00:00",
+  "generated_utc": "2026-11-09T04:35:25+00:00",
   "last_processed": [
-    "2026-11-09T04:30:44+00:00",
-    "JDJXCjAkrkKKyeNgSikELUrUpJzTJXv9aFNYhLwTpump",
-    "FvYabREcnTmLX7CJXi3bZGbVt2dV4nYCnXV3jKSmC9Ef"
+    "2026-11-09T04:35:24+00:00",
+    "ukWSz1Bx9ZPeQCU5UcFmP1nuVuDw1YRXNkxEphRmHj4",
+    "3N61fAW8aunetYCBsYH8VBoxFqLAQET1qCviBrHRLfam"
   ],
   "run": {
-    "observations": 16,
+    "observations": 17,
     "opened": {
       "A": 0,
       "B": 0,
@@ -16,7 +16,7 @@
     "closed": {
       "A": 0,
       "B": 0,
-      "C": 1
+      "C": 0
     },
     "signals": 0,
     "signals_by_strategy": {
@@ -25,33 +25,33 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 16
+      "no_momentum_signal": 17
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "te_weinig_opeenvolgende_metingen": 3,
-          "volume_5m_te_laag": 9,
-          "momentumvoorwaarden_niet_gehaald": 4
+          "volume_5m_te_laag": 8,
+          "momentumvoorwaarden_niet_gehaald": 4,
+          "te_weinig_opeenvolgende_metingen": 5
         },
         "B": {
-          "te_weinig_opeenvolgende_metingen": 3,
-          "volume_5m_te_laag": 9,
-          "momentumvoorwaarden_niet_gehaald": 4
+          "volume_5m_te_laag": 8,
+          "momentumvoorwaarden_niet_gehaald": 4,
+          "te_weinig_opeenvolgende_metingen": 5
         },
         "C": {
-          "te_weinig_opeenvolgende_metingen": 3,
-          "volume_5m_te_laag": 9,
-          "momentumvoorwaarden_niet_gehaald": 4
+          "volume_5m_te_laag": 10,
+          "momentumvoorwaarden_niet_gehaald": 4,
+          "te_weinig_opeenvolgende_metingen": 3
         }
       },
       "spacing": {
-        "interval_te_lang": 3,
-        "interval_geldig": 13
+        "interval_geldig": 14,
+        "interval_te_lang": 3
       },
       "market_filters": {
-        "liquiditeit_te_laag_of_onbekend": 10,
-        "volume_5m_te_laag_of_onbekend": 12,
+        "liquiditeit_te_laag_of_onbekend": 11,
+        "volume_5m_te_laag_of_onbekend": 13,
         "buys_niet_hoger_dan_sells": 13,
         "paarleeftijd_ongeldig": 6
       },
