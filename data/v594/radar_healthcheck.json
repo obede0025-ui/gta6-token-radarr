@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-09T00:25:21+00:00",
-  "last_scan_utc": "2026-11-09T00:25:20+00:00",
+  "checked_at_utc": "2026-11-09T00:30:41+00:00",
+  "last_scan_utc": "2026-11-09T00:30:40+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 39,
-  "recorded": 18,
+  "selected": 60,
+  "recorded": 39,
   "selection": {
     "new_search_tokens": 0,
-    "active_follow": 7,
-    "early_follow": 10,
-    "search_revisit": 2,
+    "active_follow": 6,
+    "early_follow": 15,
+    "search_revisit": 18,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 17,
-      "revisit": 68,
+      "early": 11,
+      "revisit": 76,
       "rotation": 0
     },
     "pinned_open": 3,
-    "selected_total": 39
+    "selected_total": 60
   },
-  "signals_last_run": 1,
+  "signals_last_run": 2,
   "open_positions": [
     {
       "strategy": "B",
@@ -26,10 +26,10 @@
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 26.5,
+      "age_hours": 26.59,
       "entry_market": 0.0001958,
       "last_price": 1.615e-06,
-      "last_market_age_minutes": 14.9,
+      "last_market_age_minutes": 20.2,
       "gross_price_change_pct": -99.18,
       "market_liquidity_usd": 1627.15
     },
@@ -39,10 +39,10 @@
       "name": "GTA VI",
       "pair": "5KsS39Fd8mr4PS3siXdxgiqN8LScv9y1aW4JsvrMoUY3",
       "opened_at": "2026-11-08T00:20:20+00:00",
-      "age_hours": 24.08,
+      "age_hours": 24.17,
       "entry_market": 0.0001237,
       "last_price": 1.609e-06,
-      "last_market_age_minutes": 0.0,
+      "last_market_age_minutes": 0.1,
       "gross_price_change_pct": -98.7,
       "market_liquidity_usd": 1616.76
     },
@@ -52,12 +52,25 @@
       "name": "GTA VI",
       "pair": "5LCajWDUN8SG2oULtYob8M9zrqtNKsBWMnzyspAFBWGJ",
       "opened_at": "2026-11-08T05:25:18+00:00",
-      "age_hours": 19.0,
+      "age_hours": 19.09,
       "entry_market": 3.007e-05,
       "last_price": 2.995e-08,
-      "last_market_age_minutes": 0.0,
+      "last_market_age_minutes": 0.1,
       "gross_price_change_pct": -99.9,
       "market_liquidity_usd": 0.0
+    },
+    {
+      "strategy": "C",
+      "token": "3DjMTYh64TaCR9vxas8X7z8GpaM6ULGncpBHfbXBpump",
+      "name": "Vice city",
+      "pair": "2rXCdHtAEF4h71jXqREvTdvHYgCv9c7J3jU2SpYivFqt",
+      "opened_at": "2026-11-09T00:30:38+00:00",
+      "age_hours": 0.0,
+      "entry_market": 5.744e-05,
+      "last_price": 5.744e-05,
+      "last_market_age_minutes": 0.1,
+      "gross_price_change_pct": 0.0,
+      "market_liquidity_usd": 17317.28
     }
   ],
   "closed_portfolios": {
@@ -75,6 +88,7 @@
     }
   },
   "alerts": [
+    "VEROUDERDE_POSITIEMETING: B/6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
     "LAGE_LIQUIDITEIT: B/6FjhmViiyeA8vkoXMrziM2LGkxg2zBySFMGBkZ9Ppump",
     "LAGE_LIQUIDITEIT: B/HcSYQ8EkHf4oxzF5vXKdjWib4FkA7cgWUaUDKckXpump",
     "LAGE_LIQUIDITEIT: B/5Jf1Y8jDxrzdXeA3jDZN7rqrzwnbKJadksg4Xvmj4rp8"
