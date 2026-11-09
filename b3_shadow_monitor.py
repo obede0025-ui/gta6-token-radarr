@@ -71,7 +71,9 @@ def run(db, state_path, now=None):
             if delta<0 or delta>MAX_AGE_SECONDS:
                 state["cursor"]=key
                 continue
-            fresh.append(evaluate(conn,row))
+            candidate=evaluate(conn,row)
+            candidate["recorded_utc"]=datetime.now(timezone.utc).isoformat()
+            fresh.append(candidate)
             state["cursor"]=key
     state["events"]=(state["events"]+fresh)[-MAX_EVENTS:]
     state["total_logged"]+=len(fresh)

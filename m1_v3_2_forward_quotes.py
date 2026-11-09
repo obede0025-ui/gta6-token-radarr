@@ -83,6 +83,9 @@ def evaluate(state, m1_state, now, quote_fn):
             status = "NEEDS_ENTRY"
         state["positions"][mint] = {
             "mint":mint, "signal_utc":item["signal"], "status":status,
+            "first_seen_utc":now.isoformat(),
+            "m1_registered_utc":item.get("registered_utc"),
+            "b3_recorded_utc":item.get("b3_recorded_utc"),
             "entry_quote_utc":None, "entry_token_raw":None,
             "entry_lag_seconds":round(age,1),
             "exit_quotes":[], "error":None,

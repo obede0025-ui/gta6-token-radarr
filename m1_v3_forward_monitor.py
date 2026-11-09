@@ -36,7 +36,7 @@ def advance(state,shadow,now,fetch):
         status=("MISSED_WINDOW" if age<0 or age>=WINDOW else
                 "CAPACITY_SKIPPED" if live>=3 else "WATCHING")
         state["tracked"][e["mint"]]={"mint":e["mint"],"pair":e["pair"],
-            "signal":e["scanned_at"],"entry":positive(e.get("price_usd")),
+            "signal":e["scanned_at"],"registered_utc":now.isoformat(),"b3_recorded_utc":e.get("recorded_utc"),"entry":positive(e.get("price_usd")),
             "status":status,"last_poll":None,"samples":[],"errors":[]}
     count=0
     for item in sorted(state["tracked"].values(),key=lambda v:v["signal"]):
