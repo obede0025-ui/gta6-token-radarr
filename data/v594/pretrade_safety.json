@@ -1,12 +1,28 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-09T04:15:29+00:00",
+  "checked_utc": "2026-11-09T04:20:27+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [],
+  "candidates": [
+    {
+      "mint": "H2ZViwA4dwxHd3bctARCUDUqTwTqfVrbmKQMrwBmpump",
+      "pair": "FTNkgRH5fqqgQQLR1MeApHhMHoQXoQpX95GWyRYyi13U",
+      "name": "BAWSAQ",
+      "strategy": "C",
+      "scanned_at_utc": "2026-11-09T04:20:25+00:00",
+      "market_age_min": 0.04,
+      "price_usd": "0.0008509",
+      "liquidity_usd": "73046.94",
+      "volume_5m_usd": "3888.64",
+      "quote_gate": "PASS",
+      "reasons": [],
+      "roundtrip_pct": "-2.241",
+      "live_trade_approval": "BLOCK"
+    }
+  ],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 0,
-  "quote_gate_passed": 0,
+  "candidate_count": 1,
+  "quote_gate_passed": 1,
   "quote_gate_blocked": 0
 }
