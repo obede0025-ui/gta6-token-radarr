@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-10T18:35:43+00:00",
+  "checked_utc": "2026-11-10T18:40:48+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "PARTIAL",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 97028558149,
+        "output_raw": 97028552529,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,8 +21,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 97028558149,
-        "output_raw": 208,
+        "input_raw": 97028552529,
+        "output_raw": 210,
         "router": "dflow",
         "mode": "ultra",
         "fee_bps": 10,
@@ -30,7 +30,7 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000208",
+      "roundtrip_usdc": "0.00021",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -38,7 +38,7 @@
           "opened_at": "2026-11-09T01:00:50+00:00",
           "entry_market": 3.238e-05,
           "position_quantity": 749373.2514624132,
-          "estimated_exit_usdc": "0.000369",
+          "estimated_exit_usdc": "0.000372",
           "estimated_net_pnl_usdc_before_network_cost": "-24.9996",
           "exit_router": "dflow",
           "status": "QUOTE_AVAILABLE"
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 1358420023,
+        "output_raw": 1358419900,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,16 +64,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 1358420023,
-        "output_raw": 344,
-        "router": "metis",
+        "input_raw": 1358419900,
+        "output_raw": 346,
+        "router": "dflow",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000344",
+      "roundtrip_usdc": "0.000346",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -81,7 +81,7 @@
           "opened_at": "2026-11-09T01:45:29+00:00",
           "entry_market": 1.521e-05,
           "position_quantity": 1595312.6812855317,
-          "estimated_exit_usdc": "0.000688",
+          "estimated_exit_usdc": "0.000691",
           "estimated_net_pnl_usdc_before_network_cost": "-24.9993",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
@@ -98,7 +98,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 3063038423634,
+        "output_raw": 2877684366165,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -107,8 +107,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 3063038423634,
-        "output_raw": 24599924,
+        "input_raw": 2877684366165,
+        "output_raw": 24607070,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -116,16 +116,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "24.599924",
-      "roundtrip_pct": "-1.600",
+      "roundtrip_usdc": "24.60707",
+      "roundtrip_pct": "-1.572",
       "positions": [
         {
           "strategy": "A",
           "opened_at": "2026-11-10T18:15:43+00:00",
           "entry_market": 8.289e-06,
           "position_quantity": 2927338.144812757,
-          "estimated_exit_usdc": "23.514291",
-          "estimated_net_pnl_usdc_before_network_cost": "-1.4857",
+          "estimated_exit_usdc": "25.029094",
+          "estimated_net_pnl_usdc_before_network_cost": "0.0291",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -141,7 +141,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 16024932818325,
+        "output_raw": 15973205515931,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
