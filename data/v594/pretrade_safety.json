@@ -1,28 +1,12 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-10T14:30:53+00:00",
+  "checked_utc": "2026-11-10T14:35:43+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [
-    {
-      "mint": "7Di5QNrfLmjApzAvJaUDCynG9ZPBjzwb7dzEq3QXpump",
-      "pair": "SgBNuU9EoAeZbYttrUWoUbptkWGyJXJ2S6vcrViLPb9",
-      "name": "The Leonida State",
-      "strategy": "A",
-      "scanned_at_utc": "2026-11-10T14:30:51+00:00",
-      "market_age_min": 0.04,
-      "price_usd": "0.0005991",
-      "liquidity_usd": "59537.46",
-      "volume_5m_usd": "169326.16",
-      "quote_gate": "PASS",
-      "reasons": [],
-      "roundtrip_pct": "-2.354",
-      "live_trade_approval": "BLOCK"
-    }
-  ],
+  "candidates": [],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 1,
-  "quote_gate_passed": 1,
+  "candidate_count": 0,
+  "quote_gate_passed": 0,
   "quote_gate_blocked": 0
 }
