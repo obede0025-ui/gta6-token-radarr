@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-10T09:01:04+00:00",
+  "generated_utc": "2026-11-10T09:05:31+00:00",
   "last_processed": [
-    "2026-11-10T09:01:01+00:00",
+    "2026-11-10T09:05:30+00:00",
     "Rhs8m56X66PL47pAVc6E2KRdjVZsTaaxvUuFq2opump",
     "58MLPDD9gy4DrKqv7DiFwcmDwkdHvG8oYpQfbjahqHt7"
   ],
   "run": {
-    "observations": 21,
+    "observations": 26,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,37 +25,37 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 21
+      "no_momentum_signal": 26
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "volume_5m_te_laag": 9,
           "te_weinig_opeenvolgende_metingen": 8,
+          "volume_5m_te_laag": 14,
           "momentumvoorwaarden_niet_gehaald": 4
         },
         "B": {
-          "volume_5m_te_laag": 9,
           "te_weinig_opeenvolgende_metingen": 8,
+          "volume_5m_te_laag": 14,
           "momentumvoorwaarden_niet_gehaald": 4
         },
         "C": {
-          "volume_5m_te_laag": 12,
           "te_weinig_opeenvolgende_metingen": 5,
+          "volume_5m_te_laag": 17,
           "momentumvoorwaarden_niet_gehaald": 4
         }
       },
       "spacing": {
-        "interval_geldig": 16,
-        "interval_te_lang": 2,
-        "geen_vorige_meting": 3
+        "interval_te_lang": 1,
+        "interval_geldig": 21,
+        "geen_vorige_meting": 4
       },
       "market_filters": {
-        "volume_5m_te_laag_of_onbekend": 14,
-        "paarleeftijd_ongeldig": 9,
-        "buys_niet_hoger_dan_sells": 18,
-        "microtransacties": 1,
-        "liquiditeit_te_laag_of_onbekend": 15
+        "liquiditeit_te_laag_of_onbekend": 18,
+        "volume_5m_te_laag_of_onbekend": 19,
+        "paarleeftijd_ongeldig": 12,
+        "buys_niet_hoger_dan_sells": 21,
+        "microtransacties": 1
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
