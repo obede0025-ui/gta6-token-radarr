@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-10T19:05:54+00:00",
+  "checked_utc": "2026-11-10T19:10:51+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
@@ -57,12 +57,14 @@
       "strategies": [
         "A"
       ],
-      "roundtrip_pct": "-1.555",
-      "liquidity_usd": "12411.81",
+      "roundtrip_pct": null,
+      "liquidity_usd": "0",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
+        "BUY_OR_SELL_QUOTE_MISSING",
         "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
-        "QUOTE_REPORT_NOT_OK"
+        "QUOTE_REPORT_NOT_OK",
+        "ROUNDTRIP_UNKNOWN"
       ],
       "live_trade_approval": "BLOCK",
       "live_trade_reasons": [
