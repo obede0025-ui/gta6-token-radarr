@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-10T22:30:54+00:00",
+  "checked_utc": "2026-11-10T22:35:44+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "PARTIAL",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 97028554415,
+        "output_raw": 97028556584,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,7 +21,7 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 97028554415,
+        "input_raw": 97028556584,
         "output_raw": 210,
         "router": "okx",
         "mode": "ultra",
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 1358419938,
+        "output_raw": 1358419986,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,7 +64,7 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 1358419938,
+        "input_raw": 1358419986,
         "output_raw": 348,
         "router": "okx",
         "mode": "ultra",
@@ -132,7 +132,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 15988527314714,
+        "output_raw": 16008827056450,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -233,31 +233,6 @@
       "warnings": [
         "ROUNDTRIP_HTTP_429"
       ]
-    },
-    {
-      "mint": "2uQw2gvnhYYQ5T5jJf3MvLPyUquQ54VFHbMHBTtCpump",
-      "strategies": [
-        "C"
-      ],
-      "buy_quote": null,
-      "sell_back_quote": null,
-      "roundtrip_usdc": null,
-      "roundtrip_pct": null,
-      "positions": [
-        {
-          "strategy": "C",
-          "opened_at": "2026-11-10T22:20:45+00:00",
-          "entry_market": 0.002708,
-          "position_quantity": 8960.378833956034,
-          "estimated_exit_usdc": null,
-          "estimated_net_pnl_usdc_before_network_cost": null,
-          "exit_router": null,
-          "status": "HTTP_429"
-        }
-      ],
-      "warnings": [
-        "ROUNDTRIP_HTTP_429"
-      ]
     }
   ],
   "notes": [
@@ -266,5 +241,5 @@
     "Roundtrip ignores network/priority/rent costs; position exit comparison also ignores those costs.",
     "Existing GitHub A/B/C paper portfolio unchanged."
   ],
-  "tracked_tokens": 8
+  "tracked_tokens": 7
 }
