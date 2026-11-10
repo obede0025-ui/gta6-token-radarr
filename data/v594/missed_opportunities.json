@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7875,
-  "unique_pairs": 391,
-  "window_start_utc": "2026-11-09T20:35:40+00:00",
-  "window_end_utc": "2026-11-10T20:35:40+00:00",
+  "observations": 7907,
+  "unique_pairs": 392,
+  "window_start_utc": "2026-11-09T20:40:45+00:00",
+  "window_end_utc": "2026-11-10T20:40:45+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 7484,
-    "gaps_over_20_min": 2820,
-    "gap_rate_pct": 37.68,
+    "intervals": 7515,
+    "gaps_over_20_min": 2844,
+    "gap_rate_pct": 37.84,
     "gaps_with_observed_rise_over_20pct": 8
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 7484,
-    "gaps_over_20_min": 2820,
-    "gap_rate_pct": 37.68,
+    "intervals": 7515,
+    "gaps_over_20_min": 2844,
+    "gap_rate_pct": 37.84,
     "gaps_with_observed_rise_over_20pct": 8
   },
   "top_potential_blind_spots": [
