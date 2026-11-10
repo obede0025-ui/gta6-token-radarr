@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7639,
-  "unique_pairs": 368,
-  "window_start_utc": "2026-11-09T18:40:46+00:00",
-  "window_end_utc": "2026-11-10T18:40:46+00:00",
+  "observations": 7657,
+  "unique_pairs": 371,
+  "window_start_utc": "2026-11-09T18:45:43+00:00",
+  "window_end_utc": "2026-11-10T18:45:43+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 7271,
-    "gaps_over_20_min": 2714,
-    "gap_rate_pct": 37.33,
-    "gaps_with_observed_rise_over_20pct": 6
+    "intervals": 7286,
+    "gaps_over_20_min": 2732,
+    "gap_rate_pct": 37.5,
+    "gaps_with_observed_rise_over_20pct": 7
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 7271,
-    "gaps_over_20_min": 2714,
-    "gap_rate_pct": 37.33,
-    "gaps_with_observed_rise_over_20pct": 6
+    "intervals": 7286,
+    "gaps_over_20_min": 2732,
+    "gap_rate_pct": 37.5,
+    "gaps_with_observed_rise_over_20pct": 7
   },
   "top_potential_blind_spots": [
     {
@@ -97,9 +97,21 @@
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 2.61,
       "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "7kPoLtTAxFwwHic8XkCA4U3zu4ChGVqhGCdvpLVe7vsx",
+      "pair": "9PkunfUMSVq4sEeLfurQQ5kABgaxJqvyxRgMo1hA2bJE",
+      "name": "Grand Theft Auto Coin",
+      "from_utc": "2026-11-10T17:45:36+00:00",
+      "to_utc": "2026-11-10T18:45:43+00:00",
+      "gap_minutes": 60.12,
+      "observed_price_change_pct": 22.5,
+      "volume_m5_at_return": 97.39,
+      "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 6,
+  "blind_spot_count": 7,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
