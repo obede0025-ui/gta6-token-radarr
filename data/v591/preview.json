@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-10T08:15:44+00:00",
+  "generated_utc": "2026-11-10T08:20:39+00:00",
   "last_processed": [
-    "2026-11-10T08:15:43+00:00",
+    "2026-11-10T08:20:37+00:00",
     "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump",
     "5E3dXLXGwmTDCokA51WYYaKttjFZBwqCoyUHBUi5gt2m"
   ],
   "run": {
-    "observations": 13,
+    "observations": 15,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,35 +25,32 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 13
+      "no_momentum_signal": 15
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "volume_5m_te_laag": 7,
-          "momentumvoorwaarden_niet_gehaald": 4,
-          "te_weinig_opeenvolgende_metingen": 2
+          "volume_5m_te_laag": 13,
+          "momentumvoorwaarden_niet_gehaald": 2
         },
         "B": {
-          "volume_5m_te_laag": 7,
-          "momentumvoorwaarden_niet_gehaald": 4,
-          "te_weinig_opeenvolgende_metingen": 2
+          "volume_5m_te_laag": 13,
+          "momentumvoorwaarden_niet_gehaald": 2
         },
         "C": {
-          "volume_5m_te_laag": 7,
-          "momentumvoorwaarden_niet_gehaald": 4,
-          "te_weinig_opeenvolgende_metingen": 2
+          "volume_5m_te_laag": 13,
+          "momentumvoorwaarden_niet_gehaald": 2
         }
       },
       "spacing": {
-        "interval_geldig": 11,
-        "interval_te_lang": 2
+        "interval_geldig": 15
       },
       "market_filters": {
-        "volume_5m_te_laag_of_onbekend": 9,
-        "paarleeftijd_ongeldig": 8,
-        "buys_niet_hoger_dan_sells": 12,
-        "liquiditeit_te_laag_of_onbekend": 8
+        "volume_5m_te_laag_of_onbekend": 13,
+        "paarleeftijd_ongeldig": 12,
+        "buys_niet_hoger_dan_sells": 11,
+        "microtransacties": 2,
+        "liquiditeit_te_laag_of_onbekend": 7
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
