@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7180,
-  "unique_pairs": 327,
-  "window_start_utc": "2026-11-09T09:55:34+00:00",
-  "window_end_utc": "2026-11-10T09:55:34+00:00",
+  "observations": 7203,
+  "unique_pairs": 329,
+  "window_start_utc": "2026-11-09T10:01:03+00:00",
+  "window_end_utc": "2026-11-10T10:01:03+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 6853,
-    "gaps_over_20_min": 2555,
-    "gap_rate_pct": 37.28,
-    "gaps_with_observed_rise_over_20pct": 5
+    "intervals": 6874,
+    "gaps_over_20_min": 2579,
+    "gap_rate_pct": 37.52,
+    "gaps_with_observed_rise_over_20pct": 6
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 6853,
-    "gaps_over_20_min": 2555,
-    "gap_rate_pct": 37.28,
-    "gaps_with_observed_rise_over_20pct": 5
+    "intervals": 6874,
+    "gaps_over_20_min": 2579,
+    "gap_rate_pct": 37.52,
+    "gaps_with_observed_rise_over_20pct": 6
   },
   "top_potential_blind_spots": [
     {
@@ -85,9 +85,21 @@
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 2010.47,
       "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "5EwQcrWjnwYEtNnBPf9VAV1oBu2QKhoZjbYaX1zgpump",
+      "pair": "HUV3YVZZ7jj1MvoWrDu2uHXE81eFvXVEkkuTWz2ioX3K",
+      "name": "Lucia Caminos",
+      "from_utc": "2026-11-10T08:55:37+00:00",
+      "to_utc": "2026-11-10T10:01:03+00:00",
+      "gap_minutes": 65.43,
+      "observed_price_change_pct": 22.55,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 2.61,
+      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 5,
+  "blind_spot_count": 6,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
