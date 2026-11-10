@@ -1,24 +1,24 @@
 {
-  "checked_at_utc": "2026-11-10T14:35:43+00:00",
-  "last_scan_utc": "2026-11-10T14:35:42+00:00",
+  "checked_at_utc": "2026-11-10T14:40:49+00:00",
+  "last_scan_utc": "2026-11-10T14:40:48+00:00",
   "scan_age_minutes": 0.0,
-  "selected": 42,
-  "recorded": 19,
+  "selected": 43,
+  "recorded": 20,
   "selection": {
     "new_search_tokens": 1,
-    "active_follow": 7,
-    "early_follow": 6,
-    "search_revisit": 3,
+    "active_follow": 9,
+    "early_follow": 5,
+    "search_revisit": 4,
     "rotation": 20,
     "cooldown_skipped": {
       "early": 11,
-      "revisit": 55,
+      "revisit": 63,
       "rotation": 0
     },
     "pinned_open": 7,
-    "selected_total": 42
+    "selected_total": 43
   },
-  "signals_last_run": 6,
+  "signals_last_run": 1,
   "open_positions": [
     {
       "strategy": "A",
@@ -26,10 +26,10 @@
       "name": "State of Leonida",
       "pair": "8BZrG7t5esK4jXdhfYhMrFmJkTgJVSmNvzFJZr8VYC1d",
       "opened_at": "2026-11-09T01:00:50+00:00",
-      "age_hours": 37.58,
+      "age_hours": 37.67,
       "entry_market": 3.238e-05,
       "last_price": 2.398e-11,
-      "last_market_age_minutes": 805.1,
+      "last_market_age_minutes": 810.2,
       "gross_price_change_pct": -100.0,
       "market_liquidity_usd": 0.0
     },
@@ -39,25 +39,12 @@
       "name": "State of Leonida",
       "pair": "DSWsAd6S4a86xYWLgRPF6dCpn4CMTgc2LU3BBQRaNoFu",
       "opened_at": "2026-11-09T01:45:29+00:00",
-      "age_hours": 36.84,
+      "age_hours": 36.92,
       "entry_market": 1.521e-05,
       "last_price": 1.579e-06,
-      "last_market_age_minutes": 750.2,
+      "last_market_age_minutes": 755.3,
       "gross_price_change_pct": -89.62,
       "market_liquidity_usd": 0.0
-    },
-    {
-      "strategy": "A",
-      "token": "7Di5QNrfLmjApzAvJaUDCynG9ZPBjzwb7dzEq3QXpump",
-      "name": "The Leonida State",
-      "pair": "SgBNuU9EoAeZbYttrUWoUbptkWGyJXJ2S6vcrViLPb9",
-      "opened_at": "2026-11-10T14:30:51+00:00",
-      "age_hours": 0.08,
-      "entry_market": 0.0005991,
-      "last_price": 0.0006521,
-      "last_market_age_minutes": 0.0,
-      "gross_price_change_pct": 8.85,
-      "market_liquidity_usd": 62128.55
     },
     {
       "strategy": "B",
@@ -65,10 +52,10 @@
       "name": "GTA VI",
       "pair": "FxajcPUkFRrg9dLXctrerzwvj7KoAwwQqNKhkyxMXx9M",
       "opened_at": "2026-11-07T21:55:17+00:00",
-      "age_hours": 64.67,
+      "age_hours": 64.76,
       "entry_market": 0.0001958,
       "last_price": 1.558e-06,
-      "last_market_age_minutes": 0.0,
+      "last_market_age_minutes": 0.1,
       "gross_price_change_pct": -99.2,
       "market_liquidity_usd": 1569.71
     },
@@ -78,10 +65,10 @@
       "name": "GTA VI",
       "pair": "5KsS39Fd8mr4PS3siXdxgiqN8LScv9y1aW4JsvrMoUY3",
       "opened_at": "2026-11-08T00:20:20+00:00",
-      "age_hours": 62.26,
+      "age_hours": 62.34,
       "entry_market": 0.0001237,
       "last_price": 1.561e-06,
-      "last_market_age_minutes": 0.0,
+      "last_market_age_minutes": 0.1,
       "gross_price_change_pct": -98.74,
       "market_liquidity_usd": 1568.21
     },
@@ -91,10 +78,10 @@
       "name": "GTA VI",
       "pair": "5LCajWDUN8SG2oULtYob8M9zrqtNKsBWMnzyspAFBWGJ",
       "opened_at": "2026-11-08T05:25:18+00:00",
-      "age_hours": 57.17,
+      "age_hours": 57.26,
       "entry_market": 3.007e-05,
       "last_price": 2.995e-08,
-      "last_market_age_minutes": 1985.0,
+      "last_market_age_minutes": 1990.1,
       "gross_price_change_pct": -99.9,
       "market_liquidity_usd": 0.0
     },
@@ -104,18 +91,18 @@
       "name": "Vice city",
       "pair": "2rXCdHtAEF4h71jXqREvTdvHYgCv9c7J3jU2SpYivFqt",
       "opened_at": "2026-11-09T00:30:38+00:00",
-      "age_hours": 38.08,
+      "age_hours": 38.17,
       "entry_market": 5.744e-05,
       "last_price": 1.65e-06,
-      "last_market_age_minutes": 0.0,
+      "last_market_age_minutes": 0.1,
       "gross_price_change_pct": -97.13,
       "market_liquidity_usd": 1666.04
     }
   ],
   "closed_portfolios": {
     "A": {
-      "count": 14,
-      "realized_pnl_usd": 38.9349
+      "count": 15,
+      "realized_pnl_usd": 21.452
     },
     "B": {
       "count": 8,
