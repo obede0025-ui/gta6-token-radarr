@@ -1,29 +1,29 @@
 {
-  "started_at_utc": "2026-11-10T01:05:32+00:00",
-  "finished_at_utc": "2026-11-10T01:05:34+00:00",
-  "discovered": 42,
-  "recorded": 21,
+  "started_at_utc": "2026-11-10T01:10:39+00:00",
+  "finished_at_utc": "2026-11-10T01:10:40+00:00",
+  "discovered": 54,
+  "recorded": 33,
   "skipped_short_interval": 0,
   "open_paper_tokens_followed": 6,
-  "new_labels": 14,
-  "total_labels": 40553,
-  "total_snapshots": 20612,
+  "new_labels": 92,
+  "total_labels": 40645,
+  "total_snapshots": 20645,
   "errors": [],
   "selection": {
-    "new_search_tokens": 1,
+    "new_search_tokens": 0,
     "active_follow": 7,
-    "early_follow": 7,
-    "search_revisit": 1,
+    "early_follow": 11,
+    "search_revisit": 10,
     "rotation": 20,
     "cooldown_skipped": {
-      "early": 10,
-      "revisit": 70,
+      "early": 7,
+      "revisit": 72,
       "rotation": 0
     },
     "pinned_open": 6,
-    "selected_total": 42
+    "selected_total": 54
   },
-  "pairs_with_market_data": 21,
-  "invalid_price_snapshots": 0,
+  "pairs_with_market_data": 33,
+  "invalid_price_snapshots": 1,
   "note": "Research only: een marktmeting bevestigt geen tokenveiligheid of verkoopbaarheid."
 }
