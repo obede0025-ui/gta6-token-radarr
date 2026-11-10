@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "mode": "PAPER_ONLY_READ_ONLY",
-  "checked_utc": "2026-11-10T15:40:51+00:00",
+  "checked_utc": "2026-11-10T15:46:05+00:00",
   "thresholds": {
     "maximum_roundtrip_loss_pct": "3.0",
     "minimum_market_liquidity_usd": "20000",
@@ -17,14 +17,15 @@
       "strategies": [
         "A"
       ],
-      "roundtrip_pct": "-99.999",
+      "roundtrip_pct": null,
       "liquidity_usd": "0",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
+        "BUY_OR_SELL_QUOTE_MISSING",
         "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
         "MARKET_DATA_STALE_OR_UNKNOWN",
         "QUOTE_REPORT_NOT_OK",
-        "ROUNDTRIP_COST_TOO_HIGH"
+        "ROUNDTRIP_UNKNOWN"
       ],
       "live_trade_approval": "BLOCK",
       "live_trade_reasons": [
@@ -37,14 +38,15 @@
       "strategies": [
         "A"
       ],
-      "roundtrip_pct": "-99.999",
+      "roundtrip_pct": null,
       "liquidity_usd": "0",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
+        "BUY_OR_SELL_QUOTE_MISSING",
         "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
         "MARKET_DATA_STALE_OR_UNKNOWN",
         "QUOTE_REPORT_NOT_OK",
-        "ROUNDTRIP_COST_TOO_HIGH"
+        "ROUNDTRIP_UNKNOWN"
       ],
       "live_trade_approval": "BLOCK",
       "live_trade_reasons": [
@@ -57,13 +59,14 @@
       "strategies": [
         "B"
       ],
-      "roundtrip_pct": "-5.792",
+      "roundtrip_pct": null,
       "liquidity_usd": "1569.71",
       "quote_gate": "BLOCK",
       "quote_gate_reasons": [
+        "BUY_OR_SELL_QUOTE_MISSING",
         "LIQUIDITY_TOO_LOW_OR_UNKNOWN",
         "QUOTE_REPORT_NOT_OK",
-        "ROUNDTRIP_COST_TOO_HIGH"
+        "ROUNDTRIP_UNKNOWN"
       ],
       "live_trade_approval": "BLOCK",
       "live_trade_reasons": [
