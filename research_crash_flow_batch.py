@@ -6,13 +6,14 @@ No orders, secrets, database writes, or timer changes. NOT proof of causation.
 """
 import argparse
 import json
-import math
+import sqlite3
 import time
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
+from v32_quote_performance import evaluate as quote_evaluate
 
 RPC_DEFAULT = "https://solana-rpc.publicnode.com"
 POOLS = {
@@ -225,12 +226,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state", default="/home/ubuntu/gta6-v63-test/m1_v3_2_state.json")
     parser.add_argument("--rpc", default=RPC_DEFAULT)
-    parser.add_argument("--output", default="research_crash_flow_report.json")
+    parser.add_argument("--output", default="research_crash_flow_with_winners.json")
     parser.add_argument("--before", type=int, default=40)
     parser.add_argument("--after", type=int, default=40)
     parser.add_argument("--max-sample", type=int, default=60)
     parser.add_argument("--max-pages", type=int, default=12)
     parser.add_argument("--delay", type=float, default=0.12)
+    parser.add_argument("--include-winners", type=int, default=6,
+                        help="Also audit first N deterministic positive quote scenarios")
+    parser.add_argument("--db", default="/home/ubuntu/gta6-paper-vps/data/learning.db")
     args = parser.parse_args()
     if not 5 <= args.before <= 300 or not 5 <= args.after <= 300:
         parser.error("before/after must be between 5 and 300 seconds")
@@ -238,8 +242,30 @@ def main():
         parser.error("sample or page limit invalid")
     if not args.rpc.startswith("https://"):
         parser.error("RPC must be HTTPS")
+    if not 0 <= args.include_winners <= 28:
+        parser.error("include-winners must be 0..28")
     positions = json.loads(Path(args.state).read_text())["positions"]
     results = []
+    cohorts = []
+    if args.include_winners:
+        # Only pair snapshots known AT OR BEFORE the signal; never use later pool selection.
+        with sqlite3.connect(Path(args.db).resolve().as_uri() + "?mode=ro", uri=True) as conn:
+            positive = sorted(
+                ((mint, p) for mint, p in positions.items()
+                 if p.get("entry_quote_utc")
+                 and quote_evaluate(p, tp=10, sl=-10, horizon=900, cost_pp=2)["outcome"]
+                 == "TP_OBSERVED"), key=lambda x: x[0])
+            for mint, p in positive:
+                if len(cohorts) >= args.include_winners:
+                    break
+                row = conn.execute("""
+                    SELECT pair_address FROM snapshots
+                    WHERE token_address = ?
+                      AND datetime(scanned_at) <= datetime(?)
+                    ORDER BY datetime(scanned_at) DESC LIMIT 1
+                """, (mint, p["signal_utc"])).fetchone()
+                if row and row[0]:
+                    cohorts.append((mint, row[0], p))
     with requests.Session() as session:
         for prefix, pool in POOLS.items():
             matches = [(mint, p) for mint, p in positions.items() if mint.startswith(prefix)]
@@ -247,7 +273,13 @@ def main():
                 print(f"{prefix}: no unique quoted position; skipping")
                 continue
             mint, pos = matches[0]
-            results.append(audit_one(session, args.rpc, prefix, mint, pool, pos, args))
+            audit = audit_one(session, args.rpc, prefix, mint, pool, pos, args)
+            audit["cohort"] = "EXTREME"
+            results.append(audit)
+        for mint, pool, pos in cohorts:
+            audit = audit_one(session, args.rpc, mint[:12], mint, pool, pos, args)
+            audit["cohort"] = "WIN"
+            results.append(audit)
     report = {
         "mode": "READ_ONLY_SAMPLED_HISTORICAL_CRASH_FLOW",
         "limitations": [
@@ -256,7 +288,8 @@ def main():
             "LP instruction hints are NOT proof of liquidity removal.",
             "RPC blockTime seconds cannot establish intra-second ordering.",
             "On-chain transactions after entry are not valid pre-entry signals.",
-            "Compare with winning tokens before inferring predictive ability.",
+            "Winning controls selected from already observed TP quote scenarios: selection bias.",
+            "Token amounts are not SOL trade value; native/WSOL flows not reliably inferred.",
         ],
         "results": results,
     }
@@ -265,7 +298,7 @@ def main():
     dest.write_text(json.dumps(report, indent=2) + "\n")
     print(f"\nReport written: {dest} (only new report file; existing scanner untouched)")
     print("Summary: ", json.dumps([
-        {"mint": x["mint"][:12], "complete": x["history_complete"],
+        {"mint": x["mint"][:12], "cohort": x["cohort"], "complete": x["history_complete"],
          "pre": x["windows"]["BEFORE"]["counts"],
          "post": x["windows"]["AFTER"]["counts"]}
         for x in results], ensure_ascii=False))
