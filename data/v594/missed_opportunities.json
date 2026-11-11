@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8794,
-  "unique_pairs": 467,
-  "window_start_utc": "2026-11-10T01:20:43+00:00",
-  "window_end_utc": "2026-11-11T01:20:43+00:00",
+  "observations": 8824,
+  "unique_pairs": 466,
+  "window_start_utc": "2026-11-10T01:25:42+00:00",
+  "window_end_utc": "2026-11-11T01:25:42+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8327,
-    "gaps_over_20_min": 3110,
-    "gap_rate_pct": 37.35,
-    "gaps_with_observed_rise_over_20pct": 12
+    "intervals": 8358,
+    "gaps_over_20_min": 3126,
+    "gap_rate_pct": 37.4,
+    "gaps_with_observed_rise_over_20pct": 13
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,12 +20,24 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8327,
-    "gaps_over_20_min": 3110,
-    "gap_rate_pct": 37.35,
-    "gaps_with_observed_rise_over_20pct": 12
+    "intervals": 8358,
+    "gaps_over_20_min": 3126,
+    "gap_rate_pct": 37.4,
+    "gaps_with_observed_rise_over_20pct": 13
   },
   "top_potential_blind_spots": [
+    {
+      "token": "BYCNogKA4DjbhBa2LaVWLPyszFDzDsUNSYdLqdNnpump",
+      "pair": "B9N7Gy5VcYStzxu3HpF2GoZEggu2QiGutwYkef7TxZVQ",
+      "name": "Grand Theft Auto X",
+      "from_utc": "2026-11-11T00:25:30+00:00",
+      "to_utc": "2026-11-11T01:25:42+00:00",
+      "gap_minutes": 60.2,
+      "observed_price_change_pct": 895.2,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 15642542.48,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
     {
       "token": "74xFKmxYk33yFdnWHh6VbKECnBw2cEhEa1dBqnmDHPNX",
       "pair": "5u88W3q1383XqWCtqjjPaRpwJghbEN5yh8QhhDCw3qCL",
@@ -171,7 +183,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 12,
+  "blind_spot_count": 13,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
