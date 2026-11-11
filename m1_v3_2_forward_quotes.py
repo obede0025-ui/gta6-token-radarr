@@ -23,6 +23,7 @@ MAX_ACTIVE = 2
 MAX_REQUESTS = 4
 STAKE = Decimal("25")
 MAX_RECORDS = 500
+MAX_ROUNDTRIP_LOSS_PCT = Decimal("3")  # Same research threshold as B2.
 
 
 def timestamp(s):
@@ -47,7 +48,7 @@ def bootstrap(m1_state, now):
             "positions":{}}
 
 
-def evaluate(state, m1_state, now, quote_fn):
+def evaluate(state, m1_state, now, quote_fn, preentry_gate=False):
     if state.get("version") != 1 or state.get("mode") != "M1_V3_2_FORWARD_QUOTES":
         raise ValueError("Invalid V3.2 state")
     if not isinstance(state.get("positions"), dict):
@@ -92,6 +93,7 @@ def evaluate(state, m1_state, now, quote_fn):
         }
     for p in sorted(state["positions"].values(),key=lambda x:x["signal_utc"]):
         if p["status"] in ("SKIPPED_STALE", "SKIPPED_CAPACITY", "ENTRY_UNAVAILABLE",
+                           "ENTRY_BLOCKED_ROUNDTRIP", "ENTRY_BLOCKED_NO_ROUTE",
                            "WINDOW_EXPIRED"):
             continue
         elapsed = (now - timestamp(p["signal_utc"])).total_seconds()
@@ -107,16 +109,48 @@ def evaluate(state, m1_state, now, quote_fn):
             if live >= MAX_ACTIVE:
                 p["status"] = "SKIPPED_CAPACITY"
                 continue
-            if requests_used >= MAX_REQUESTS:
+            # A gated entry requires TWO remaining quote slots (buy and immediate sell).
+            # Existing legacy service behavior is unchanged with flag disabled.
+            if requests_used + (2 if preentry_gate else 1) > MAX_REQUESTS:
                 continue
             try:
                 buy=attempt(USDC,mint,token_amount_to_raw(STAKE,USDC_DECIMALS))
+                if preentry_gate:
+                    raw=buy.get("output_raw")
+                    if (buy.get("quote_only") is not True or buy.get("error_code")
+                            or isinstance(raw, bool) or not isinstance(raw, int)
+                            or raw <= 0):
+                        raise ValueError("INVALID_ENTRY_ROUTE")
+                    sell=attempt(mint,USDC,raw)
+                    sell_raw=sell.get("output_raw")
+                    if (sell.get("quote_only") is not True or sell.get("error_code")
+                            or isinstance(sell_raw, bool) or not isinstance(sell_raw, int)
+                            or sell_raw <= 0):
+                        raise ValueError("INVALID_SELL_ROUTE")
+                    amount=Decimal(sell_raw)/Decimal(10**USDC_DECIMALS)
+                    pct=(amount/STAKE-1)*100
+                    p["preentry_roundtrip_pct"]=str(round(pct,4))
+                    p["preentry_gate"]="BLOCK" if pct < -MAX_ROUNDTRIP_LOSS_PCT else "PASS"
+                    if p["preentry_gate"] == "BLOCK":
+                        p["status"]="ENTRY_BLOCKED_ROUNDTRIP"
+                        continue
+                    # The immediate sell-back quote is an observation, NOT a real fill.
+                    p["exit_quotes"].append({
+                        "checked_utc":now.isoformat(), "age_seconds":round(elapsed,1),
+                        "estimated_sell_usdc":str(amount),
+                        "estimated_return_pct":str(round(pct,4)),
+                        "status":"QUOTE_AVAILABLE",
+                    })
                 p["entry_token_raw"]=str(buy["output_raw"])
                 p["entry_quote_utc"]=now.isoformat()
                 p["status"]="ACTIVE"
             except Exception as exc:
-                p["status"]="ENTRY_UNAVAILABLE"
+                p["status"]="ENTRY_BLOCKED_NO_ROUTE" if preentry_gate else "ENTRY_UNAVAILABLE"
+                p["preentry_gate"]="BLOCK" if preentry_gate else None
                 p["error"]=sanitize_error(exc)
+                continue
+            # Reuse the immediate roundtrip quote instead of requesting a third quote.
+            if preentry_gate:
                 continue
         if p["status"] != "ACTIVE" or requests_used>=MAX_REQUESTS:
             continue
@@ -150,6 +184,8 @@ def evaluate(state, m1_state, now, quote_fn):
         for item in old[:len(state["positions"])-MAX_RECORDS]:
             del state["positions"][item["mint"]]
     return {"jupiter_requests":requests_used,
+            "preentry_gate_enabled":bool(preentry_gate),
+            "preentry_blocked":sum(p["status"] in ("ENTRY_BLOCKED_ROUNDTRIP", "ENTRY_BLOCKED_NO_ROUTE") for p in state["positions"].values()),
             "active":sum(p["status"]=="ACTIVE" for p in state["positions"].values()),
             "tracked_total":len(state["positions"]),
             "entries_with_quote":sum(p["entry_token_raw"] is not None
@@ -160,6 +196,8 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--m1-state",required=True)
     parser.add_argument("--state",required=True)
+    parser.add_argument("--preentry-gate", action="store_true",
+        help="Experimental B2-style 3%% roundtrip gate; use isolated state and timer only.")
     args=parser.parse_args()
     target=Path(args.state)
     target.parent.mkdir(parents=True,exist_ok=True)
@@ -181,7 +219,8 @@ def main():
         with requests.Session() as session:
             result=evaluate(state,m1,now,
                 lambda input_mint,output_mint,raw:quote(
-                    session,api_key,input_mint,output_mint,raw))
+                    session,api_key,input_mint,output_mint,raw),
+                preentry_gate=args.preentry_gate)
         temp=target.with_name(target.name+".tmp")
         temp.write_text(json.dumps(state,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
         temp.replace(target)
