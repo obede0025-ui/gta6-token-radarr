@@ -1,31 +1,12 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-11T17:35:49+00:00",
+  "checked_utc": "2026-11-11T17:40:46+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [
-    {
-      "mint": "8DwAf1oQ11Ch86SNGcbBppFqf1RZJ74T7mdNuNBtpump",
-      "pair": "G8osgHpvmzJZcC81pHEZxh6muHj1Gn3uYm9th2Xe2n2q",
-      "name": "Vice Identity",
-      "strategy": "C",
-      "scanned_at_utc": "2026-11-11T17:35:48+00:00",
-      "market_age_min": 0.02,
-      "price_usd": "0.00005588",
-      "liquidity_usd": "16850.39",
-      "volume_5m_usd": "936.28",
-      "quote_gate": "BLOCK",
-      "reasons": [
-        "LIQUIDITY_BELOW_20000",
-        "ROUNDTRIP_COST_TOO_HIGH"
-      ],
-      "roundtrip_pct": "-3.114",
-      "live_trade_approval": "BLOCK"
-    }
-  ],
+  "candidates": [],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 1,
+  "candidate_count": 0,
   "quote_gate_passed": 0,
-  "quote_gate_blocked": 1
+  "quote_gate_blocked": 0
 }
