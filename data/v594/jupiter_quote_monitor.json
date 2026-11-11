@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-11T00:05:40+00:00",
+  "checked_utc": "2026-11-11T00:10:53+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "PARTIAL",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 97028547360,
+        "output_raw": 97028549183,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,7 +21,7 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 97028547360,
+        "input_raw": 97028549183,
         "output_raw": 209,
         "router": "dflow",
         "mode": "ultra",
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 1358419772,
+        "output_raw": 1358419814,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,16 +64,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 1358419772,
-        "output_raw": 344,
-        "router": "dflow",
+        "input_raw": 1358419814,
+        "output_raw": 345,
+        "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000344",
+      "roundtrip_usdc": "0.000345",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -83,7 +83,7 @@
           "position_quantity": 1595312.6812855317,
           "estimated_exit_usdc": "0.000689",
           "estimated_net_pnl_usdc_before_network_cost": "-24.9993",
-          "exit_router": "metis",
+          "exit_router": "okx",
           "status": "QUOTE_AVAILABLE"
         }
       ],
@@ -132,7 +132,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 15918731865200,
+        "output_raw": 15936631843504,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
