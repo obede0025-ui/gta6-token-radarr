@@ -232,6 +232,8 @@ def main():
     parser.add_argument("--max-sample", type=int, default=60)
     parser.add_argument("--max-pages", type=int, default=12)
     parser.add_argument("--delay", type=float, default=0.12)
+    parser.add_argument("--resume-from", default="research_crash_flow_report.json",
+                        help="Read existing completed token reports, never overwrite source")
     parser.add_argument("--include-winners", type=int, default=6,
                         help="Also audit first N deterministic positive quote scenarios")
     parser.add_argument("--db", default="/home/ubuntu/gta6-paper-vps/data/learning.db")
@@ -266,6 +268,37 @@ def main():
                 """, (mint, p["signal_utc"])).fetchone()
                 if row and row[0]:
                     cohorts.append((mint, row[0], p))
+    dest = Path(args.output)
+    # Resume only from matching version, token, pool and exact windows. Existing
+    # legacy crash report may contain incomplete cases; those are retried.
+    reused = {}
+    for candidate in (Path(args.resume_from), dest):
+        if not candidate.is_file():
+            continue
+        try:
+            previous = json.loads(candidate.read_text())
+            for item in previous.get("results", []):
+                if not item.get("history_complete"):
+                    continue
+                if item.get("window_seconds") != {"before": args.before, "after": args.after}:
+                    continue
+                if not all(k in item.get("windows", {}) for k in
+                           ("BEFORE", "ENTRY_SECOND_UNORDERED", "AFTER")):
+                    continue
+                reused[(item.get("mint"), item.get("pool"), item.get("entry_utc"))] = item
+        except (OSError, ValueError, TypeError):
+            pass
+    def checkpoint():
+        # Atomic checkpoint after each token, preserving original report.
+        report = {
+            "mode": "READ_ONLY_SAMPLED_HISTORICAL_CRASH_FLOW",
+            "note": "Checkpoint. Sampled values are not total SOL volume or executed PNL.",
+            "results": results
+        }
+        temp = dest.with_name(dest.name + ".tmp")
+        temp.write_text(json.dumps(report, indent=2) + "\n")
+        temp.replace(dest)
+
     with requests.Session() as session:
         for prefix, pool in POOLS.items():
             matches = [(mint, p) for mint, p in positions.items() if mint.startswith(prefix)]
@@ -273,13 +306,23 @@ def main():
                 print(f"{prefix}: no unique quoted position; skipping")
                 continue
             mint, pos = matches[0]
-            audit = audit_one(session, args.rpc, prefix, mint, pool, pos, args)
+            key = (mint, pool, timestamp(pos["entry_quote_utc"]).isoformat())
+            audit = dict(reused[key]) if key in reused else audit_one(
+                session, args.rpc, prefix, mint, pool, pos, args)
+            if key in reused:
+                print(f"{prefix}: using saved historical analysis")
             audit["cohort"] = "EXTREME"
             results.append(audit)
+            checkpoint()
         for mint, pool, pos in cohorts:
-            audit = audit_one(session, args.rpc, mint[:12], mint, pool, pos, args)
+            key = (mint, pool, timestamp(pos["entry_quote_utc"]).isoformat())
+            audit = dict(reused[key]) if key in reused else audit_one(
+                session, args.rpc, mint[:12], mint, pool, pos, args)
+            if key in reused:
+                print(f"{mint[:12]}: using saved historical analysis")
             audit["cohort"] = "WIN"
             results.append(audit)
+            checkpoint()
     report = {
         "mode": "READ_ONLY_SAMPLED_HISTORICAL_CRASH_FLOW",
         "limitations": [
