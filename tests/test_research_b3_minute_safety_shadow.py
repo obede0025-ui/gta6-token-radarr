@@ -10,6 +10,14 @@ class Tests(unittest.TestCase):
         row=("2026-11-12T15:00:00+00:00","mint","pair","t","MARKET_DATA_UNAVAILABLE",None,None,None,None,None,None)
         self.assertEqual(assess(row)["decision"],"MARKET_DATA_UNAVAILABLE")
 
+    def test_missing_liquidity_always_blocked(self):
+        row=("2026-11-12T15:00:00+00:00","mint","pair","t",
+             "LIQUIDITY_UNKNOWN",1.0,None,5000,50,1,1)
+        self.assertEqual(assess(row)["decision"],"LIQUIDITY_UNKNOWN")
+        old=list(row)
+        old[4]="MARKET_DATA_UNAVAILABLE"
+        self.assertEqual(assess(old)["decision"],"LIQUIDITY_UNKNOWN")
+
     def test_base_pass_never_full_approval(self):
         row=("2026-11-12T15:00:00+00:00","mint","pair","t","QUOTE_MARKET_OBSERVED",.001,30000,4500,20,10,1)
         self.assertEqual(assess(row)["decision"],"BASE_FILTER_PASS_MOMENTUM_UNVERIFIED")
