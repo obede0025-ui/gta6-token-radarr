@@ -1,0 +1,11 @@
+[Unit]
+Description=GTA6 paper pipeline V1 shadow every 60 seconds
+
+[Timer]
+OnBootSec=1min
+OnUnitInactiveSec=60sec
+AccuracySec=5sec
+Unit=gta6-paper-pipeline-v1.service
+
+[Install]
+WantedBy=timers.target
