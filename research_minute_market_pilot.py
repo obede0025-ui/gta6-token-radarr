@@ -28,24 +28,42 @@ def finite(value):
 def source_candidates(conn, now, limit=MAX_TOKENS):
     """Prioritize recent/active original pairs. Every requested pair is pinned."""
     cutoff = (now - timedelta(hours=2)).isoformat(timespec="seconds")
+    # Monitoring eligibility is NOT entry eligibility. Keep following tokens
+    # after their liquidity or volume drops. Favor tokens that qualified
+    # during the last 24h, then prioritize recent pools and market activity.
+    history_cutoff = (now - timedelta(hours=24)).isoformat(timespec="seconds")
     rows = conn.execute("""
         WITH latest AS (
           SELECT token_address, pair_address, scanned_at, volume_m5,
                  liquidity_usd, pair_age_hours,
                  ROW_NUMBER() OVER (
                     PARTITION BY token_address
-                    ORDER BY scanned_at DESC
+                    ORDER BY scanned_at DESC, pair_address DESC
                  ) rn
           FROM snapshots WHERE scanned_at >= ?
+        ),
+        previously_qualified AS (
+          SELECT DISTINCT token_address
+          FROM snapshots
+          WHERE scanned_at >= ?
+            AND pair_age_hours BETWEEN 0 AND 24
+            AND volume_m5 >= 250
+            AND liquidity_usd >= 20000
         )
-        SELECT token_address, pair_address, scanned_at
-        FROM latest WHERE rn=1 AND pair_address IS NOT NULL
-          AND pair_age_hours BETWEEN 0 AND 24
-          AND COALESCE(volume_m5,0)>=250
-          AND COALESCE(liquidity_usd,0)>=20000
-        ORDER BY volume_m5 DESC
+        SELECT l.token_address, l.pair_address, l.scanned_at
+        FROM latest l
+        LEFT JOIN previously_qualified p
+          ON p.token_address=l.token_address
+        WHERE l.rn=1 AND l.pair_address IS NOT NULL
+        ORDER BY
+          CASE WHEN p.token_address IS NULL THEN 1 ELSE 0 END,
+          CASE WHEN l.pair_age_hours BETWEEN 0 AND 24 THEN 0 ELSE 1 END,
+          COALESCE(l.volume_m5,0) DESC,
+          COALESCE(l.liquidity_usd,0) DESC,
+          l.scanned_at DESC,
+          l.token_address
         LIMIT ?
-    """, (cutoff, limit)).fetchall()
+    """, (cutoff, history_cutoff, limit)).fetchall()
     return [(r[0],r[1],r[2]) for r in rows]
 
 def fetch(session, mints):
