@@ -1,0 +1,10 @@
+[Unit]
+Description=GTA6 paper-only prospective volume 3000 evaluation (no API calls)
+After=network.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/gta6-v32-gate-pilot
+ExecStart=/home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v32-gate-pilot/research_volume_3000_shadow.py
+NoNewPrivileges=true
