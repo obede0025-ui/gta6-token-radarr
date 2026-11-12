@@ -1,0 +1,11 @@
+[Unit]
+Description=GTA6 isolated 60s market history (paper research, separate SQLite)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/gta6-v32-gate-pilot
+ExecStart=/usr/bin/flock -n /home/ubuntu/gta6-v32-gate-pilot/.minute-market-pilot.lock /home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v32-gate-pilot/research_minute_market_pilot.py
+NoNewPrivileges=true
