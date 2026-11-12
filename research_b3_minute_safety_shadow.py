@@ -58,6 +58,39 @@ def assess(row):
     return {"decision":"BASE_FILTER_BLOCKED" if reasons else "BASE_FILTER_PASS_MOMENTUM_UNVERIFIED",
             "reasons":reasons}
 
+def evaluate_spaced_momentum(db, row):
+    """Evaluate causal spaced momentum for a base-pass observation only.
+
+    Separate from the B3 decision: this is a research comparison, not
+    the approved legacy B3 signal or permission to quote/trade.
+    """
+    from research_b3_minute_momentum_validation import select_causal, momentum
+    t,mint,pair,_,status,price,liq,vol,_,_,_=row
+    ts=parsed(t)
+    if ts is None:
+        return {"status":"INVALID_TIMESTAMP"}
+    from datetime import timedelta
+    start=(ts-timedelta(minutes=45)).isoformat(timespec="seconds")
+    old=db.execute("""
+      SELECT observed_at,status,price_usd,volume_m5
+      FROM minute_observations
+      WHERE mint=? AND pair=? AND observed_at<? AND observed_at>=?
+        AND status='QUOTE_MARKET_OBSERVED'
+        AND price_usd>0
+      ORDER BY observed_at DESC LIMIT 50
+    """,(mint,pair,t,start)).fetchall()
+    candidate=(t,status,price,vol)
+    selected=select_causal(old,candidate,"spaced")
+    if selected is None:
+        return {"status":"HISTORY_NOT_READY"}
+    passed=momentum(candidate,selected)
+    return {
+        "status":"MOMENTUM_MATCH_RESEARCH_ONLY" if passed else "MOMENTUM_NOT_MATCHED",
+        "older_utc":selected[0][0],
+        "previous_utc":selected[1][0],
+    }
+
+
 def advance(state,db,now):
     if state.get("version")!=1 or state.get("mode")!="MINUTE_B3_SAFETY_SHADOW" or not isinstance(state.get("cursor"),list):
         raise ValueError("Invalid safety shadow state")
@@ -71,6 +104,8 @@ def advance(state,db,now):
     """,(cur[0],)).fetchall()
     fresh=[]
     skipped=0
+    seen=set(tuple(x) for x in state.get("research_seen_pairs",[]))
+    newly_discovered=[]
     for row in rows:
         k=key(row)
         if k<=state["cursor"]:continue
@@ -81,18 +116,40 @@ def advance(state,db,now):
             skipped+=1
             continue
         result=assess(row)
+        evaluation={"status":"BASE_FILTER_NOT_PASSED"}
+        if result["decision"]=="BASE_FILTER_PASS_MOMENTUM_UNVERIFIED":
+            evaluation=evaluate_spaced_momentum(db,row)
+        pair_key=(row[1],row[2])
+        first_candidate=(evaluation["status"]=="MOMENTUM_MATCH_RESEARCH_ONLY"
+                         and pair_key not in seen)
+        if first_candidate:
+            seen.add(pair_key)
+            newly_discovered.append({"mint":row[1],"pair":row[2],
+                                    "signal_utc":row[0],
+                                    "observed_price_usd":row[5],
+                                    "observed_liquidity_usd":row[6],
+                                    "observed_volume_m5":row[7],
+                                    "previous_utc":evaluation["previous_utc"],
+                                    "older_utc":evaluation["older_utc"],
+                                    "research_only":True})
         fresh.append({
             "observed_at":row[0],"mint":row[1],"pair":row[2],
             "source_snapshot_at":row[3],
             "decision":result["decision"],"reasons":result["reasons"],
+            "momentum_research":evaluation,
+            "first_research_candidate":first_candidate,
             "observed_utc":now.isoformat(),
         })
+    state["research_seen_pairs"]=[list(x) for x in sorted(seen)]
+    state["research_candidates"]=(state.get("research_candidates",[])+newly_discovered)[-MAX_EVENTS:]
     state["events"]=(state["events"]+fresh)[-MAX_EVENTS:]
     state["total_logged"]=state.get("total_logged",0)+len(fresh)
     state["last_checked_utc"]=now.isoformat()
     return {"added":len(fresh),"stale_skipped":skipped,
             "cursor":state["cursor"],"total_logged":state["total_logged"],
             "new_decisions":dict(Counter(e["decision"] for e in fresh)),
+            "new_research_candidates":len(newly_discovered),
+            "all_research_candidates":len(state["research_candidates"]),
             "last_checked_utc":state["last_checked_utc"],
             "note":"BASE_FILTER_PASS is NOT full B3 approval; momentum not evaluated."}
 
@@ -104,8 +161,9 @@ def bootstrap(db,now):
     return {"version":1,"mode":"MINUTE_B3_SAFETY_SHADOW",
             "started_utc":now.isoformat(),"cursor":list(last) if last else ["","",""],
             "events":[],"total_logged":0,
+            "research_seen_pairs":[],"research_candidates":[],
             "limitations":[
-                "Only baseline B3 checks, NOT the legacy signal_b momentum rule.",
+                "Baseline checks unchanged; spaced momentum is recorded RESEARCH_ONLY and is NOT legacy B3 equivalence.",
                 "No trade-approved token can be emitted from this observer.",
                 "No historical replay before the first run.",
                 "Missing market data is UNKNOWN rather than low liquidity.",
@@ -142,6 +200,10 @@ def main():
         state=json.loads(Path(args.state).read_text())
         print(json.dumps({"mode":state["mode"],"total_logged":state["total_logged"],
                           "retained_decisions":dict(Counter(e["decision"] for e in state["events"])),
+                          "research_candidates":len(state.get("research_candidates",[])),
+                          "research_momentum_statuses":dict(Counter(
+                              e.get("momentum_research",{}).get("status","NOT_YET_EVALUATED")
+                              for e in state["events"])),
                           "last_checked_utc":state.get("last_checked_utc"),
                           "limitations":state.get("limitations")},indent=2));return
     print(json.dumps(execute(args.db,args.state)))
