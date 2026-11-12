@@ -1,0 +1,10 @@
+[Unit]
+Description=GTA6 isolated M1 minute research follow-up (no trades)
+After=gta6-b3-minute-safety-shadow.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/gta6-v32-gate-pilot
+ExecStart=/home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v32-gate-pilot/research_m1_minute_followup.py
+NoNewPrivileges=true
