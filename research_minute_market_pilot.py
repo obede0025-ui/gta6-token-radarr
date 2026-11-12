@@ -125,9 +125,14 @@ def record(db, stamp, selected, found):
             age=max(0,(datetime.fromisoformat(stamp).timestamp()*1000-created)/3600000) if created else None
             values=(result["price"],result["liquidity"],result["volume"],
                     result["buys"],result["sells"],age)
-        status=("QUOTE_MARKET_OBSERVED" if values and
-                values[0] is not None and values[0]>0 and
-                values[1] is not None else "MARKET_DATA_UNAVAILABLE")
+        # Fail closed. Preserve partial market fields for diagnosis, but
+        # never confuse missing liquidity with measured low liquidity.
+        if not values or values[0] is None or values[0] <= 0:
+            status = "MARKET_DATA_UNAVAILABLE"
+        elif values[1] is None:
+            status = "LIQUIDITY_UNKNOWN"
+        else:
+            status = "QUOTE_MARKET_OBSERVED"
         db.execute("""
           INSERT OR IGNORE INTO minute_observations VALUES(?,?,?,?,?,?,?,?,?,?,?)
         """,(stamp,mint,pair,source_stamp,status,*(values or (None,)*6)))
@@ -143,7 +148,8 @@ def report(db):
       WHERE observed_at=? GROUP BY status
     """,(last,)).fetchall() if last else []
     return {"samples":count,"unique_tokens":mints,"last_cycle_utc":last,
-            "last_cycle_statuses":dict(last_cycle)}
+            "last_cycle_statuses":dict(last_cycle),
+            "status_note":"LIQUIDITY_UNKNOWN is not zero liquidity and is not entry approval"}
 
 def run(original, pilot, session, now=None):
     now=now or datetime.now(timezone.utc)
