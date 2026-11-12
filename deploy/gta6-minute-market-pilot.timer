@@ -1,0 +1,11 @@
+[Unit]
+Description=GTA6 isolated minute market history pilot
+
+[Timer]
+OnBootSec=1min
+OnUnitInactiveSec=60sec
+AccuracySec=5sec
+Unit=gta6-minute-market-pilot.service
+
+[Install]
+WantedBy=timers.target
