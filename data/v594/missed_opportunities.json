@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8136,
-  "unique_pairs": 423,
-  "window_start_utc": "2026-11-10T23:55:49+00:00",
-  "window_end_utc": "2026-11-11T23:55:49+00:00",
+  "observations": 8108,
+  "unique_pairs": 420,
+  "window_start_utc": "2026-11-11T00:01:27+00:00",
+  "window_end_utc": "2026-11-12T00:01:27+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 7713,
-    "gaps_over_20_min": 3110,
-    "gap_rate_pct": 40.32,
+    "intervals": 7688,
+    "gaps_over_20_min": 3104,
+    "gap_rate_pct": 40.37,
     "gaps_with_observed_rise_over_20pct": 14
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 7713,
-    "gaps_over_20_min": 3110,
-    "gap_rate_pct": 40.32,
+    "intervals": 7688,
+    "gaps_over_20_min": 3104,
+    "gap_rate_pct": 40.37,
     "gaps_with_observed_rise_over_20pct": 14
   },
   "top_potential_blind_spots": [
@@ -60,18 +60,6 @@
       "observed_price_change_pct": 615.95,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "BeQTvvYcWjT3qkSBJBRCn2c2v7zebCZM5kWQfhS4TR7o",
-      "pair": "6w6w3U1AU3DewtYUGvMeprYLWy5d1nyEjrBowcLLPdNU",
-      "name": "State of Leonida",
-      "from_utc": "2026-11-11T00:01:00+00:00",
-      "to_utc": "2026-11-11T00:25:30+00:00",
-      "gap_minutes": 24.5,
-      "observed_price_change_pct": 252.9,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 0.0,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -180,6 +168,18 @@
       "observed_price_change_pct": 26.06,
       "volume_m5_at_return": 173.22,
       "liquidity_usd_at_return": 40802.47,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "25NVbDfwuAVhb2XADxGCs6WQuPjU1RsgDfUG6GV132Tm",
+      "pair": "5ExM58QJPrwwpQaLkqZjjAJwymzqbtxAeJRbTAxgpQ19",
+      "name": "Grand Theft Auto VI -Vicecity",
+      "from_utc": "2026-11-11T22:55:51+00:00",
+      "to_utc": "2026-11-12T00:01:27+00:00",
+      "gap_minutes": 65.6,
+      "observed_price_change_pct": 22.57,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 3138.62,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
