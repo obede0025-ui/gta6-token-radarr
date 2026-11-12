@@ -76,7 +76,7 @@ def run(dbpath,check_api=True):
         stamp,rows=latest(db)
         if not stamp:
             return {"status":"NO_MINUTE_OBSERVATIONS"}
-        wanted={mint:pair for mint,pair,status,_,_ in rows if status=="MARKET_DATA_UNAVAILABLE"}
+        wanted={mint:pair for mint,pair,status,_,_ in rows if status in ("MARKET_DATA_UNAVAILABLE","LIQUIDITY_UNKNOWN")}
         status_counts=dict(Counter(x[2] for x in rows))
         # Importantly inspect *all* chosen tokens for momentum sample coverage.
         spacing=historical_spacing(db,stamp,[(x[0],x[1]) for x in rows])
@@ -84,7 +84,7 @@ def run(dbpath,check_api=True):
             SELECT observed_at,
                    COUNT(*) total,
                    SUM(status='QUOTE_MARKET_OBSERVED') valid,
-                   SUM(status='MARKET_DATA_UNAVAILABLE') missing
+                   SUM(status IN ('MARKET_DATA_UNAVAILABLE','LIQUIDITY_UNKNOWN')) missing
             FROM minute_observations
             GROUP BY observed_at ORDER BY observed_at DESC LIMIT 5
         """).fetchall()
