@@ -1,0 +1,11 @@
+[Unit]
+Description=GTA6 volume 3000 paper-only research every 60 seconds
+
+[Timer]
+OnBootSec=1min
+OnUnitInactiveSec=60sec
+AccuracySec=5sec
+Unit=gta6-volume-3000-shadow.service
+
+[Install]
+WantedBy=timers.target
