@@ -22,6 +22,27 @@ class MinutePilotTests(unittest.TestCase):
             row=db.execute("SELECT status,liquidity_usd FROM minute_observations").fetchone()
             self.assertEqual(row,("MARKET_DATA_UNAVAILABLE",None))
 
+    def test_liquidity_unknown_distinct_from_zero(self):
+        selected=[("mint","pair","2026-11-12T14:00:00+00:00")]
+        payload=[{"chainId":"solana","baseToken":{"address":"mint"},
+                  "pairAddress":"pair","priceUsd":"1.25",
+                  "volume":{"m5":1200},"txns":{"m5":{"buys":10,"sells":2}}}]
+        found=extract(payload,selected)
+        with sqlite3.connect(":memory:") as db:
+            initialize(db)
+            record(db,"2026-11-12T14:01:00+00:00",selected,found)
+            status,price,liq=db.execute(
+                "SELECT status,price_usd,liquidity_usd FROM minute_observations"
+            ).fetchone()
+            self.assertEqual((status,price,liq),("LIQUIDITY_UNKNOWN",1.25,None))
+        found["mint"]["liquidity"]=0.0
+        with sqlite3.connect(":memory:") as db:
+            initialize(db)
+            record(db,"2026-11-12T14:02:00+00:00",selected,found)
+            self.assertEqual(db.execute(
+                "SELECT status FROM minute_observations").fetchone()[0],
+                "QUOTE_MARKET_OBSERVED")
+
     def test_source_pool_selection(self):
         with sqlite3.connect(":memory:") as db:
             db.execute("CREATE TABLE snapshots (token_address TEXT, pair_address TEXT, scanned_at TEXT, volume_m5 REAL, liquidity_usd REAL, pair_age_hours REAL)")
