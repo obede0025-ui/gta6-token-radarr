@@ -25,6 +25,9 @@ UNITS = {
     "v32_gate": "gta6-v32-gate-pilot.timer",
     "volume": "gta6-volume-3000-shadow.timer",
     "pipeline": "gta6-paper-pipeline-v1.timer",
+    "minute_market": "gta6-minute-market-pilot.timer",
+    "minute_b3": "gta6-b3-minute-safety-shadow.timer",
+    "minute_m1": "gta6-m1-minute-research.timer",
 }
 
 def stamp(value):
@@ -149,6 +152,69 @@ def run(now=None, root=ROOT):
         add(checks, "m1_to_volume_ledger",
             "PASS" if set(newer)<=ledger else "WARN",
             f"new_M1_since_volume={len(newer)}, ledger={len(ledger)}, missing={len(set(newer)-ledger)}")
+
+    # Isolated new minute pipeline: report freshness and handoffs in the same
+    # audit rather than adding another scanner or background service.
+    minute_db = pilot/"minute_market_pilot.sqlite"
+    try:
+        with sqlite3.connect(minute_db.resolve().as_uri()+"?mode=ro",uri=True) as db:
+            total,mints,last_minute=db.execute(
+                "SELECT COUNT(*),COUNT(DISTINCT mint),MAX(observed_at) FROM minute_observations"
+            ).fetchone()
+            statuses=dict(db.execute(
+                "SELECT status,COUNT(*) FROM minute_observations WHERE observed_at=? GROUP BY status",
+                (last_minute,)).fetchall()) if last_minute else {}
+        age=elapsed(last_minute,now)
+        add(checks,"minute_market_db","PASS" if age is not None and -30<=age<=180 else "WARN",
+            f"{total} samples, {mints} mints, latest={last_minute}, age_seconds={age}, statuses={statuses}")
+    except (sqlite3.Error,OSError) as exc:
+        add(checks,"minute_market_db","FAIL",type(exc).__name__)
+    minute_paths={
+        "minute_b3":pilot/"b3_minute_safety_shadow_state.json",
+        "minute_m1":pilot/"m1_minute_research_state.json",
+        "minute_jupiter":pilot/"jupiter_minute_quotes_state.json",
+    }
+    minute_data={}
+    for label,path in minute_paths.items():
+        obj,err=state(path)
+        minute_data[label]=obj
+        if err:
+            add(checks,"state_"+label,"FAIL",str(path)+": "+err)
+            continue
+        timekey=obj.get("last_checked_utc")
+        age=elapsed(timekey,now)
+        count=len(obj.get("research_candidates",[])) if label=="minute_b3" else len(obj.get("candidates",{})) if label=="minute_m1" else len(obj.get("positions",{}))
+        add(checks,"state_"+label,"PASS" if age is not None and -30<=age<=180 else "WARN",
+            f"{count} candidates/positions, last_checked={timekey}, age_seconds={age}")
+    minute_b3=minute_data.get("minute_b3")
+    minute_m1=minute_data.get("minute_m1")
+    minute_jupiter=minute_data.get("minute_jupiter")
+    if minute_b3 and minute_m1:
+        cutoff=stamp(minute_m1.get("started_utc"))
+        signals=[c for c in minute_b3.get("research_candidates",[]) if
+                 isinstance(c,dict) and cutoff and stamp(c.get("signal_utc"))
+                 and stamp(c.get("signal_utc"))>cutoff]
+        registered=set(minute_m1.get("candidates",{}))
+        ignored=set(minute_m1.get("ignored",{}))
+        def identifier(c):
+            return json.dumps([c["mint"],c["pair"],c["signal_utc"]],separators=(",",":"))
+        eligible={identifier(c) for c in signals if all(isinstance(c.get(k),str) for k in ("mint","pair","signal_utc"))}
+        accounted=len(eligible & (registered|ignored))
+        add(checks,"minute_b3_to_m1","PASS" if accounted==len(eligible) else "WARN",
+            f"post_bootstrap_B3_signals={len(eligible)}, tracked_or_explained={accounted}, unaccounted={len(eligible)-accounted}")
+    if minute_m1 and minute_jupiter:
+        cutoff=stamp(minute_jupiter.get("started_utc"))
+        fresh={key for key,c in minute_m1.get("candidates",{}).items()
+               if isinstance(c,dict) and cutoff and stamp(c.get("signal_utc"))
+               and stamp(c.get("registered_utc")) and
+               stamp(c.get("signal_utc"))>cutoff and
+               stamp(c.get("registered_utc"))>cutoff}
+        accounted=set(minute_jupiter.get("positions",{}))|set(minute_jupiter.get("skipped",{}))
+        add(checks,"minute_m1_to_jupiter","PASS" if fresh<=accounted else "WARN",
+            f"post_bootstrap_M1_signals={len(fresh)}, quoted_or_explained={len(fresh & accounted)}, unaccounted={len(fresh-accounted)}")
+        positions=minute_jupiter.get("positions",{})
+        add(checks,"minute_jupiter_quote_coverage","PASS",
+            f"quote_candidates={len(positions)}, entry_quotes={sum(p.get('entry_token_raw') is not None for p in positions.values())}, exit_quote_observations={sum(len(p.get('exit_quotes',[])) for p in positions.values())}; 0 candidates means live API path untested")
     add(checks, "fast_monitor_handoff", "GAP",
         "Fast-monitor logs observations but does not append to learning.db or feed B3")
     add(checks, "paper_only_integrity", "PASS",
