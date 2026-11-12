@@ -1,0 +1,11 @@
+[Unit]
+Description=GTA6 B3 30s isolated shadow timer
+
+[Timer]
+OnBootSec=30sec
+OnUnitInactiveSec=30sec
+AccuracySec=1sec
+Unit=gta6-b3-30s-shadow.service
+
+[Install]
+WantedBy=timers.target
