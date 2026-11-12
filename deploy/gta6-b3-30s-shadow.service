@@ -1,0 +1,10 @@
+[Unit]
+Description=GTA6 B3 30s isolated shadow (read-only DB, separate state)
+After=network.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/gta6-v32-gate-pilot
+ExecStart=/usr/bin/flock -n /home/ubuntu/gta6-v32-gate-pilot/.b3-30s-shadow.lock /home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v63-test/b3_shadow_monitor.py --db /home/ubuntu/gta6-paper-vps/data/learning.db --state /home/ubuntu/gta6-v32-gate-pilot/b3_30s_state.json
+NoNewPrivileges=true
