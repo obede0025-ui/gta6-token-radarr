@@ -1,17 +1,12 @@
 {
   "version": 1,
   "cursor": [
-    "2026-11-12T06:10:59+00:00",
+    "2026-11-12T06:15:58+00:00",
     "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump",
     "5E3dXLXGwmTDCokA51WYYaKttjFZBwqCoyUHBUi5gt2m"
   ],
   "history": {
     "25NVbDfwuAVhb2XADxGCs6WQuPjU1RsgDfUG6GV132Tm:5ExM58QJPrwwpQaLkqZjjAJwymzqbtxAeJRbTAxgpQ19": [
-      [
-        "2026-11-12T03:10:47+00:00",
-        5.343e-06,
-        0.0
-      ],
       [
         "2026-11-12T04:10:57+00:00",
         4.542e-06,
@@ -21,6 +16,11 @@
         "2026-11-12T05:11:09+00:00",
         4.796e-06,
         0.0
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        6.283e-06,
+        48.81
       ]
     ],
     "27AYXq96kjPgsy2qMsLXTPAf47CJHZPHa5P2fQZ38Z77:7M44Bf1ekzq1e4VgbDpRLg7QGkZ3Q5yWTS9YsGDeHJS4": [
@@ -598,11 +598,6 @@
     ],
     "4kjruqGHDsSqkMdFfCjV7Vb62HPFhtXyWc2t6JpQzDnz:5AFbwVSQPJf4cgEjq4TajZYyPYUvYktrRN3SahNrPnmv": [
       [
-        "2026-11-12T06:01:20+00:00",
-        0.006666,
-        2414.2
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         0.006857,
         4221.05
@@ -611,6 +606,11 @@
         "2026-11-12T06:10:59+00:00",
         0.006908,
         3049.52
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        0.007418,
+        6015.73
       ]
     ],
     "4wpV5g1JLcQMbLUbkPdwYDAMVgxwBepcT4s3VBFbC8YX:CwNGCmuPc8dswtuKc9gfCqn2wsTmSX8o8uXJpAYZSMdY": [
@@ -1686,11 +1686,6 @@
     ],
     "Eyo1o3QYKQwdvP6UtK9dQLTZj2BBtoJdN4tMWB2Dpump:DtDvAyZtenCP2qd3KycTnJoVxWWvum9S3QNfqLR6Hy8Y": [
       [
-        "2026-11-12T06:01:20+00:00",
-        0.0001197,
-        1883.02
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         0.0001256,
         2223.42
@@ -1699,6 +1694,11 @@
         "2026-11-12T06:10:59+00:00",
         0.0001167,
         1745.77
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        0.0001284,
+        2117.14
       ]
     ],
     "FdQMjCVEa77pqH1NbP381Dz32b2QR4xsJRDwM8icpump:AEczFtHm37a3Qo38t63z5dcTK81VUwDdnHRn84j2hm9K": [
@@ -1914,11 +1914,6 @@
     ],
     "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump:5E3dXLXGwmTDCokA51WYYaKttjFZBwqCoyUHBUi5gt2m": [
       [
-        "2026-11-12T06:01:20+00:00",
-        0.006508,
-        6209.86
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         0.006389,
         4688.91
@@ -1927,6 +1922,11 @@
         "2026-11-12T06:10:59+00:00",
         0.006393,
         3501.17
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        0.006368,
+        3203.38
       ]
     ],
     "HxypcURCUfnvbTjSYR6ruJaj9kXt4c8u4ixmyycYpVty:Brjkgjhvw5SutrrfCJKDPA7xm2153boqKaVRqBim5nX6": [
@@ -3144,11 +3144,6 @@
     ],
     "Fg95V4ZNwkpYrQCKrCHtZFEXWxTgTkBLq8EvruaKx3Mw:CC7vH8KeHMjKTUD1MWDaCnN5ivfUeJ7imk8Y187zrPty": [
       [
-        "2026-11-12T05:01:14+00:00",
-        2.33e-06,
-        0.04
-      ],
-      [
         "2026-11-12T05:31:19+00:00",
         2.32e-06,
         0.04
@@ -3157,6 +3152,11 @@
         "2026-11-12T05:50:59+00:00",
         2.324e-06,
         0.03
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        2.328e-06,
+        0.07
       ]
     ],
     "9c4QTKKQRwX3Kyt8i9Rc9t25PgLuq6JVkiVRcBQxpump:2yHq4MS99ymFGtEGHkxCJAL1meEe5GcBwxmauUcZZhnd": [
@@ -4137,11 +4137,6 @@
     ],
     "GexThZHgaswpAQ7Fi8QrHFubjPimUNSYhJiAA7XZpump:TT7DKs9YjJZj1fwMGoPmKBmDreZzyMAMrHoDCGdfwqN": [
       [
-        "2026-11-12T06:01:20+00:00",
-        0.001,
-        980.79
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         0.001053,
         894.17
@@ -4150,6 +4145,11 @@
         "2026-11-12T06:10:59+00:00",
         0.001053,
         978.56
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        0.001079,
+        134.91
       ]
     ],
     "9MXMqcM9CCt3c3HAYEzWSEqt6YRWdmStA6pYPzqhpump:GS36DPVSdF8mufc1ScBTR5svhYh3DBzvMMoazVNgkAEz": [
@@ -6034,11 +6034,6 @@
     ],
     "Fw6KLrzEZc9mDJYFzm4jEQTbTU4JRb3hjeqfQXRcEdUH:J5XBDfcnQVrHaK7p1JkWWn7GcA2Zz2CknFSzHKmjBx63": [
       [
-        "2026-11-12T06:01:20+00:00",
-        0.0001563,
-        521.34
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         0.0001598,
         525.81
@@ -6047,6 +6042,11 @@
         "2026-11-12T06:10:59+00:00",
         0.0001571,
         470.64
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        0.0001511,
+        876.35
       ]
     ],
     "HmGTHFH5cuKky43qdXXAG4DwZ27txEGTueu6ag5Qpump:aktQAHrsM3GsR4dJBp3BXRHEv9pEBJMx652MQZxCjhm": [
@@ -10232,11 +10232,6 @@
     ],
     "34DXEU2ttEtBSb1TqGJm7izgvYTTkqKcCoiNWdPDpump:5TecgcpFLdBnJvBrpjvk32UAYABPRA1HgeFPEUjQQkYK": [
       [
-        "2026-11-12T06:01:20+00:00",
-        0.001253,
-        72.03
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         0.001185,
         821.33
@@ -10245,6 +10240,11 @@
         "2026-11-12T06:10:59+00:00",
         0.001151,
         449.61
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        0.001146,
+        187.55
       ]
     ],
     "6MqJrJhakjfuXVDPxg97wGGVZ6YqQYgDA4Gvrkd4pump:4ebvvUZkXCTvty9b62qTaFuEALJvkqkGkavh9GbHB7cd": [
@@ -18184,11 +18184,6 @@
     ],
     "74xFKmxYk33yFdnWHh6VbKECnBw2cEhEa1dBqnmDHPNX:3fBYy8s1ZbqarqpXfeEAMXLNuEbuXJNK4gsqrGBQ3NKY": [
       [
-        "2026-11-12T04:40:59+00:00",
-        3.161e-05,
-        44.18
-      ],
-      [
         "2026-11-12T04:56:02+00:00",
         3.11e-05,
         9.6
@@ -18197,6 +18192,11 @@
         "2026-11-12T05:11:09+00:00",
         3.106e-05,
         0.0
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        3.894e-05,
+        9.09
       ]
     ],
     "8ko8jpYakVpuhREVfKBH1iHkVZnmMinn9LzXK5t5pump:Gf7pgtcnsFefyLFWMqFfEpmH7hENapHDyNzUxVXfp6Xj": [
@@ -18269,11 +18269,6 @@
     ],
     "8DwAf1oQ11Ch86SNGcbBppFqf1RZJ74T7mdNuNBtpump:G8osgHpvmzJZcC81pHEZxh6muHj1Gn3uYm9th2Xe2n2q": [
       [
-        "2026-11-12T04:40:59+00:00",
-        2.348e-05,
-        17.58
-      ],
-      [
         "2026-11-12T04:56:02+00:00",
         2.325e-05,
         15.19
@@ -18281,6 +18276,11 @@
       [
         "2026-11-12T05:11:09+00:00",
         2.288e-05,
+        0.0
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        2.244e-05,
         0.0
       ]
     ],
@@ -18858,11 +18858,6 @@
     ],
     "BetzJU2X9UEgG2qdo8UKbJ6q1iiFGs23axh8vRqEpump:AusWEfi1py2oxThRWyGh86QcUyNH9jButcqb6vSzbqaq": [
       [
-        "2026-11-12T06:01:20+00:00",
-        3.694e-05,
-        322.46
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         3.628e-05,
         546.47
@@ -18871,6 +18866,11 @@
         "2026-11-12T06:10:59+00:00",
         3.703e-05,
         322.28
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        3.896e-05,
+        387.41
       ]
     ],
     "9KYohfjX7nbQDCCBLx63eTDEprcQce4cMLPecspxqu5o:9Lt3LinjQvEtvj5hACAdqW6oyxK9yZvEWMd8nELtw9y7": [
@@ -19351,17 +19351,17 @@
     ],
     "2xfRRGqu6RsQxcXXiBnHbQu7mi81DQzRFjhEPZS3i1Tx:2jATiKQHM7Rdv2qHYgeLu3oV61Q82GHGT2T6yg7uXKvv": [
       [
-        "2026-11-12T03:10:47+00:00",
-        1.111e-11,
-        0.0
-      ],
-      [
         "2026-11-12T04:10:57+00:00",
         1.111e-11,
         0.0
       ],
       [
         "2026-11-12T05:11:09+00:00",
+        1.111e-11,
+        0.0
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
         1.111e-11,
         0.0
       ]
@@ -19487,17 +19487,17 @@
     ],
     "6X7ruHpE4RPwSh44yhw8mEhQwnB1gXvpnp5WfWcypump:CvkYA3SccjLeKut8p153ipYKbbp2uHYSsU6RZxGdu3cE": [
       [
-        "2026-11-12T03:46:00+00:00",
-        4.153e-06,
-        0.0
-      ],
-      [
         "2026-11-12T04:10:57+00:00",
         4.153e-06,
         0.0
       ],
       [
         "2026-11-12T05:11:09+00:00",
+        4.153e-06,
+        0.0
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
         4.153e-06,
         0.0
       ]
@@ -19947,11 +19947,6 @@
     ],
     "EVsZ7NkSPCMXe5FKiexyP6okMMAj4iqJ1EDSX5WhxtUw:76dhPzCi994kCACiPVWSYHJrQjgY5eWWQvq48WgfyzWi": [
       [
-        "2026-11-12T06:01:20+00:00",
-        5.414e-06,
-        55.58
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         5.425e-06,
         24.96
@@ -19960,6 +19955,11 @@
         "2026-11-12T06:10:59+00:00",
         5.428e-06,
         14.97
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        4.951e-06,
+        195.99
       ]
     ],
     "27cABrYvh2fFGaVPj62vaBGiV78gt9Mh8kDByiRApump:CXHC28RRDJ38ZxQmqR3uxqCJyRQakoPJxwM5wSheLcHB": [
@@ -20136,11 +20136,6 @@
     ],
     "BLhhVRFnY85v87ARYAWD9UmiDAPijWSgXU6epcyc3g58:86A1M6xmY1ty9CWwAg9WDMipaqyJWJgmfLSNeHbNK1CS": [
       [
-        "2026-11-12T06:01:20+00:00",
-        2.888e-05,
-        8604.75
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         3.99e-05,
         8748.22
@@ -20149,6 +20144,11 @@
         "2026-11-12T06:10:59+00:00",
         5.54e-05,
         8197.79
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        4.512e-05,
+        13262.43
       ]
     ],
     "6L7tCygfenwgrzHSgzfpwVkmYecWFgdn1623jmh523Fm:26gyQKpbspnE47ZaikW4xthYRggZwnrS2Ve8ZhKbuqib": [
@@ -20238,11 +20238,6 @@
     ],
     "GwDJNFTYKiADWeaZZVdztjgHdm96MADiWAwxHMeZpump:DBySajZiK9593SUxZXyK5hrQW5AE8EJPqjBK4bQhiHQz": [
       [
-        "2026-11-12T06:01:20+00:00",
-        0.0001572,
-        3631.0
-      ],
-      [
         "2026-11-12T06:06:03+00:00",
         0.0002027,
         4544.63
@@ -20251,6 +20246,11 @@
         "2026-11-12T06:10:59+00:00",
         0.0002444,
         4339.51
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        0.0002959,
+        4211.73
       ]
     ],
     "DfeGETUvcSwR7h4S46EVKsEEi329uZXuXb9wWZjjpump:Et7m5PkWauHRKHN3GJ7iPyZVcoxSKbT1nqHzf7CEqi2T": [
@@ -20270,6 +20270,11 @@
         "2026-11-12T06:10:59+00:00",
         3.002e-05,
         14238.16
+      ],
+      [
+        "2026-11-12T06:15:58+00:00",
+        2e-05,
+        8499.86
       ]
     ]
   },
