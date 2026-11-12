@@ -28,4 +28,16 @@ class MinutePilotTests(unittest.TestCase):
             db.execute("INSERT INTO snapshots VALUES ('mint','pair','2026-11-12T14:00:00+00:00',3500,30000,1)")
             self.assertEqual(source_candidates(db,datetime(2026,11,12,14,1,tzinfo=timezone.utc))[0][0],"mint")
 
+    def test_monitor_keeps_low_liquidity_and_volume(self):
+        with sqlite3.connect(":memory:") as db:
+            db.execute("CREATE TABLE snapshots (token_address TEXT, pair_address TEXT, scanned_at TEXT, volume_m5 REAL, liquidity_usd REAL, pair_age_hours REAL)")
+            db.executemany("INSERT INTO snapshots VALUES (?,?,?,?,?,?)", [
+                ("mintA","pairA","2026-11-12T13:50:00+00:00",4000,35000,1),
+                ("mintA","pairA","2026-11-12T14:00:00+00:00",4,100,1.2),
+                ("mintB","pairB","2026-11-12T14:00:00+00:00",6,500,3),
+            ])
+            picked=source_candidates(db,datetime(2026,11,12,14,1,tzinfo=timezone.utc))
+            self.assertEqual([x[0] for x in picked], ["mintA", "mintB"])
+            self.assertEqual(picked[0][1], "pairA")
+
 if __name__=="__main__":unittest.main()
