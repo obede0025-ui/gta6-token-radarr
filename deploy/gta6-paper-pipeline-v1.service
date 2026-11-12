@@ -1,0 +1,10 @@
+[Unit]
+Description=GTA6 integrated prospective paper decision and quote outcome ledger (no orders)
+After=network.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/gta6-v32-gate-pilot
+ExecStart=/home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v32-gate-pilot/research_paper_pipeline_v1.py
+NoNewPrivileges=true
