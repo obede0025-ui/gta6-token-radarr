@@ -7,4 +7,7 @@ Type=oneshot
 User=ubuntu
 WorkingDirectory=/home/ubuntu/gta6-v32-gate-pilot
 ExecStart=/home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v32-gate-pilot/research_m1_minute_followup.py
+# Ignore quote API errors so M1 research stays healthy. This GET-only
+# quote observer maintains its own isolated state.
+ExecStartPost=-/home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v32-gate-pilot/research_jupiter_minute_quotes.py
 NoNewPrivileges=true
