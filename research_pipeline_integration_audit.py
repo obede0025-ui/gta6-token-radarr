@@ -200,7 +200,9 @@ def run(now=None, root=ROOT):
             return json.dumps([c["mint"],c["pair"],c["signal_utc"]],separators=(",",":"))
         eligible={identifier(c) for c in signals if all(isinstance(c.get(k),str) for k in ("mint","pair","signal_utc"))}
         accounted=len(eligible & (registered|ignored))
-        add(checks,"minute_b3_to_m1","PASS" if accounted==len(eligible) else "WARN",
+        b3_handoff_status=("WAITING_FOR_SIGNAL" if not eligible else
+                           "PASS" if accounted==len(eligible) else "WARN")
+        add(checks,"minute_b3_to_m1",b3_handoff_status,
             f"post_bootstrap_B3_signals={len(eligible)}, tracked_or_explained={accounted}, unaccounted={len(eligible)-accounted}")
     if minute_m1 and minute_jupiter:
         cutoff=stamp(minute_jupiter.get("started_utc"))
@@ -210,11 +212,17 @@ def run(now=None, root=ROOT):
                stamp(c.get("signal_utc"))>cutoff and
                stamp(c.get("registered_utc"))>cutoff}
         accounted=set(minute_jupiter.get("positions",{}))|set(minute_jupiter.get("skipped",{}))
-        add(checks,"minute_m1_to_jupiter","PASS" if fresh<=accounted else "WARN",
+        quote_handoff_status=("WAITING_FOR_SIGNAL" if not fresh else
+                              "PASS" if fresh<=accounted else "WARN")
+        add(checks,"minute_m1_to_jupiter",quote_handoff_status,
             f"post_bootstrap_M1_signals={len(fresh)}, quoted_or_explained={len(fresh & accounted)}, unaccounted={len(fresh-accounted)}")
         positions=minute_jupiter.get("positions",{})
-        add(checks,"minute_jupiter_quote_coverage","PASS",
-            f"quote_candidates={len(positions)}, entry_quotes={sum(p.get('entry_token_raw') is not None for p in positions.values())}, exit_quote_observations={sum(len(p.get('exit_quotes',[])) for p in positions.values())}; 0 candidates means live API path untested")
+        entry_quotes=sum(p.get("entry_token_raw") is not None for p in positions.values())
+        exit_quotes=sum(len(p.get("exit_quotes",[])) for p in positions.values())
+        quote_status=("WAITING_FOR_SIGNAL" if not positions else
+                      "PASS" if entry_quotes and exit_quotes else "WARN")
+        add(checks,"minute_jupiter_quote_coverage",quote_status,
+            f"quote_candidates={len(positions)}, entry_quotes={entry_quotes}, exit_quote_observations={exit_quotes}; no claims of executable fills")
     add(checks, "fast_monitor_handoff", "GAP",
         "Fast-monitor logs observations but does not append to learning.db or feed B3")
     add(checks, "paper_only_integrity", "PASS",
