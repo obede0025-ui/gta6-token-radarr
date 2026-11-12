@@ -1,0 +1,11 @@
+[Unit]
+Description=GTA6 isolated M1 minute research follow-up timer
+
+[Timer]
+OnBootSec=1min
+OnUnitInactiveSec=60sec
+AccuracySec=5sec
+Unit=gta6-m1-minute-research.service
+
+[Install]
+WantedBy=timers.target
