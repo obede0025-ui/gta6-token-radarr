@@ -37,12 +37,21 @@ def key(row):
 def assess(row):
     t,mint,pair,source_t,status,price,liq,vol,buys,sells,age=row
     reasons=[]
+    # Keep older observations interpretable without rewriting history.
+    # Every unknown liquidity observation is blocked, even when its price,
+    # volume or buys/sells are available.
+    if status=="LIQUIDITY_UNKNOWN" or (
+        status=="MARKET_DATA_UNAVAILABLE" and num(price) is not None
+        and num(price)>0 and num(liq) is None
+    ):
+        return {"decision":"LIQUIDITY_UNKNOWN","reasons":["LIQUIDITY_UNKNOWN"]}
     if status!="QUOTE_MARKET_OBSERVED":
         return {"decision":"MARKET_DATA_UNAVAILABLE","reasons":["MARKET_DATA_UNAVAILABLE"]}
     values=[num(v) for v in (price,liq,vol,buys,sells,age)]
     price,liq,vol,buys,sells,age=values
     if price is None or price<=0: reasons.append("INVALID_PRICE")
-    if liq is None or liq<20000: reasons.append("LIQUIDITY_BELOW_20000")
+    if liq is None: reasons.append("LIQUIDITY_UNKNOWN")
+    elif liq<20000: reasons.append("LIQUIDITY_BELOW_20000")
     if vol is None or vol<250: reasons.append("VOLUME_BELOW_250")
     if buys is None or sells is None or buys<=sells: reasons.append("BUY_SELL_IMBALANCE")
     if age is None or not 0<=age<=24: reasons.append("PAIR_AGE_INVALID")
