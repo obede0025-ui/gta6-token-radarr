@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-12T20:16:30+00:00",
+  "generated_utc": "2026-11-12T20:21:23+00:00",
   "last_processed": [
-    "2026-11-12T20:16:27+00:00",
+    "2026-11-12T20:21:22+00:00",
     "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump",
     "5E3dXLXGwmTDCokA51WYYaKttjFZBwqCoyUHBUi5gt2m"
   ],
   "run": {
-    "observations": 16,
+    "observations": 12,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,35 +25,35 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 16
+      "no_momentum_signal": 12
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "te_weinig_opeenvolgende_metingen": 7,
+          "te_weinig_opeenvolgende_metingen": 6,
           "momentumvoorwaarden_niet_gehaald": 3,
-          "volume_5m_te_laag": 6
+          "volume_5m_te_laag": 3
         },
         "B": {
-          "te_weinig_opeenvolgende_metingen": 7,
+          "te_weinig_opeenvolgende_metingen": 6,
           "momentumvoorwaarden_niet_gehaald": 3,
-          "volume_5m_te_laag": 6
+          "volume_5m_te_laag": 3
         },
         "C": {
-          "te_weinig_opeenvolgende_metingen": 5,
+          "te_weinig_opeenvolgende_metingen": 6,
           "momentumvoorwaarden_niet_gehaald": 3,
-          "volume_5m_te_laag": 8
+          "volume_5m_te_laag": 3
         }
       },
       "spacing": {
-        "interval_te_lang": 5,
-        "interval_geldig": 11
+        "interval_te_lang": 6,
+        "interval_geldig": 6
       },
       "market_filters": {
-        "liquiditeit_te_laag_of_onbekend": 8,
-        "volume_5m_te_laag_of_onbekend": 13,
-        "buys_niet_hoger_dan_sells": 13,
-        "paarleeftijd_ongeldig": 7
+        "liquiditeit_te_laag_of_onbekend": 6,
+        "volume_5m_te_laag_of_onbekend": 9,
+        "paarleeftijd_ongeldig": 8,
+        "buys_niet_hoger_dan_sells": 8
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
