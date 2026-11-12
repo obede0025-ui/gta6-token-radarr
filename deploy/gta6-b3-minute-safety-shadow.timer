@@ -1,0 +1,11 @@
+[Unit]
+Description=GTA6 isolated minute B3 baseline observer
+
+[Timer]
+OnBootSec=1min
+OnUnitInactiveSec=60sec
+AccuracySec=5sec
+Unit=gta6-b3-minute-safety-shadow.service
+
+[Install]
+WantedBy=timers.target
