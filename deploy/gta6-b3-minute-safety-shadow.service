@@ -1,0 +1,10 @@
+[Unit]
+Description=GTA6 read-only minute B3 baseline safety observer (not an approval)
+After=gta6-minute-market-pilot.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/gta6-v32-gate-pilot
+ExecStart=/home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v32-gate-pilot/research_b3_minute_safety_shadow.py
+NoNewPrivileges=true
