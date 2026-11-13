@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7164,
-  "unique_pairs": 404,
-  "window_start_utc": "2026-11-12T19:32:02+00:00",
-  "window_end_utc": "2026-11-13T19:32:02+00:00",
+  "observations": 7179,
+  "unique_pairs": 405,
+  "window_start_utc": "2026-11-12T19:36:22+00:00",
+  "window_end_utc": "2026-11-13T19:36:22+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 6760,
-    "gaps_over_20_min": 3323,
-    "gap_rate_pct": 49.16,
+    "intervals": 6774,
+    "gaps_over_20_min": 3336,
+    "gap_rate_pct": 49.25,
     "gaps_with_observed_rise_over_20pct": 17
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 6760,
-    "gaps_over_20_min": 3323,
-    "gap_rate_pct": 49.16,
+    "intervals": 6774,
+    "gaps_over_20_min": 3336,
+    "gap_rate_pct": 49.25,
     "gaps_with_observed_rise_over_20pct": 17
   },
   "top_potential_blind_spots": [
@@ -36,6 +36,18 @@
       "observed_price_change_pct": 1756.07,
       "volume_m5_at_return": 0.51,
       "liquidity_usd_at_return": 13.45,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "Gta6uoekEj831ppDPD4EiX3Xj9tW8SxR5rzCsF7cLeEk",
+      "pair": "HU19FSrtYRTrs6WByBCkwZceA7XadcTx66QswmB978PT",
+      "name": "Grand Theft Auto VI",
+      "from_utc": "2026-11-13T14:16:56+00:00",
+      "to_utc": "2026-11-13T19:36:22+00:00",
+      "gap_minutes": 319.43,
+      "observed_price_change_pct": 233.26,
+      "volume_m5_at_return": 5974.09,
+      "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -84,18 +96,6 @@
       "observed_price_change_pct": 38.72,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 15174.34,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "3dP66temTpZMU7ZqJ5cY6MAHJRzjLA1yHPAxuTUQHLya",
-      "pair": "C6ihyBV7Rq2yqYinqDU2KxskP2C5CLbLHRfcFn34Vcby",
-      "name": "State of Leonida",
-      "from_utc": "2026-11-12T19:35:51+00:00",
-      "to_utc": "2026-11-12T19:56:20+00:00",
-      "gap_minutes": 20.48,
-      "observed_price_change_pct": 29.57,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 0.05,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
