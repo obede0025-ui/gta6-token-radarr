@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-13T13:02:09+00:00",
+  "generated_utc": "2026-11-13T13:06:07+00:00",
   "last_processed": [
-    "2026-11-13T13:02:07+00:00",
+    "2026-11-13T13:06:04+00:00",
     "wKy6tEDZj6jS1GUMmnSSTrR1bXJQa35s7VHcWHxhNbA",
     "i6Gkgadg8Je9QXwRiqjmiEU1ctpYY7dyf2RzTAFkkjZ"
   ],
   "run": {
-    "observations": 15,
+    "observations": 8,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,32 +25,35 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 15
+      "no_momentum_signal": 8
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "te_weinig_opeenvolgende_metingen": 10,
-          "momentumvoorwaarden_niet_gehaald": 5
+          "te_weinig_opeenvolgende_metingen": 2,
+          "momentumvoorwaarden_niet_gehaald": 5,
+          "volume_5m_te_laag": 1
         },
         "B": {
-          "te_weinig_opeenvolgende_metingen": 10,
-          "momentumvoorwaarden_niet_gehaald": 5
+          "te_weinig_opeenvolgende_metingen": 2,
+          "momentumvoorwaarden_niet_gehaald": 5,
+          "volume_5m_te_laag": 1
         },
         "C": {
-          "te_weinig_opeenvolgende_metingen": 9,
-          "momentumvoorwaarden_niet_gehaald": 6
+          "volume_5m_te_laag": 2,
+          "momentumvoorwaarden_niet_gehaald": 5,
+          "te_weinig_opeenvolgende_metingen": 1
         }
       },
       "spacing": {
-        "interval_te_lang": 9,
-        "interval_geldig": 6
+        "interval_geldig": 7,
+        "interval_te_lang": 1
       },
       "market_filters": {
-        "volume_5m_te_laag_of_onbekend": 9,
-        "liquiditeit_te_laag_of_onbekend": 8,
-        "paarleeftijd_ongeldig": 7,
-        "buys_niet_hoger_dan_sells": 9
+        "volume_5m_te_laag_of_onbekend": 3,
+        "paarleeftijd_ongeldig": 4,
+        "buys_niet_hoger_dan_sells": 4,
+        "liquiditeit_te_laag_of_onbekend": 1
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
