@@ -19,6 +19,21 @@ def utc(value):
         return d.astimezone(timezone.utc) if d.tzinfo else None
     except (ValueError,OverflowError):return None
 
+def signal_timestamp(item):
+    """Use only explicit signal timestamps, never last_poll as registration."""
+    values=[("registered_utc",item.get("registered_utc")),
+            ("signal_utc",item.get("signal_utc"))]
+    sig=item.get("signal")
+    if isinstance(sig,str):
+        values.append(("signal",sig))
+    elif isinstance(sig,dict):
+        for name in ("signal_utc","observed_at","scanned_at","timestamp","utc","time"):
+            values.append(("signal."+name,sig.get(name)))
+    for name,value in values:
+        d=utc(value)
+        if d is not None:return d,name
+    return None,None
+
 def explain(m1,v32):
     tracked=m1.get("tracked")
     positions=v32.get("positions")
@@ -26,13 +41,13 @@ def explain(m1,v32):
         raise ValueError("Expected M1 tracked and V3.2 positions dictionaries")
     skipped=v32.get("skipped",{})
     skipped=skipped if isinstance(skipped,dict) else {}
-    boot=utc(v32.get("started_utc"))
+    boot=utc(v32.get("started_utc") or v32.get("created_utc"))
     missing=sorted(set(tracked)-set(positions))
     details=[]
     classifications=Counter()
     for mint in missing:
         item=tracked[mint] if isinstance(tracked[mint],dict) else {}
-        registered=utc(item.get("registered_utc"))
+        registered,source=signal_timestamp(item)
         reason=skipped.get(mint)
         if reason is not None:
             category="RECORDED_SKIP"
@@ -43,7 +58,11 @@ def explain(m1,v32):
         else:
             category="TIMESTAMP_OR_BOOTSTRAP_UNKNOWN"
         classifications[category]+=1
-        details.append({"mint":mint,"registered_utc":item.get("registered_utc"),
+        sig=item.get("signal")
+        details.append({"mint":mint,
+                        "signal_time_utc":registered.isoformat() if registered else None,
+                        "timestamp_source":source,
+                        "signal_structure":list(sig.keys()) if isinstance(sig,dict) else type(sig).__name__,
                         "category":category,"skip_reason":reason})
     post=classifications["UNEXPLAINED_POST_BOOTSTRAP"]
     unknown=classifications["TIMESTAMP_OR_BOOTSTRAP_UNKNOWN"]
@@ -52,7 +71,7 @@ def explain(m1,v32):
             classifications["RECORDED_SKIP"]==len(missing) else "WARN")
     return {"status":status,"tracked_m1":len(tracked),
             "positions_v32":len(positions),"missing_total":len(missing),
-            "v32_bootstrap_utc":v32.get("started_utc"),
+            "v32_bootstrap_utc":v32.get("started_utc") or v32.get("created_utc"),
             "classified":dict(classifications),"missing":details,
             "note":"Classification is based only on recorded timestamps and states; no missing quote is reconstructed."}
 
