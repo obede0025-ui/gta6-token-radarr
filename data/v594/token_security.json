@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-13T11:16:27+00:00",
+  "checked_utc": "2026-11-13T11:21:17+00:00",
   "mode": "READ_ONLY_MINT_AUTHORITY_SCREENING",
   "status": "OK",
   "all_live_trades_blocked": true,
@@ -116,31 +116,15 @@
         "UNKNOWN_PROGRAM_OWNER"
       ],
       "warnings": []
-    },
-    {
-      "mint": "DMnnTLTBBFmo3zzZuefdLKjQ1bwynbDyH4c3DbmCQa5a",
-      "sources": [
-        "open_paper_position"
-      ],
-      "program": "SPL_TOKEN",
-      "mint_authority": null,
-      "freeze_authority": null,
-      "extensions": [],
-      "security_gate": "BASIC_CHECKS_CLEAR",
-      "live_trade_approval": "BLOCK",
-      "reasons": [],
-      "warnings": [
-        "Not a safety certification: LP lock, holder concentration, and transferability unverified"
-      ]
     }
   ],
-  "checked_count": 8,
+  "checked_count": 7,
   "block_count": 7,
-  "basic_checks_clear_count": 1,
+  "basic_checks_clear_count": 0,
   "notes": [
     "No holder / LP lock / transferability / honeypot verification",
     "Token-2022 is blocked pending dedicated extension audit",
     "No wallet/private keys, no trades, no portfolio/database changes"
   ],
-  "candidate_mints_total": 8
+  "candidate_mints_total": 7
 }
