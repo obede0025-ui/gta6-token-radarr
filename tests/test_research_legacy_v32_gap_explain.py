@@ -25,6 +25,16 @@ class LegacyV32GapTests(unittest.TestCase):
         self.assertEqual(x["status"],"PASS")
         self.assertEqual(x["classified"]["PRE_V32_BOOTSTRAP"],1)
 
+    def test_real_legacy_created_utc_and_nested_signal(self):
+        x=explain({"tracked":{
+            "old":{"signal":{"scanned_at":"2026-11-09T16:00:00+00:00"}},
+            "new":{"signal":{"scanned_at":"2026-11-09T18:00:00+00:00"}},
+        }},{"created_utc":"2026-11-09T17:23:28+00:00",
+             "positions":{}})
+        self.assertEqual(x["v32_bootstrap_utc"],"2026-11-09T17:23:28+00:00")
+        self.assertEqual(x["classified"]["PRE_V32_BOOTSTRAP"],1)
+        self.assertEqual(x["classified"]["UNEXPLAINED_POST_BOOTSTRAP"],1)
+
     def test_missing_timestamp_needs_investigation(self):
         x=explain({"tracked":{"unknown":{}}},{"positions":{}})
         self.assertEqual(x["status"],"WARN")
