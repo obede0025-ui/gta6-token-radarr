@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-13T05:51:35+00:00",
+  "generated_utc": "2026-11-13T05:55:59+00:00",
   "last_processed": [
-    "2026-11-13T05:51:33+00:00",
+    "2026-11-13T05:55:57+00:00",
     "ttwocSxKgj4NpQEUzBaFzLxEFzVdLytUbLsnnjGew9v",
     "GCApLjm8aviTumEXSYPCVMGK6Rer9KG7gUN4L9YKP394"
   ],
   "run": {
-    "observations": 22,
+    "observations": 6,
     "opened": {
       "A": 0,
       "B": 0,
@@ -21,44 +21,37 @@
     "signals": 2,
     "signals_by_strategy": {
       "A": 0,
-      "B": 2,
-      "C": 0
+      "B": 1,
+      "C": 1
     },
     "rejected": {
-      "no_momentum_signal": 18,
-      "invalid_price": 2,
+      "no_momentum_signal": 4,
       "market_safety_filters": 2
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "te_weinig_opeenvolgende_metingen": 15,
-          "momentumvoorwaarden_niet_gehaald": 5,
-          "ongeldige_prijs": 2
+          "te_weinig_opeenvolgende_metingen": 1,
+          "momentumvoorwaarden_niet_gehaald": 5
         },
         "B": {
-          "te_weinig_opeenvolgende_metingen": 15,
-          "momentumvoorwaarden_niet_gehaald": 3,
-          "ongeldige_prijs": 2,
-          "signaal_geblokkeerd_paarleeftijd": 2
+          "te_weinig_opeenvolgende_metingen": 1,
+          "momentumvoorwaarden_niet_gehaald": 4,
+          "signaal_geblokkeerd_paarleeftijd": 1
         },
         "C": {
-          "te_weinig_opeenvolgende_metingen": 15,
-          "momentumvoorwaarden_niet_gehaald": 5,
-          "ongeldige_prijs": 2
+          "volume_5m_te_laag": 1,
+          "momentumvoorwaarden_niet_gehaald": 4,
+          "signaal_geblokkeerd_buys_sells": 1
         }
       },
       "spacing": {
-        "interval_te_lang": 14,
-        "interval_geldig": 5,
-        "geen_vorige_meting": 1
+        "interval_geldig": 6
       },
       "market_filters": {
-        "liquiditeit_te_laag_of_onbekend": 14,
-        "volume_5m_te_laag_of_onbekend": 15,
-        "buys_niet_hoger_dan_sells": 17,
-        "paarleeftijd_ongeldig": 13,
-        "microtransacties": 2
+        "volume_5m_te_laag_of_onbekend": 1,
+        "paarleeftijd_ongeldig": 4,
+        "buys_niet_hoger_dan_sells": 3
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
