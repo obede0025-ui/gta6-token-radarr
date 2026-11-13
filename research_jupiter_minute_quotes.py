@@ -140,7 +140,17 @@ def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
         if requests_used>=MAX_REQUESTS_PER_CYCLE:return None
         if requests_used:sleep_fn(REQUEST_SPACING_SECONDS)
         requests_used+=1
-        return get_quote(session,input_mint,output_mint,raw,key)
+        started=datetime.now(timezone.utc)
+        start_ns=time.perf_counter_ns()
+        result=get_quote(session,input_mint,output_mint,raw,key)
+        finished=datetime.now(timezone.utc)
+        # Record actual network-call timing separately from legacy cycle times.
+        # Includes HTTP response and JSON validation, never transaction landing.
+        result=dict(result)
+        result["request_started_utc"]=started.isoformat()
+        result["response_received_utc"]=finished.isoformat()
+        result["response_latency_ms"]=round((time.perf_counter_ns()-start_ns)/1e6,3)
+        return result
     # Finish a quote immediately when an entry was recorded. Existing
     # candidates first to avoid starving exit coverage.
     for ident,p in sorted(state["positions"].items()):
@@ -166,7 +176,10 @@ def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
         p["exit_quotes"].append({"quoted_utc":now.isoformat(),
             "status":q["status"],"estimated_usdc_out":round(usdc/1e6,6) if usdc is not None else None,
             "estimated_roundtrip_pct":round(pct,4) if pct is not None else None,
-            "router":q.get("router"),"http_status":q.get("http_status")})
+            "router":q.get("router"),"http_status":q.get("http_status"),
+            "request_started_utc":q.get("request_started_utc"),
+            "response_received_utc":q.get("response_received_utc"),
+            "response_latency_ms":q.get("response_latency_ms")})
     for ident,item in sorted(m1["candidates"].items(),key=lambda kv:kv[1].get("signal_utc","")):
         if ident in state["positions"] or ident in state["skipped"]:continue
         if not isinstance(item,dict) or item.get("research_only") is not True:continue
@@ -189,6 +202,9 @@ def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
         p={"mint":item["mint"],"pair":item.get("pair"),"signal_utc":item["signal_utc"],
            "m1_registered_utc":item["registered_utc"],
            "entry_quote_utc":now.isoformat(),"entry_token_raw":buy.get("out_raw"),
+           "entry_request_started_utc":buy.get("request_started_utc"),
+           "entry_response_received_utc":buy.get("response_received_utc"),
+           "entry_response_latency_ms":buy.get("response_latency_ms"),
            "entry_status":buy["status"],"entry_router":buy.get("router"),
            "entry_usdc_raw":STAKE_RAW,"exit_quotes":[],"research_only":True}
         state["positions"][ident]=p
@@ -203,7 +219,10 @@ def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
             p["exit_quotes"].append({"quoted_utc":now.isoformat(),
                "status":sell["status"],"estimated_usdc_out":round(usdc/1e6,6) if usdc is not None else None,
                "estimated_roundtrip_pct":round(pct,4) if pct is not None else None,
-               "router":sell.get("router"),"http_status":sell.get("http_status")})
+               "router":sell.get("router"),"http_status":sell.get("http_status"),
+               "request_started_utc":sell.get("request_started_utc"),
+               "response_received_utc":sell.get("response_received_utc"),
+               "response_latency_ms":sell.get("response_latency_ms")})
     state["last_checked_utc"]=now.isoformat()
     return {"requests_used":requests_used,"new_quote_candidates":new_entries,**summary(state)}
 
