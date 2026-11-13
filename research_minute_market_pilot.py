@@ -66,6 +66,75 @@ def source_candidates(conn, now, limit=MAX_TOKENS):
     """, (cutoff, history_cutoff, limit)).fetchall()
     return [(r[0],r[1],r[2]) for r in rows]
 
+def adaptive_candidate_preview(source, pilot, now, limit=MAX_TOKENS):
+    """READ-ONLY shadow selection, not yet used by the running collector.
+
+    Preserve a baseline of previously selected pairs while reserving room for
+    fresh market candidates. Penalize only pairs with repeatedly UNKNOWN
+    liquidity and no recent activity. UNKNOWN never becomes liquidity=0.
+    """
+    from collections import Counter
+    expanded=source_candidates(source, now, limit=max(150,limit*5))
+    if not expanded:
+        return {"legacy":[],"proposed":[],"diagnostics":{}}
+    legacy=expanded[:limit]
+    pairs={(mint,pair) for mint,pair,_ in expanded}
+    cutoff=(now-timedelta(hours=6)).isoformat(timespec="seconds")
+    stats={}
+    # Read-only pilot evidence, bounded to the last six hours.
+    rows=pilot.execute("""
+        SELECT mint,pair,status,volume_m5,observed_at
+        FROM minute_observations
+        WHERE observed_at>=?
+        ORDER BY observed_at DESC
+    """,(cutoff,)).fetchall()
+    for mint,pair,status,vol,stamp in rows:
+        k=(mint,pair)
+        if k not in pairs:continue
+        x=stats.setdefault(k,{"total":0,"unknown":0,"known":0,
+                              "last_volume":None,"last_status":None})
+        if x["total"]==0:
+            x["last_volume"]=vol
+            x["last_status"]=status
+        x["total"]+=1
+        x["unknown"]+=(status=="LIQUIDITY_UNKNOWN")
+        x["known"]+=(status=="QUOTE_MARKET_OBSERVED")
+    # Strong evidence of consistently missing liquidity + currently inactive.
+    # Do not penalize pairs with too few observations or recent activity.
+    def stagnant(row):
+        mint,pair,_=row
+        s=stats.get((mint,pair))
+        if not s or s["total"]<10:return False
+        vol=s["last_volume"]
+        return s["unknown"]>=10 and s["known"]==0 and (vol is None or vol<250)
+    # Preserve half of original shortlist to avoid starving live follow-ups.
+    reserve=min(len(legacy),(limit+1)//2)
+    kept=legacy[:reserve]
+    others=[r for r in expanded if r not in kept]
+    # Stable ordering: prefer previously ranked eligible candidates, but
+    # move only repeatedly unknown/inactive pairs behind other options.
+    ranked=sorted(enumerate(others),key=lambda x:(stagnant(x[1]),x[0]))
+    proposed=(kept+[row for _,row in ranked])[:limit]
+    return {"legacy":legacy,"proposed":proposed,
+            "diagnostics":{"candidate_pool":len(expanded),
+                           "baseline_reserved":reserve,
+                           "legacy_stagnant_unknown":sum(map(stagnant,legacy)),
+                           "proposed_stagnant_unknown":sum(map(stagnant,proposed)),
+                           "changed_slots":len(set((x[0],x[1]) for x in proposed)-
+                                               set((x[0],x[1]) for x in legacy)),
+                           "unobserved_proposed_pairs":sum((x[0],x[1]) not in stats for x in proposed),
+                           "shadow_only":True,
+                           "no_claim_of_improved_quote_coverage":True}}
+
+def selection_preview(original, pilot, now=None):
+    now=now or datetime.now(timezone.utc)
+    with sqlite3.connect(Path(original).resolve().as_uri()+"?mode=ro",uri=True) as source:
+        with sqlite3.connect(Path(pilot).resolve().as_uri()+"?mode=ro",uri=True) as history:
+            result=adaptive_candidate_preview(source,history,now)
+    result["legacy"]=[{"mint":m,"pair":p,"snapshot_utc":t} for m,p,t in result["legacy"]]
+    result["proposed"]=[{"mint":m,"pair":p,"snapshot_utc":t} for m,p,t in result["proposed"]]
+    return result
+
 def fetch(session, mints):
     if not mints:
         return []
@@ -174,7 +243,10 @@ def main():
     p.add_argument("--original",default=ORIGINAL)
     p.add_argument("--pilot",default=PILOT)
     p.add_argument("--report-only",action="store_true")
+    p.add_argument("--selection-preview",action="store_true",help="Read-only candidate comparison; does not change active selection")
     args=p.parse_args()
+    if args.selection_preview:
+        print(json.dumps(selection_preview(args.original,args.pilot),indent=2));return
     if args.report_only:
         with sqlite3.connect(Path(args.pilot).resolve().as_uri()+"?mode=ro",uri=True) as db:
             print(json.dumps(report(db)));return
