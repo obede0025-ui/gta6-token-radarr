@@ -47,11 +47,41 @@ def initialize(db):
         changed_pairs INTEGER, extra_requested INTEGER,
         error TEXT)""")
 
-def write_cycle(path, stamp, legacy, proposed, changed, extra, error=None):
+def cohort_rows(stamp, selected, found, cohort):
+    """Contemporaneous exact-pair cohort observations only."""
+    now=datetime.fromisoformat(stamp)
+    rows=[]
+    for mint,pair,_ in selected:
+        item=found.get(mint)
+        if not isinstance(item,dict) or item.get("pair")!=pair: item=None
+        price=item.get("price") if item else None
+        liq=item.get("liquidity") if item else None
+        vol=item.get("volume") if item else None
+        buys=item.get("buys") if item else None
+        sells=item.get("sells") if item else None
+        created=item.get("created_ms") if item else None
+        age=max(0,(now.timestamp()*1000-created)/3600000) if created else None
+        status=("MARKET_DATA_UNAVAILABLE" if price is None or price<=0 else
+                "LIQUIDITY_UNKNOWN" if liq is None else "QUOTE_MARKET_OBSERVED")
+        rows.append((stamp,cohort,mint,pair,status,price,liq,vol,buys,sells,age))
+    return rows
+
+def initialize_cohorts(db):
+    db.execute("""CREATE TABLE IF NOT EXISTS selection_cohort_samples (
+        observed_at TEXT NOT NULL, cohort TEXT NOT NULL, mint TEXT NOT NULL,
+        pair TEXT NOT NULL, status TEXT NOT NULL, price_usd REAL,
+        liquidity_usd REAL, volume_m5 REAL, buys_m5 REAL,
+        sells_m5 REAL, pair_age_hours REAL,
+        PRIMARY KEY(observed_at,cohort,mint,pair))""")
+    db.execute("""CREATE INDEX IF NOT EXISTS idx_selection_cohort_pair
+                  ON selection_cohort_samples(cohort,mint,pair,observed_at)""")
+
+def write_cycle(path, stamp, legacy, proposed, changed, extra, error=None, samples=None):
     target=Path(path)
     target.parent.mkdir(parents=True,exist_ok=True)
     with sqlite3.connect(target) as db:
         initialize(db)
+        initialize_cohorts(db)
         db.execute("""INSERT OR IGNORE INTO comparison_cycles VALUES
           (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(
             stamp,
@@ -66,6 +96,8 @@ def write_cycle(path, stamp, legacy, proposed, changed, extra, error=None):
             legacy["missing_exact_pairs"] if legacy else None,
             proposed["missing_exact_pairs"] if proposed else None,
             changed,extra, error[:300] if error else None))
+        if error is None and samples:
+            db.executemany("INSERT OR IGNORE INTO selection_cohort_samples VALUES(?,?,?,?,?,?,?,?,?,?,?)",samples)
     return {"logged_utc":stamp,"status":"ERROR" if error else "RECORDED",
             "changed_pairs":changed,"extra_requested":extra,
             "legacy":legacy,"proposed":proposed,
@@ -91,7 +123,9 @@ def compare_cycle(source,pilot,session,now,legacy,legacy_found,path=COMPARISON):
         combined.update(extra_found)
         old=metrics(legacy,legacy_found)
         new=metrics(proposed,combined)
-        return write_cycle(path,stamp,old,new,len(added),len(added))
+        samples=cohort_rows(stamp,legacy,legacy_found,"legacy")
+        samples+=cohort_rows(stamp,proposed,combined,"proposed")
+        return write_cycle(path,stamp,old,new,len(added),len(added),samples=samples)
     except Exception as exc:
         # Optional shadow failure must not interrupt primary 60s market writer.
         return write_cycle(path,stamp,None,None,0,0,
