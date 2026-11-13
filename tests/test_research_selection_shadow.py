@@ -49,6 +49,9 @@ class SelectionShadowTests(unittest.TestCase):
                 r=report(out,24,now)
                 self.assertEqual(r["cycles_successful"],1)
                 self.assertEqual(r["base_filter_without_age_or_momentum"]["diff"],1)
+                with sqlite3.connect(out) as comparison:
+                    counts=dict(comparison.execute("SELECT cohort,COUNT(*) FROM selection_cohort_samples GROUP BY cohort").fetchall())
+                self.assertEqual(counts,{"legacy":2,"proposed":2})
                 with patch("research_selection_shadow.fetch",side_effect=ValueError("API unavailable")):
                     later=datetime(2026,11,13,17,1,tzinfo=timezone.utc)
                     with patch("research_selection_shadow.adaptive_candidate_preview",
