@@ -37,4 +37,19 @@ class HorizonQuoteTests(unittest.TestCase):
             advance(state,m1,None,BASE+timedelta(seconds=1021),sleep_fn=lambda _:None)
             getter.assert_not_called()
 
+
+    def test_quote_request_timing_is_recorded(self):
+        m1={"mode":"M1_MINUTE_RESEARCH_ONLY","candidates":{}}
+        state=initialize(BASE,m1)
+        state["positions"]["x"]={
+            "mint":"exampleMint","signal_utc":at(-60),"entry_quote_utc":at(0),
+            "entry_token_raw":1000000,"exit_quotes":[]}
+        with patch("research_jupiter_minute_quotes.get_quote",return_value={
+            "status":"QUOTE_AVAILABLE","out_raw":24500000}):
+            advance(state,m1,None,BASE+timedelta(seconds=60),sleep_fn=lambda _:None)
+        q=state["positions"]["x"]["exit_quotes"][0]
+        self.assertIsNotNone(q.get("request_started_utc"))
+        self.assertIsNotNone(q.get("response_received_utc"))
+        self.assertGreaterEqual(q.get("response_latency_ms"),0)
+
 if __name__=="__main__":unittest.main()
