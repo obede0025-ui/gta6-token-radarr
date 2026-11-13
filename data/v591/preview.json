@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-13T02:31:30+00:00",
+  "generated_utc": "2026-11-13T02:36:28+00:00",
   "last_processed": [
-    "2026-11-13T02:31:28+00:00",
+    "2026-11-13T02:36:27+00:00",
     "ttwocSxKgj4NpQEUzBaFzLxEFzVdLytUbLsnnjGew9v",
     "GCApLjm8aviTumEXSYPCVMGK6Rer9KG7gUN4L9YKP394"
   ],
   "run": {
-    "observations": 30,
+    "observations": 43,
     "opened": {
       "A": 0,
       "B": 0,
@@ -16,46 +16,46 @@
     "closed": {
       "A": 0,
       "B": 0,
-      "C": 0
+      "C": 1
     },
-    "signals": 1,
+    "signals": 2,
     "signals_by_strategy": {
       "A": 0,
-      "B": 1,
+      "B": 2,
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 29,
-      "max_positions": 1
+      "no_momentum_signal": 41,
+      "market_safety_filters": 2
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "te_weinig_opeenvolgende_metingen": 22,
+          "te_weinig_opeenvolgende_metingen": 36,
           "volume_5m_te_laag": 3,
-          "momentumvoorwaarden_niet_gehaald": 5
+          "momentumvoorwaarden_niet_gehaald": 4
         },
         "B": {
-          "te_weinig_opeenvolgende_metingen": 22,
+          "te_weinig_opeenvolgende_metingen": 36,
           "volume_5m_te_laag": 3,
-          "momentumvoorwaarden_niet_gehaald": 4,
-          "maximum_open_posities": 1
+          "momentumvoorwaarden_niet_gehaald": 2,
+          "signaal_geblokkeerd_buys_sells": 2
         },
         "C": {
-          "te_weinig_opeenvolgende_metingen": 21,
+          "te_weinig_opeenvolgende_metingen": 35,
           "volume_5m_te_laag": 4,
-          "momentumvoorwaarden_niet_gehaald": 5
+          "momentumvoorwaarden_niet_gehaald": 4
         }
       },
       "spacing": {
-        "interval_te_lang": 21,
-        "interval_geldig": 9
+        "interval_te_lang": 35,
+        "interval_geldig": 8
       },
       "market_filters": {
-        "liquiditeit_te_laag_of_onbekend": 23,
-        "volume_5m_te_laag_of_onbekend": 25,
-        "buys_niet_hoger_dan_sells": 27,
-        "paarleeftijd_ongeldig": 5
+        "liquiditeit_te_laag_of_onbekend": 28,
+        "volume_5m_te_laag_of_onbekend": 39,
+        "paarleeftijd_ongeldig": 28,
+        "buys_niet_hoger_dan_sells": 39
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
@@ -72,9 +72,9 @@
       "realized_pnl_usd": -20.2986
     },
     "C": {
-      "open": 3,
-      "closed": 20,
-      "realized_pnl_usd": -19.1443
+      "open": 2,
+      "closed": 21,
+      "realized_pnl_usd": -13.182
     }
   },
   "warning": "Gesimuleerde resultaten; geen echte orders, geen gegarandeerde 15-secondenmonitor en geen bevestiging van verkoopbaarheid. A/B/C gescheiden van Streamlit en Supabase."
