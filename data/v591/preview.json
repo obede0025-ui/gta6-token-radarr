@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-13T07:02:02+00:00",
+  "generated_utc": "2026-11-13T07:06:28+00:00",
   "last_processed": [
-    "2026-11-13T07:02:00+00:00",
+    "2026-11-13T07:06:26+00:00",
     "ttwocSxKgj4NpQEUzBaFzLxEFzVdLytUbLsnnjGew9v",
     "GCApLjm8aviTumEXSYPCVMGK6Rer9KG7gUN4L9YKP394"
   ],
   "run": {
-    "observations": 11,
+    "observations": 7,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,35 +25,31 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 11
+      "no_momentum_signal": 7
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "momentumvoorwaarden_niet_gehaald": 5,
-          "volume_5m_te_laag": 2,
-          "te_weinig_opeenvolgende_metingen": 4
+          "volume_5m_te_laag": 3,
+          "momentumvoorwaarden_niet_gehaald": 4
         },
         "B": {
-          "momentumvoorwaarden_niet_gehaald": 5,
-          "volume_5m_te_laag": 2,
-          "te_weinig_opeenvolgende_metingen": 4
+          "volume_5m_te_laag": 3,
+          "momentumvoorwaarden_niet_gehaald": 4
         },
         "C": {
-          "momentumvoorwaarden_niet_gehaald": 5,
-          "volume_5m_te_laag": 2,
-          "te_weinig_opeenvolgende_metingen": 4
+          "volume_5m_te_laag": 3,
+          "momentumvoorwaarden_niet_gehaald": 4
         }
       },
       "spacing": {
-        "interval_geldig": 7,
-        "interval_te_lang": 4
+        "interval_geldig": 7
       },
       "market_filters": {
-        "paarleeftijd_ongeldig": 6,
-        "liquiditeit_te_laag_of_onbekend": 4,
-        "volume_5m_te_laag_of_onbekend": 6,
-        "buys_niet_hoger_dan_sells": 9,
+        "volume_5m_te_laag_of_onbekend": 3,
+        "paarleeftijd_ongeldig": 4,
+        "buys_niet_hoger_dan_sells": 4,
+        "liquiditeit_te_laag_of_onbekend": 1,
         "microtransacties": 1
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
