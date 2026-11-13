@@ -147,8 +147,16 @@ def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
         if requests_used>=MAX_REQUESTS_PER_CYCLE:break
         if p.get("entry_token_raw") is None:continue
         age=(now-dt(p["entry_quote_utc"])).total_seconds()
-        if age<0 or age>HORIZON_SECONDS:continue
+        # Permit a single post-horizon observation in a bounded 2-minute
+        # grace period. This is a delayed quote, never a fill at 900s.
+        if age<0 or age>HORIZON_SECONDS+120:continue
         last=p.get("exit_quotes") or []
+        if age>=HORIZON_SECONDS and any(
+            dt(q.get("quoted_utc")) is not None and
+            (dt(q["quoted_utc"])-dt(p["entry_quote_utc"])).total_seconds()>=HORIZON_SECONDS
+            for q in last if isinstance(q,dict)
+        ):
+            continue
         if last and dt(last[-1]["quoted_utc"]) is not None and (now-dt(last[-1]["quoted_utc"])).total_seconds()<50:
             continue
         q=quote(p["mint"],USDC,p["entry_token_raw"])
