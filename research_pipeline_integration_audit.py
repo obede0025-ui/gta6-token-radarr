@@ -10,6 +10,7 @@ import subprocess
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+from research_legacy_v32_gap_explain import explain as explain_v32
 
 ROOT = Path("/home/ubuntu")
 PROD = ROOT / "gta6-v63-test"
@@ -133,8 +134,10 @@ def run(now=None, root=ROOT):
     if m1 and v32:
         tracked = set(m1.get("tracked",{}))
         quoted = set(v32.get("positions",{}))
-        add(checks, "m1_to_v32", "PASS" if tracked <= quoted else "WARN",
-            f"tracked_m1={len(tracked)}, represented_in_v32={len(tracked & quoted)}, missing={len(tracked-quoted)}; may be expected after bootstrapping")
+        explanation=explain_v32(m1,v32)
+        add(checks, "m1_to_v32", explanation["status"],
+            "tracked_m1="+str(len(tracked))+", represented_in_v32="+str(len(tracked & quoted))+
+            ", missing="+str(len(tracked-quoted))+", classified="+str(explanation["classified"]))
     if m1 and data.get("pipeline") and data.get("volume"):
         threshold = stamp(data["pipeline"].get("started_utc"))
         newer = [mint for mint,item in m1.get("tracked",{}).items()
