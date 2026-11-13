@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-13T07:06:28+00:00",
+  "generated_utc": "2026-11-13T07:11:35+00:00",
   "last_processed": [
-    "2026-11-13T07:06:26+00:00",
+    "2026-11-13T07:11:33+00:00",
     "ttwocSxKgj4NpQEUzBaFzLxEFzVdLytUbLsnnjGew9v",
     "GCApLjm8aviTumEXSYPCVMGK6Rer9KG7gUN4L9YKP394"
   ],
   "run": {
-    "observations": 7,
+    "observations": 28,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,31 +25,35 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 7
+      "no_momentum_signal": 28
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "volume_5m_te_laag": 3,
-          "momentumvoorwaarden_niet_gehaald": 4
+          "momentumvoorwaarden_niet_gehaald": 6,
+          "te_weinig_opeenvolgende_metingen": 21,
+          "volume_5m_te_laag": 1
         },
         "B": {
-          "volume_5m_te_laag": 3,
-          "momentumvoorwaarden_niet_gehaald": 4
+          "momentumvoorwaarden_niet_gehaald": 6,
+          "te_weinig_opeenvolgende_metingen": 21,
+          "volume_5m_te_laag": 1
         },
         "C": {
-          "volume_5m_te_laag": 3,
-          "momentumvoorwaarden_niet_gehaald": 4
+          "momentumvoorwaarden_niet_gehaald": 6,
+          "te_weinig_opeenvolgende_metingen": 20,
+          "volume_5m_te_laag": 2
         }
       },
       "spacing": {
-        "interval_geldig": 7
+        "interval_geldig": 8,
+        "interval_te_lang": 20
       },
       "market_filters": {
-        "volume_5m_te_laag_of_onbekend": 3,
-        "paarleeftijd_ongeldig": 4,
-        "buys_niet_hoger_dan_sells": 4,
-        "liquiditeit_te_laag_of_onbekend": 1,
+        "paarleeftijd_ongeldig": 14,
+        "buys_niet_hoger_dan_sells": 23,
+        "volume_5m_te_laag_of_onbekend": 22,
+        "liquiditeit_te_laag_of_onbekend": 16,
         "microtransacties": 1
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
