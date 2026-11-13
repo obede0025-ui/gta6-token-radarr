@@ -42,4 +42,27 @@ class TestEvaluation(unittest.TestCase):
     def test_report_rejects_wrong_state(self):
         with self.assertRaises(ValueError):report({"mode":"original","positions":{}})
 
+
+    def test_research_checks_gates_and_cost_stress(self):
+        state={"mode":"JUPITER_MINUTE_QUOTE_ONLY","positions":{
+            "good":pos([quote(1,-2.86),quote(321,11.04)]),
+            "bad":pos([quote(1,-6.94),quote(950,-4.86)])
+        }}
+        r=report(state)["research_checks"]
+        self.assertEqual(r["without_roundtrip_gate"]["candidates"],2)
+        self.assertEqual(r["with_roundtrip_gate"]["candidates"],1)
+        self.assertEqual(r["roundtrip_blocked_diagnostic_only"]["candidates"],1)
+        self.assertEqual(r["with_roundtrip_gate"]["mean_observed_stress_pct"],9.04)
+        self.assertEqual(r["cost_stress_pp"][1]["mean_observed_quote_pct"],9.04)
+        self.assertEqual(r["verdict"],"INSUFFICIENT_SAMPLE")
+
+    def test_research_checks_do_not_fill_censored(self):
+        state={"mode":"JUPITER_MINUTE_QUOTE_ONLY","positions":{
+            "censored":pos([quote(1,-1.0),quote(850,2.0)])
+        }}
+        r=report(state)["research_checks"]
+        self.assertEqual(r["with_roundtrip_gate"]["observable_exits"],0)
+        self.assertEqual(r["with_roundtrip_gate"]["unobserved_exits"],1)
+        self.assertIsNone(r["with_roundtrip_gate"]["mean_observed_stress_pct"])
+
 if __name__=="__main__":unittest.main()
