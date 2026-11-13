@@ -18,6 +18,7 @@ from research_pipeline_integration_audit import run as integration_run
 from research_pipeline_quality_audit import audit as quality_audit
 from research_jupiter_minute_evaluation import report as quote_report
 from research_selection_shadow import report as selection_report
+from research_legacy_v32_gap_explain import explain as legacy_gap_explain
 
 ROOT=Path("/home/ubuntu")
 PILOT=ROOT/"gta6-v32-gate-pilot"
@@ -33,6 +34,7 @@ TEST_PATTERNS=[
     "test_research_jupiter_horizon_quote.py",
     "test_research_jupiter_minute_evaluation.py",
     "test_research_one_shot_system_test.py",
+    "test_research_legacy_v32_gap_explain.py",
 ]
 ORDER={"PASS":0,"INFO":0,"WAITING":1,"WARN":2,"FAIL":3}
 
@@ -140,6 +142,17 @@ def evaluate(root=ROOT,now=None,with_tests=True,python=sys.executable):
         check(checks,"integration_audit","FAIL",type(exc).__name__+": "+str(exc)[:160])
 
     try:
+        legacy=legacy_gap_explain(
+            read_json(root/"gta6-v63-test/m1_v3_state.json"),
+            read_json(root/"gta6-v63-test/m1_v3_2_state.json"))
+        metrics["legacy_v32_gap_explanation"]=legacy
+        check(checks,"legacy_v32_missing_explained",legacy["status"],
+              "missing="+str(legacy["missing_total"])+
+              ", classified="+json.dumps(legacy["classified"],sort_keys=True))
+    except Exception as exc:
+        check(checks,"legacy_v32_gap_diagnostic","WARN",
+              type(exc).__name__+": "+str(exc)[:160])
+    try:
         b3=read_json(pilot/"b3_minute_safety_shadow_state.json")
         m1=read_json(pilot/"m1_minute_research_state.json")
         jupiter=read_json(pilot/"jupiter_minute_quotes_state.json")
@@ -246,6 +259,11 @@ def readable(result):
                       "Known-liquidity delta: "+str(ab.get("known_liquidity",{}).get("diff")),
                       "Volume>=250 delta: "+str(ab.get("volume_ge_250",{}).get("diff")),
                       "Base-pass delta: "+str(ab.get("base_filter_without_age_or_momentum",{}).get("diff"))])
+    gap=result["metrics"].get("legacy_v32_gap_explanation",{})
+    if gap:
+        lines.extend(["","=== LEGACY V3.2 COVERAGE ===",
+                      "Missing: "+str(gap["missing_total"])+
+                      " | Categories: "+json.dumps(gap["classified"],sort_keys=True)])
     quotes=result["metrics"].get("quote_evaluation_summary",{})
     if quotes:
         lines.extend(["","=== JUPITER RESEARCH ===",
