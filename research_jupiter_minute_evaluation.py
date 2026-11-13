@@ -116,6 +116,24 @@ def _research_checks(entries):
         ]
     }
 
+def timing(position):
+    """Measured HTTP timing when available; legacy cycle timestamps stay separate."""
+    signal=dt(position.get("signal_utc"))
+    entry_start=dt(position.get("entry_request_started_utc"))
+    entry_done=dt(position.get("entry_response_received_utc"))
+    first=next((q for q in position.get("exit_quotes",[])
+                if isinstance(q,dict) and dt(q.get("response_received_utc"))),None)
+    exit_done=dt(first.get("response_received_utc")) if first else None
+    return {
+        "signal_to_entry_response_seconds":
+            round((entry_done-signal).total_seconds(),3) if signal and entry_done else None,
+        "entry_http_latency_ms":finite(position.get("entry_response_latency_ms")),
+        "entry_to_first_exit_response_seconds":
+            round((exit_done-entry_done).total_seconds(),3) if entry_done and exit_done else None,
+        "first_exit_http_latency_ms":
+            finite(first.get("response_latency_ms")) if first else None
+    }
+
 def report(state):
     if state.get("mode")!="JUPITER_MINUTE_QUOTE_ONLY" or not isinstance(state.get("positions"),dict):
         raise ValueError("Unexpected quote state")
@@ -123,7 +141,8 @@ def report(state):
     for key,p in sorted(state["positions"].items()):
         if not isinstance(p,dict):continue
         entries.append({"mint":p.get("mint"),"signal_utc":p.get("signal_utc"),
-                        "entry_quote_utc":p.get("entry_quote_utc"),**evaluate(p)})
+                        "entry_quote_utc":p.get("entry_quote_utc"),**evaluate(p),
+                        "measured_timing":timing(p)})
     completed=[e for e in entries if e["stress_quote_pct"] is not None]
     passing=[e for e in entries if e["gate"]=="PASS_ROUNDTRIP_AT_MOST_3_PERCENT"]
     return {"mode":"READ_ONLY_MINUTE_JUPITER_QUOTE_EVALUATION",
@@ -135,6 +154,8 @@ def report(state):
                        "outcome_counts":dict(Counter(e["outcome"] for e in entries)),
                        "gate_passing":len(passing),
                        "observable_exits":len(completed),
+                       "measured_entry_latency_samples":sum(
+                           e["measured_timing"]["entry_http_latency_ms"] is not None for e in entries),
                        "mean_stress_quote_pct_observable_only":
                           round(sum(e["stress_quote_pct"] for e in completed)/len(completed),4) if completed else None},
             "items":entries,
@@ -146,6 +167,8 @@ def report(state):
                 "A delayed quote after 900 seconds does not prove 15-minute execution.",
                 "2 percentage points is an assumed stress buffer, not measured costs.",
                 "Quote router may differ from the exact Dexscreener pair.",
+                "Legacy quote timestamps are cycle times; measured HTTP timestamps exist only for future observations.",
+                "HTTP latency is not execution latency or Solana transaction confirmation.",
                 "Only observational positions are included; sample is not proof of profitability.",
                 "Read-only evaluation; does not authorize live trades."
             ]}
