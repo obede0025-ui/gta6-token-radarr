@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7193,
+  "observations": 7192,
   "unique_pairs": 414,
-  "window_start_utc": "2026-11-12T18:36:27+00:00",
-  "window_end_utc": "2026-11-13T18:36:27+00:00",
+  "window_start_utc": "2026-11-12T18:42:02+00:00",
+  "window_end_utc": "2026-11-13T18:42:02+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 6779,
-    "gaps_over_20_min": 3349,
-    "gap_rate_pct": 49.4,
-    "gaps_with_observed_rise_over_20pct": 18
+    "intervals": 6778,
+    "gaps_over_20_min": 3347,
+    "gap_rate_pct": 49.38,
+    "gaps_with_observed_rise_over_20pct": 17
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 6779,
-    "gaps_over_20_min": 3349,
-    "gap_rate_pct": 49.4,
-    "gaps_with_observed_rise_over_20pct": 18
+    "intervals": 6778,
+    "gaps_over_20_min": 3347,
+    "gap_rate_pct": 49.38,
+    "gaps_with_observed_rise_over_20pct": 17
   },
   "top_potential_blind_spots": [
     {
@@ -219,18 +219,6 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "Dgxc5emcFgBs4aDp2DbUB9Sj7FXye6mjfLFxSQZmpump",
-      "pair": "Gw8hV4oDGeCobUgLScXh9ncLkoLC9xRL8mYqmVuqKYXp",
-      "name": "Lucia Caminos",
-      "from_utc": "2026-11-12T18:41:13+00:00",
-      "to_utc": "2026-11-12T19:41:29+00:00",
-      "gap_minutes": 60.27,
-      "observed_price_change_pct": 22.14,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
       "token": "GmrDgvX7rjAJzqcAuP1cSd3RXeeF1Pcw2nnVubgiC5oy",
       "pair": "3FmyGrJPLDVgDVwRVenuaq1xBwkZauP5TSskHRz72wSS",
       "name": "Vice City",
@@ -243,7 +231,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 18,
+  "blind_spot_count": 17,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
