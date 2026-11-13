@@ -100,6 +100,15 @@ def compare_cycle(source,pilot,session,now,legacy,legacy_found,path=COMPARISON):
 def report(path=COMPARISON,hours=24,now=None):
     now=now or datetime.now(timezone.utc)
     cutoff=(now-timedelta(hours=hours)).isoformat(timespec="seconds")
+    # Before the first upgraded timer run, the comparison database does not
+    # exist. Report an explicit waiting state instead of raising SQLite error.
+    if not Path(path).is_file():
+        return {"mode":"READ_ONLY_SELECTION_AB_COMPARISON",
+                "window_hours":hours,"cycles_recorded":0,
+                "cycles_successful":0,"cycles_failed":0,
+                "first_cycle_utc":None,"last_cycle_utc":None,
+                "decision":"WAITING_FOR_FIRST_CYCLE",
+                "note":"No comparison SQLite yet. Confirm git pull and new selection_shadow field in minute market service journal."}
     with sqlite3.connect(Path(path).resolve().as_uri()+"?mode=ro",uri=True) as db:
         rows=db.execute("""SELECT observed_at,legacy_known,proposed_known,
                           legacy_volume,proposed_volume,legacy_base,proposed_base,
