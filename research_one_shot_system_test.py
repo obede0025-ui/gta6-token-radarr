@@ -32,6 +32,7 @@ TEST_PATTERNS=[
     "test_research_pipeline_quality_audit.py",
     "test_research_jupiter_horizon_quote.py",
     "test_research_jupiter_minute_evaluation.py",
+    "test_research_one_shot_system_test.py",
 ]
 ORDER={"PASS":0,"INFO":0,"WAITING":1,"WARN":2,"FAIL":3}
 
