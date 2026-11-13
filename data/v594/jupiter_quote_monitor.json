@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-13T12:31:42+00:00",
+  "checked_utc": "2026-11-13T12:36:08+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "PARTIAL",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 97028599641,
+        "output_raw": 97028598986,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,16 +21,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 97028599641,
-        "output_raw": 201,
-        "router": "metis",
+        "input_raw": 97028598986,
+        "output_raw": 202,
+        "router": "dflow",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000201",
+      "roundtrip_usdc": "0.000202",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 1358420978,
+        "output_raw": 1358420963,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,16 +64,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 1358420978,
-        "output_raw": 332,
-        "router": "metis",
+        "input_raw": 1358420963,
+        "output_raw": 333,
+        "router": "dflow",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000332",
+      "roundtrip_usdc": "0.000333",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -132,7 +132,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 16432365759123,
+        "output_raw": 16432744359731,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
