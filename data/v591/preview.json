@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-13T08:11:23+00:00",
+  "generated_utc": "2026-11-13T08:16:38+00:00",
   "last_processed": [
-    "2026-11-13T08:11:21+00:00",
+    "2026-11-13T08:16:36+00:00",
     "ttwocSxKgj4NpQEUzBaFzLxEFzVdLytUbLsnnjGew9v",
     "GCApLjm8aviTumEXSYPCVMGK6Rer9KG7gUN4L9YKP394"
   ],
   "run": {
-    "observations": 8,
+    "observations": 20,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,35 +25,36 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 8
+      "no_momentum_signal": 20
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "volume_5m_te_laag": 2,
+          "te_weinig_opeenvolgende_metingen": 15,
           "momentumvoorwaarden_niet_gehaald": 4,
-          "te_weinig_opeenvolgende_metingen": 2
+          "volume_5m_te_laag": 1
         },
         "B": {
-          "volume_5m_te_laag": 2,
+          "te_weinig_opeenvolgende_metingen": 15,
           "momentumvoorwaarden_niet_gehaald": 4,
-          "te_weinig_opeenvolgende_metingen": 2
+          "volume_5m_te_laag": 1
         },
         "C": {
-          "volume_5m_te_laag": 3,
+          "te_weinig_opeenvolgende_metingen": 15,
           "momentumvoorwaarden_niet_gehaald": 4,
-          "te_weinig_opeenvolgende_metingen": 1
+          "volume_5m_te_laag": 1
         }
       },
       "spacing": {
-        "interval_geldig": 7,
-        "interval_te_lang": 1
+        "interval_te_lang": 15,
+        "interval_geldig": 5
       },
       "market_filters": {
-        "volume_5m_te_laag_of_onbekend": 4,
-        "paarleeftijd_ongeldig": 5,
-        "buys_niet_hoger_dan_sells": 6,
-        "liquiditeit_te_laag_of_onbekend": 2
+        "volume_5m_te_laag_of_onbekend": 16,
+        "paarleeftijd_ongeldig": 9,
+        "buys_niet_hoger_dan_sells": 18,
+        "liquiditeit_te_laag_of_onbekend": 13,
+        "microtransacties": 1
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
