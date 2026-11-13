@@ -75,6 +75,47 @@ def evaluate(position):
             "gross_quote_pct":round(gross,4) if gross is not None else None,
             "stress_quote_pct":round(gross-EXTRA_COST_PP,4) if gross is not None else None}
 
+
+def _cohort_stats(items):
+    observed=[e["stress_quote_pct"] for e in items if e["stress_quote_pct"] is not None]
+    observed.sort(reverse=True)
+    return {
+        "candidates":len(items),
+        "observable_exits":len(observed),
+        "unobserved_exits":len(items)-len(observed),
+        "mean_observed_stress_pct":round(sum(observed)/len(observed),4) if observed else None,
+        "mean_without_best_1":round(sum(observed[1:])/len(observed[1:]),4) if len(observed)>1 else None,
+        "mean_without_best_3":round(sum(observed[3:])/len(observed[3:]),4) if len(observed)>3 else None,
+        "note":"Observed exits only; missing/censored outcomes are not counted as winners, losers or zero."
+    }
+
+def _research_checks(entries):
+    """Descriptive sensitivity checks, not causal inference or fill simulation."""
+    passing=[e for e in entries if e["gate"]=="PASS_ROUNDTRIP_AT_MOST_3_PERCENT"]
+    blocked=[e for e in entries if e["gate"]=="BLOCKED_ROUNDTRIP_OVER_3_PERCENT"]
+    unknown=[e for e in entries if e["gate"].startswith("UNKNOWN")]
+    return {
+        "without_roundtrip_gate":_cohort_stats(entries),
+        "with_roundtrip_gate":_cohort_stats(passing),
+        "roundtrip_blocked_diagnostic_only":_cohort_stats(blocked),
+        "roundtrip_unknown_diagnostic_only":_cohort_stats(unknown),
+        "cost_stress_pp":[
+            {"additional_cost_pp":cost,
+             "mean_observed_quote_pct":round(sum(e["gross_quote_pct"]-cost for e in passing
+                                         if e["gross_quote_pct"] is not None)/
+                                         sum(1 for e in passing if e["gross_quote_pct"] is not None),4)
+                                         if any(e["gross_quote_pct"] is not None for e in passing) else None}
+            for cost in (0,2,4,6,8)
+        ],
+        "verdict":"INSUFFICIENT_SAMPLE" if len(entries)<30 else "DESCRIPTIVE_ONLY_NOT_VALIDATED",
+        "notes":[
+            "Compare the same observed candidates with and without the initial 3% quote gate.",
+            "Removing best results tests fragility; it does not correct selection bias.",
+            "No signal-to-execution latency or actual fills are measured here.",
+            "A historical comparison can overfit. Freeze parameters before a new holdout."
+        ]
+    }
+
 def report(state):
     if state.get("mode")!="JUPITER_MINUTE_QUOTE_ONLY" or not isinstance(state.get("positions"),dict):
         raise ValueError("Unexpected quote state")
@@ -97,6 +138,7 @@ def report(state):
                        "mean_stress_quote_pct_observable_only":
                           round(sum(e["stress_quote_pct"] for e in completed)/len(completed),4) if completed else None},
             "items":entries,
+            "research_checks":_research_checks(entries),
             "limitations":[
                 "TP/SL refer to first observed quotes, not filled trades.",
                 "Immediate gate is indicative and uses first reverse quote within 60 seconds.",
