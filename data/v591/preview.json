@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-13T03:16:08+00:00",
+  "generated_utc": "2026-11-13T03:21:19+00:00",
   "last_processed": [
-    "2026-11-13T03:16:06+00:00",
-    "ttwocSxKgj4NpQEUzBaFzLxEFzVdLytUbLsnnjGew9v",
-    "GCApLjm8aviTumEXSYPCVMGK6Rer9KG7gUN4L9YKP394"
+    "2026-11-13T03:21:16+00:00",
+    "ymVku5eeBWFu2KTkTQCRykgqMWW2rSeNh7GKjmopump",
+    "8UiqWrQjV1oVXjCHV8erh73EdA86YqzhXEU1pipYSaiC"
   ],
   "run": {
-    "observations": 10,
+    "observations": 26,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,30 +25,35 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 10
+      "no_momentum_signal": 26
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "volume_5m_te_laag": 5,
+          "te_weinig_opeenvolgende_metingen": 18,
+          "volume_5m_te_laag": 3,
           "momentumvoorwaarden_niet_gehaald": 5
         },
         "B": {
-          "volume_5m_te_laag": 5,
+          "te_weinig_opeenvolgende_metingen": 18,
+          "volume_5m_te_laag": 3,
           "momentumvoorwaarden_niet_gehaald": 5
         },
         "C": {
-          "volume_5m_te_laag": 5,
+          "te_weinig_opeenvolgende_metingen": 18,
+          "volume_5m_te_laag": 3,
           "momentumvoorwaarden_niet_gehaald": 5
         }
       },
       "spacing": {
-        "interval_geldig": 10
+        "interval_te_lang": 17,
+        "interval_geldig": 8,
+        "geen_vorige_meting": 1
       },
       "market_filters": {
-        "volume_5m_te_laag_of_onbekend": 5,
-        "liquiditeit_te_laag_of_onbekend": 4,
-        "buys_niet_hoger_dan_sells": 6,
+        "liquiditeit_te_laag_of_onbekend": 19,
+        "volume_5m_te_laag_of_onbekend": 20,
+        "buys_niet_hoger_dan_sells": 21,
         "paarleeftijd_ongeldig": 3,
         "microtransacties": 1
       },
