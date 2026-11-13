@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7011,
-  "unique_pairs": 413,
-  "window_start_utc": "2026-11-12T15:11:27+00:00",
-  "window_end_utc": "2026-11-13T15:11:27+00:00",
+  "observations": 6998,
+  "unique_pairs": 416,
+  "window_start_utc": "2026-11-12T15:16:45+00:00",
+  "window_end_utc": "2026-11-13T15:16:45+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 6598,
-    "gaps_over_20_min": 3256,
-    "gap_rate_pct": 49.35,
+    "intervals": 6582,
+    "gaps_over_20_min": 3242,
+    "gap_rate_pct": 49.26,
     "gaps_with_observed_rise_over_20pct": 14
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 6598,
-    "gaps_over_20_min": 3256,
-    "gap_rate_pct": 49.35,
+    "intervals": 6582,
+    "gaps_over_20_min": 3242,
+    "gap_rate_pct": 49.26,
     "gaps_with_observed_rise_over_20pct": 14
   },
   "top_potential_blind_spots": [
@@ -123,15 +123,15 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "wKy6tEDZj6jS1GUMmnSSTrR1bXJQa35s7VHcWHxhNbA",
-      "pair": "i6Gkgadg8Je9QXwRiqjmiEU1ctpYY7dyf2RzTAFkkjZ",
-      "name": "Jason Duval",
-      "from_utc": "2026-11-12T15:16:23+00:00",
-      "to_utc": "2026-11-12T16:21:18+00:00",
-      "gap_minutes": 64.92,
-      "observed_price_change_pct": 24.47,
-      "volume_m5_at_return": 209.18,
-      "liquidity_usd_at_return": 38596.18,
+      "token": "2hwaRQs4WqThnp26XLpch5MBZhAHqses3vSv1Bkupump",
+      "pair": "6DLCbW5m5AskjJTJrgR4Vz5sxAyD63eAJEEvDhcpFGrQ",
+      "name": "Grand Theft Auto VI",
+      "from_utc": "2026-11-13T14:11:40+00:00",
+      "to_utc": "2026-11-13T15:16:45+00:00",
+      "gap_minutes": 65.08,
+      "observed_price_change_pct": 25.71,
+      "volume_m5_at_return": 277.18,
+      "liquidity_usd_at_return": 14675.87,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
