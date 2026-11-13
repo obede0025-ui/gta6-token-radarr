@@ -1,12 +1,46 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-13T00:56:22+00:00",
+  "checked_utc": "2026-11-13T01:01:47+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [],
+  "candidates": [
+    {
+      "mint": "ttwocSxKgj4NpQEUzBaFzLxEFzVdLytUbLsnnjGew9v",
+      "pair": "GCApLjm8aviTumEXSYPCVMGK6Rer9KG7gUN4L9YKP394",
+      "name": "Sharkbux",
+      "strategy": "C",
+      "scanned_at_utc": "2026-11-13T01:01:44+00:00",
+      "market_age_min": 0.05,
+      "price_usd": "0.000414",
+      "liquidity_usd": "50664.36",
+      "volume_5m_usd": "5839.93",
+      "quote_gate": "PASS",
+      "reasons": [],
+      "roundtrip_pct": "-2.357",
+      "live_trade_approval": "BLOCK"
+    },
+    {
+      "mint": "2hwaRQs4WqThnp26XLpch5MBZhAHqses3vSv1Bkupump",
+      "pair": "6DLCbW5m5AskjJTJrgR4Vz5sxAyD63eAJEEvDhcpFGrQ",
+      "name": "Grand Theft Auto VI",
+      "strategy": "C",
+      "scanned_at_utc": "2026-11-13T01:01:44+00:00",
+      "market_age_min": 0.05,
+      "price_usd": "0.0000295",
+      "liquidity_usd": "11581.57",
+      "volume_5m_usd": "908.79",
+      "quote_gate": "BLOCK",
+      "reasons": [
+        "LIQUIDITY_BELOW_20000",
+        "ROUNDTRIP_COST_TOO_HIGH"
+      ],
+      "roundtrip_pct": "-3.402",
+      "live_trade_approval": "BLOCK"
+    }
+  ],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 0,
-  "quote_gate_passed": 0,
-  "quote_gate_blocked": 0
+  "candidate_count": 2,
+  "quote_gate_passed": 1,
+  "quote_gate_blocked": 1
 }

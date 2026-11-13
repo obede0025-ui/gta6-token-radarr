@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_utc": "2026-11-13T00:56:22+00:00",
+  "updated_utc": "2026-11-13T01:01:47+00:00",
   "runs": [
     {
       "checked_utc": "2026-11-07T19:01:24+00:00",
@@ -12350,6 +12350,32 @@
       "quote_gate_passed": 0,
       "quote_gate_blocked": 0,
       "candidates": []
+    },
+    {
+      "checked_utc": "2026-11-13T01:01:47+00:00",
+      "status": "OK",
+      "candidate_count": 2,
+      "quote_gate_passed": 1,
+      "quote_gate_blocked": 1,
+      "candidates": [
+        {
+          "mint": "ttwocSxKgj4NpQEUzBaFzLxEFzVdLytUbLsnnjGew9v",
+          "strategy": "C",
+          "quote_gate": "PASS",
+          "reasons": [],
+          "roundtrip_pct": "-2.357"
+        },
+        {
+          "mint": "2hwaRQs4WqThnp26XLpch5MBZhAHqses3vSv1Bkupump",
+          "strategy": "C",
+          "quote_gate": "BLOCK",
+          "reasons": [
+            "LIQUIDITY_BELOW_20000",
+            "ROUNDTRIP_COST_TOO_HIGH"
+          ],
+          "roundtrip_pct": "-3.402"
+        }
+      ]
     }
   ]
 }
