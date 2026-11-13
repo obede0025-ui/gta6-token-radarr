@@ -18,6 +18,7 @@ from research_pipeline_integration_audit import run as integration_run
 from research_pipeline_quality_audit import audit as quality_audit
 from research_jupiter_minute_evaluation import report as quote_report
 from research_selection_shadow import report as selection_report
+from research_selection_cohort_momentum import report as cohort_report
 from research_legacy_v32_gap_explain import explain as legacy_gap_explain
 
 ROOT=Path("/home/ubuntu")
@@ -35,6 +36,7 @@ TEST_PATTERNS=[
     "test_research_jupiter_minute_evaluation.py",
     "test_research_one_shot_system_test.py",
     "test_research_legacy_v32_gap_explain.py",
+    "test_research_selection_cohort_momentum.py",
 ]
 ORDER={"PASS":0,"INFO":0,"WAITING":1,"WARN":2,"FAIL":3}
 
@@ -220,6 +222,23 @@ def evaluate(root=ROOT,now=None,with_tests=True,python=sys.executable):
     except Exception as exc:
         check(checks,"selection_ab","FAIL",
               type(exc).__name__+": "+str(exc)[:160])
+    try:
+        cohort=cohort_report(path=pilot/"selection_shadow_comparison.sqlite",
+                             hours=24,now=now)
+        metrics["selection_cohort_momentum"]=cohort
+        data=cohort.get("cohorts",{})
+        old=data.get("legacy",{})
+        new=data.get("proposed",{})
+        check(checks,"prospective_cohort_momentum",
+              "PASS" if old.get("observations",0)>0 and new.get("observations",0)>0 else "WAITING",
+              "legacy_samples="+str(old.get("observations",0))+
+              ", proposed_samples="+str(new.get("observations",0))+
+              ", legacy_unique_signals="+str(old.get("first_unique_research_signals",0))+
+              ", proposed_unique_signals="+str(new.get("first_unique_research_signals",0))+
+              "; research only, no execution comparison")
+    except Exception as exc:
+        check(checks,"prospective_cohort_momentum","FAIL",
+              type(exc).__name__+": "+str(exc)[:160])
     counts=dict(Counter(item["status"] for item in checks))
     # A healthy quote-only research stack may have intentional legacy GAPs
     # and limited data. Never turn that into profitability certification.
@@ -259,6 +278,16 @@ def readable(result):
                       "Known-liquidity delta: "+str(ab.get("known_liquidity",{}).get("diff")),
                       "Volume>=250 delta: "+str(ab.get("volume_ge_250",{}).get("diff")),
                       "Base-pass delta: "+str(ab.get("base_filter_without_age_or_momentum",{}).get("diff"))])
+    cohort=result["metrics"].get("selection_cohort_momentum",{})
+    if cohort:
+        old=cohort.get("cohorts",{}).get("legacy",{})
+        new=cohort.get("cohorts",{}).get("proposed",{})
+        lines.extend(["","=== FORWARD-ONLY B3 COHORT COMPARISON ===",
+                      "Legacy: observations="+str(old.get("observations",0))+
+                      ", unique_signals="+str(old.get("first_unique_research_signals",0)),
+                      "Proposed: observations="+str(new.get("observations",0))+
+                      ", unique_signals="+str(new.get("first_unique_research_signals",0)),
+                      "Signal comparison is research-only, not Jupiter fills."])
     gap=result["metrics"].get("legacy_v32_gap_explanation",{})
     if gap:
         lines.extend(["","=== LEGACY V3.2 COVERAGE ===",
