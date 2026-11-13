@@ -225,18 +225,27 @@ def run(original, pilot, session, now=None):
     stamp=now.isoformat(timespec="seconds")
     with sqlite3.connect(Path(original).resolve().as_uri()+"?mode=ro",uri=True) as source:
         selected=source_candidates(source,now)
-    pairs=fetch(session,[mint for mint,_,_ in selected])
-    found=extract(pairs,selected)
-    target=Path(pilot)
-    target.parent.mkdir(parents=True,exist_ok=True)
-    with sqlite3.connect(target) as db:
-        initialize(db)
-        record(db,stamp,selected,found)
-        result=report(db)
+        pairs=fetch(session,[mint for mint,_,_ in selected])
+        found=extract(pairs,selected)
+        target=Path(pilot)
+        target.parent.mkdir(parents=True,exist_ok=True)
+        with sqlite3.connect(target) as db:
+            initialize(db)
+            record(db,stamp,selected,found)
+            result=report(db)
+        # Shadow A/B only: primary pilot observations were already saved.
+        # Never change the real selection or fail this service because shadow
+        # monitoring had an API/database issue.
+        try:
+            from research_selection_shadow import compare_cycle
+            shadow=compare_cycle(source,pilot,session,now,selected,found)
+        except Exception as exc:
+            shadow={"status":"ERROR","error":type(exc).__name__+": "+str(exc)[:150]}
     return {"mode":"PAPER_ONLY_MINUTE_MARKET_PILOT",
             "selected":len(selected),"observed":sum(1 for x in selected if x[0] in found),
             "source":"original_read_only_learning_db",
-            "storage":"isolated_pilot_sqlite","no_orders":True,**result}
+            "storage":"isolated_pilot_sqlite","no_orders":True,
+            "selection_shadow":shadow,**result}
 
 def main():
     p=argparse.ArgumentParser()
