@@ -10,6 +10,7 @@ import fcntl
 import json
 import math
 import os
+import re
 import time
 from collections import Counter
 from datetime import datetime, timedelta, timezone
@@ -27,6 +28,8 @@ MAX_ENTRY_LAG_SECONDS=180
 MAX_ACTIVE=2
 MAX_REQUESTS_PER_CYCLE=4
 REQUEST_SPACING_SECONDS=2.2
+HTTP_400_CONSECUTIVE_LIMIT=3
+HTTP_400_COOLDOWN_SECONDS=300
 RULES={"entry_usdc":25,"input_usdc_raw":STAKE_RAW,"horizon_seconds":HORIZON_SECONDS,
        "max_entry_lag_seconds":MAX_ENTRY_LAG_SECONDS,
        "max_active":MAX_ACTIVE,"max_requests_per_cycle":MAX_REQUESTS_PER_CYCLE,
@@ -61,6 +64,51 @@ def validate_response(payload,expected_input,expected_output,requested):
     return {"status":"QUOTE_AVAILABLE","in_raw":incoming,"out_raw":outgoing,
             "router":payload.get("router"),"fee_bps":payload.get("feeBps")}
 
+def safe_http_error_details(response):
+    """Keep bounded public API error metadata; never save response bodies or credentials."""
+    try:
+        payload=response.json()
+    except (ValueError,TypeError):
+        return {"error_code":None,"error_message":None}
+    if not isinstance(payload,dict):
+        return {"error_code":None,"error_message":None}
+    def safe(value,maxlen):
+        if not isinstance(value,(str,int)) or isinstance(value,bool):
+            return None
+        text=str(value)
+        # No newlines, URLs, tokens, long payloads, credentials or raw API replies.
+        if len(text)>maxlen or not re.fullmatch(r"[A-Za-z0-9 _.,:;()/'-]+",text):
+            return None
+        return text
+    return {"error_code":safe(payload.get("errorCode"),40),
+            "error_message":safe(payload.get("errorMessage"),120)}
+
+
+def consecutive_http_400(quotes):
+    count=0
+    for q in reversed(quotes):
+        if not isinstance(q,dict) or q.get("status")!="QUOTE_HTTP_ERROR" or q.get("http_status")!=400:
+            break
+        count+=1
+    return count
+
+
+def http_400_cooldown(quotes,now):
+    if consecutive_http_400(quotes)<HTTP_400_CONSECUTIVE_LIMIT:
+        return False
+    latest=quotes[-1] if quotes else {}
+    stamp=dt(latest.get("response_received_utc")) or dt(latest.get("quoted_utc"))
+    return stamp is not None and 0 <= (now-stamp).total_seconds() < HTTP_400_COOLDOWN_SECONDS
+
+
+def update_sell_quote_status(position):
+    quotes=position.get("exit_quotes") or []
+    if consecutive_http_400(quotes)>=HTTP_400_CONSECUTIVE_LIMIT:
+        position["sell_quote_research_status"]="SELL_QUOTE_UNAVAILABLE_RESEARCH_ONLY"
+    elif quotes and quotes[-1].get("status")=="QUOTE_AVAILABLE":
+        position["sell_quote_research_status"]="SELL_QUOTE_OBSERVED_RESEARCH_ONLY"
+
+
 def get_quote(session,input_mint,output_mint,raw,api_key):
     headers={"Accept":"application/json"}
     if api_key:headers["x-api-key"]=api_key
@@ -70,7 +118,8 @@ def get_quote(session,input_mint,output_mint,raw,api_key):
                                          "amount":str(raw)},
                              headers=headers,timeout=15)
         if response.status_code!=200:
-            return {"status":"QUOTE_HTTP_ERROR","http_status":response.status_code}
+            return {"status":"QUOTE_HTTP_ERROR","http_status":response.status_code,
+                    **safe_http_error_details(response)}
         return validate_response(response.json(),input_mint,output_mint,raw)
     except (requests.RequestException,ValueError):
         return {"status":"QUOTE_REQUEST_ERROR"}
@@ -103,6 +152,8 @@ def summary(state):
                 (p.get("exit_quotes") or [{}])[-1].get("status","NO_EXIT_QUOTE")
                 for p in positions.values())),
             "skipped":dict(Counter(state["skipped"].values())),
+            "sell_quote_statuses":dict(Counter(p.get("sell_quote_research_status","NOT_CLASSIFIED")
+                                               for p in positions.values())),
             "rules":RULES,
             "notes":[
                 "Spot price B3/M1 signals and Jupiter quotes are separate; quote time is the entry baseline.",
@@ -123,8 +174,10 @@ def add_exit(p,session,key,now):
            "estimated_usdc_out":round(usdc/1e6,6) if usdc is not None else None,
            "estimated_roundtrip_pct":round(change,4) if change is not None else None,
            "router":q.get("router"),"fee_bps":q.get("fee_bps"),
-           "http_status":q.get("http_status")}
+           "http_status":q.get("http_status"),
+           "error_code":q.get("error_code"),"error_message":q.get("error_message")}
     p["exit_quotes"].append(event)
+    update_sell_quote_status(p)
     return q["status"]
 
 def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
@@ -156,6 +209,9 @@ def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
     for ident,p in sorted(state["positions"].items()):
         if requests_used>=MAX_REQUESTS_PER_CYCLE:break
         if p.get("entry_token_raw") is None:continue
+        if http_400_cooldown(p.get("exit_quotes") or [],now):
+            update_sell_quote_status(p)
+            continue
         age=(now-dt(p["entry_quote_utc"])).total_seconds()
         # Permit a single post-horizon observation in a bounded 2-minute
         # grace period. This is a delayed quote, never a fill at 900s.
@@ -177,9 +233,11 @@ def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
             "status":q["status"],"estimated_usdc_out":round(usdc/1e6,6) if usdc is not None else None,
             "estimated_roundtrip_pct":round(pct,4) if pct is not None else None,
             "router":q.get("router"),"http_status":q.get("http_status"),
+            "error_code":q.get("error_code"),"error_message":q.get("error_message"),
             "request_started_utc":q.get("request_started_utc"),
             "response_received_utc":q.get("response_received_utc"),
             "response_latency_ms":q.get("response_latency_ms")})
+        update_sell_quote_status(p)
     for ident,item in sorted(m1["candidates"].items(),key=lambda kv:kv[1].get("signal_utc","")):
         if ident in state["positions"] or ident in state["skipped"]:continue
         if not isinstance(item,dict) or item.get("research_only") is not True:continue
@@ -220,9 +278,11 @@ def advance(state,m1,session,now,key="",sleep_fn=time.sleep):
                "status":sell["status"],"estimated_usdc_out":round(usdc/1e6,6) if usdc is not None else None,
                "estimated_roundtrip_pct":round(pct,4) if pct is not None else None,
                "router":sell.get("router"),"http_status":sell.get("http_status"),
+               "error_code":sell.get("error_code"),"error_message":sell.get("error_message"),
                "request_started_utc":sell.get("request_started_utc"),
                "response_received_utc":sell.get("response_received_utc"),
                "response_latency_ms":sell.get("response_latency_ms")})
+            update_sell_quote_status(p)
     state["last_checked_utc"]=now.isoformat()
     return {"requests_used":requests_used,"new_quote_candidates":new_entries,**summary(state)}
 
