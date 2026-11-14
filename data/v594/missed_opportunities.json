@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8493,
-  "unique_pairs": 503,
-  "window_start_utc": "2026-11-13T14:51:46+00:00",
-  "window_end_utc": "2026-11-14T14:51:46+00:00",
+  "observations": 8522,
+  "unique_pairs": 505,
+  "window_start_utc": "2026-11-13T14:56:41+00:00",
+  "window_end_utc": "2026-11-14T14:56:41+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 7990,
-    "gaps_over_20_min": 3347,
-    "gap_rate_pct": 41.89,
+    "intervals": 8017,
+    "gaps_over_20_min": 3361,
+    "gap_rate_pct": 41.92,
     "gaps_with_observed_rise_over_20pct": 16
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 7990,
-    "gaps_over_20_min": 3347,
-    "gap_rate_pct": 41.89,
+    "intervals": 8017,
+    "gaps_over_20_min": 3361,
+    "gap_rate_pct": 41.92,
     "gaps_with_observed_rise_over_20pct": 16
   },
   "top_potential_blind_spots": [
@@ -36,6 +36,18 @@
       "observed_price_change_pct": 166.52,
       "volume_m5_at_return": 1049.68,
       "liquidity_usd_at_return": 5090.72,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "A3FxfAGM64TbZxzSoYAMyUe7aP8siMM33i3n54ufpump",
+      "pair": "6vb1VekEXgSRpE3QPNMgySVSRj9GHLzTJD1Z7wWfHEti",
+      "name": "Jason Duval",
+      "from_utc": "2026-11-14T13:51:48+00:00",
+      "to_utc": "2026-11-14T14:56:41+00:00",
+      "gap_minutes": 64.88,
+      "observed_price_change_pct": 42.43,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 5936.2,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -120,18 +132,6 @@
       "observed_price_change_pct": 25.82,
       "volume_m5_at_return": 626.4,
       "liquidity_usd_at_return": 32980.42,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "6fJPx1nWz6PvMifsee6AtTi4H3srtis5rHAUs3HYpump",
-      "pair": "8ewuBNMADZL8bARPNK5GdW2iS1QDcppz7XTLHNZDmkXN",
-      "name": "Jason Duval",
-      "from_utc": "2026-11-13T14:56:35+00:00",
-      "to_utc": "2026-11-13T16:02:08+00:00",
-      "gap_minutes": 65.55,
-      "observed_price_change_pct": 25.3,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 21339.26,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
