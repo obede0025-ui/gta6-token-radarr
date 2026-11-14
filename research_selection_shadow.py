@@ -15,6 +15,17 @@ from research_minute_market_pilot import (
 
 ROOT=Path("/home/ubuntu/gta6-v32-gate-pilot")
 COMPARISON=ROOT/"selection_shadow_comparison.sqlite"
+SELECTION_VERSION="v2"
+
+def effective_cutoff(db, cutoff):
+    """Read forward-only v2 boundary; old databases remain readable."""
+    exists=db.execute("""SELECT 1 FROM sqlite_master
+                          WHERE type='table' AND name='selection_version_epochs'""").fetchone()
+    if not exists:return cutoff
+    row=db.execute("SELECT started_at FROM selection_version_epochs WHERE version=?",
+                   (SELECTION_VERSION,)).fetchone()
+    return max(cutoff,row[0]) if row else cutoff
+
 
 def metrics(rows, found):
     known=active=base=missing=0
@@ -82,6 +93,11 @@ def write_cycle(path, stamp, legacy, proposed, changed, extra, error=None, sampl
     with sqlite3.connect(target) as db:
         initialize(db)
         initialize_cohorts(db)
+        db.execute("""CREATE TABLE IF NOT EXISTS selection_version_epochs (
+            version TEXT PRIMARY KEY, started_at TEXT NOT NULL)""")
+        if error is None:
+            db.execute("INSERT OR IGNORE INTO selection_version_epochs VALUES(?,?)",
+                       (SELECTION_VERSION,stamp))
         db.execute("""INSERT OR IGNORE INTO comparison_cycles VALUES
           (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(
             stamp,
@@ -108,7 +124,7 @@ def compare_cycle(source,pilot,session,now,legacy,legacy_found,path=COMPARISON):
     stamp=now.isoformat(timespec="seconds")
     try:
         with sqlite3.connect(Path(pilot).resolve().as_uri()+"?mode=ro",uri=True) as db:
-            preview=adaptive_candidate_preview(source,db,now)
+            preview=adaptive_candidate_preview(source,db,now,shadow_db=path)
         proposed=preview["proposed"]
         if not proposed:
             return write_cycle(path,stamp,None,None,0,0,"EMPTY_CANDIDATE_POOL")
@@ -144,6 +160,7 @@ def report(path=COMPARISON,hours=24,now=None):
                 "decision":"WAITING_FOR_FIRST_CYCLE",
                 "note":"No comparison SQLite yet. Confirm git pull and new selection_shadow field in minute market service journal."}
     with sqlite3.connect(Path(path).resolve().as_uri()+"?mode=ro",uri=True) as db:
+        cutoff=effective_cutoff(db,cutoff)
         rows=db.execute("""SELECT observed_at,legacy_known,proposed_known,
                           legacy_volume,proposed_volume,legacy_base,proposed_base,
                           legacy_missing,proposed_missing,changed_pairs,error
@@ -162,7 +179,8 @@ def report(path=COMPARISON,hours=24,now=None):
                 "cycles_equal":sum(x==0 for x in delta),
                 "cycles_proposed_worse":sum(x<0 for x in delta)}
     return {"mode":"READ_ONLY_SELECTION_AB_COMPARISON",
-            "window_hours":hours,"cycles_recorded":len(rows),
+            "window_hours":hours,"selection_version":SELECTION_VERSION,
+            "since_utc":cutoff,"cycles_recorded":len(rows),
             "cycles_successful":len(clean),"cycles_failed":len(rows)-len(clean),
             "first_cycle_utc":rows[0][0] if rows else None,
             "last_cycle_utc":rows[-1][0] if rows else None,
