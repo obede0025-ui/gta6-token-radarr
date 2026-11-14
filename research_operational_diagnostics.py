@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from research_jupiter_minute_quotes import dt
+from research_selection_shadow import effective_cutoff
 
 ROOT = Path("/home/ubuntu/gta6-v32-gate-pilot")
 AB = ROOT / "selection_shadow_comparison.sqlite"
@@ -25,6 +26,7 @@ def _percentage(n, d):
 def selection_diagnosis(path, cutoff):
     result = {}
     with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True) as db:
+        cutoff = effective_cutoff(db, cutoff)
         for cohort in ("legacy", "proposed"):
             row = db.execute("""
                 SELECT COUNT(*),
