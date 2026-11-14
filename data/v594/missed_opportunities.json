@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8552,
-  "unique_pairs": 505,
-  "window_start_utc": "2026-11-13T15:01:51+00:00",
-  "window_end_utc": "2026-11-14T15:01:51+00:00",
+  "observations": 8563,
+  "unique_pairs": 504,
+  "window_start_utc": "2026-11-13T15:07:05+00:00",
+  "window_end_utc": "2026-11-14T15:07:05+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8047,
-    "gaps_over_20_min": 3384,
+    "intervals": 8059,
+    "gaps_over_20_min": 3389,
     "gap_rate_pct": 42.05,
-    "gaps_with_observed_rise_over_20pct": 15
+    "gaps_with_observed_rise_over_20pct": 16
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8047,
-    "gaps_over_20_min": 3384,
+    "intervals": 8059,
+    "gaps_over_20_min": 3389,
     "gap_rate_pct": 42.05,
-    "gaps_with_observed_rise_over_20pct": 15
+    "gaps_with_observed_rise_over_20pct": 16
   },
   "top_potential_blind_spots": [
     {
@@ -205,9 +205,21 @@
       "volume_m5_at_return": 49.03,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "2afcRhtGYgp1e3xPBMu2UbnELL8AUMZzguLQsPo8pump",
+      "pair": "7xLmwsPbCSMVvfFQ9JuhMwfbkehJA3mswshVBBWcJ1j2",
+      "name": "VICE CITY",
+      "from_utc": "2026-11-14T14:06:22+00:00",
+      "to_utc": "2026-11-14T15:07:05+00:00",
+      "gap_minutes": 60.72,
+      "observed_price_change_pct": 20.64,
+      "volume_m5_at_return": 951.32,
+      "liquidity_usd_at_return": 36645.99,
+      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 15,
+  "blind_spot_count": 16,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
