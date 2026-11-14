@@ -103,4 +103,52 @@ class MinutePilotTests(unittest.TestCase):
             self.assertEqual([x[0] for x in result["proposed"]],["a","b","c","d"])
             self.assertEqual(result["diagnostics"]["changed_slots"],0)
 
+    def test_shadow_v2_prioritizes_known_strong_pair_over_bad_history(self):
+        import tempfile
+        now=datetime(2026,11,14,18,0,tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as folder:
+            shadow=Path(folder)/"comparison.sqlite"
+            with sqlite3.connect(shadow) as db:
+                db.execute("""CREATE TABLE selection_cohort_samples(
+                    observed_at TEXT,cohort TEXT,mint TEXT,pair TEXT,status TEXT,
+                    price_usd REAL,liquidity_usd REAL,volume_m5 REAL,
+                    buys_m5 REAL,sells_m5 REAL,pair_age_hours REAL)""")
+                for n in range(6):
+                    stamp=f"2026-11-14T17:{30+n:02d}:00+00:00"
+                    db.execute("""INSERT INTO selection_cohort_samples VALUES
+                        (?,?,?,?,?,?,?,?,?,?,?)""",(
+                        stamp,"proposed","c","pc","MARKET_DATA_UNAVAILABLE",
+                        None,None,None,None,None,None))
+                    db.execute("""INSERT INTO selection_cohort_samples VALUES
+                        (?,?,?,?,?,?,?,?,?,?,?)""",(
+                        stamp,"proposed","e","pe","QUOTE_MARKET_OBSERVED",
+                        1.0,35000,600,8,2,2))
+            with sqlite3.connect(":memory:") as source,sqlite3.connect(":memory:") as pilot:
+                source.execute("""CREATE TABLE snapshots(
+                    token_address TEXT,pair_address TEXT,scanned_at TEXT,
+                    volume_m5 REAL,liquidity_usd REAL,pair_age_hours REAL)""")
+                source.executemany("INSERT INTO snapshots VALUES(?,?,?,?,?,?)",[
+                    (mint,"p"+mint,"2026-11-14T17:59:00+00:00",
+                     500-i*30,30000,1)
+                    for i,mint in enumerate(("a","b","c","d","e"))])
+                initialize(pilot)
+                r=adaptive_candidate_preview(source,pilot,now,limit=4,shadow_db=shadow)
+                self.assertEqual([v[0] for v in r["legacy"]],["a","b","c","d"])
+                self.assertEqual([v[0] for v in r["proposed"]],["a","b","e","d"])
+                self.assertEqual(r["diagnostics"]["version"],"v2")
+                self.assertTrue(r["diagnostics"]["shadow_only"])
+
+    def test_shadow_v2_falls_back_without_previous_shadow_samples(self):
+        now=datetime(2026,11,14,18,0,tzinfo=timezone.utc)
+        with sqlite3.connect(":memory:") as source,sqlite3.connect(":memory:") as pilot:
+            source.execute("""CREATE TABLE snapshots(
+                token_address TEXT,pair_address TEXT,scanned_at TEXT,
+                volume_m5 REAL,liquidity_usd REAL,pair_age_hours REAL)""")
+            source.execute("INSERT INTO snapshots VALUES(?,?,?,?,?,?)",(
+                "a","pa","2026-11-14T17:59:00+00:00",500,30000,1))
+            initialize(pilot)
+            result=adaptive_candidate_preview(source,pilot,now,
+                 shadow_db="/tmp/nonexistent-shadow-db-test-42857.sqlite")
+            self.assertEqual(result["proposed"],result["legacy"])
+
 if __name__=="__main__":unittest.main()
