@@ -27,6 +27,58 @@ class HorizonQuoteTests(unittest.TestCase):
             self.assertEqual(getter.call_count,1)
             self.assertEqual(len(state["positions"]["x"]["exit_quotes"]),2)
 
+    def test_three_http_400_errors_trigger_per_token_cooldown(self):
+        m1={"mode":"M1_MINUTE_RESEARCH_ONLY","candidates":{}}
+        state=initialize(BASE,m1)
+        state["positions"]["bad"]={
+            "mint":"badMint","signal_utc":at(-60),"entry_quote_utc":at(0),
+            "entry_token_raw":1000000,"exit_quotes":[
+                {"quoted_utc":at(60),"status":"QUOTE_HTTP_ERROR","http_status":400},
+                {"quoted_utc":at(120),"status":"QUOTE_HTTP_ERROR","http_status":400},
+                {"quoted_utc":at(180),"status":"QUOTE_HTTP_ERROR","http_status":400}
+            ]}
+        state["positions"]["good"]={
+            "mint":"goodMint","signal_utc":at(-60),"entry_quote_utc":at(0),
+            "entry_token_raw":1000000,"exit_quotes":[]}
+        with patch("research_jupiter_minute_quotes.get_quote",return_value={
+            "status":"QUOTE_AVAILABLE","out_raw":24500000}) as getter:
+            advance(state,m1,None,BASE+timedelta(seconds=240),sleep_fn=lambda _:None)
+            self.assertEqual(getter.call_count,1)
+            self.assertEqual(getter.call_args.args[1],"goodMint")
+            self.assertEqual(len(state["positions"]["bad"]["exit_quotes"]),3)
+            self.assertEqual(state["positions"]["bad"]["sell_quote_research_status"],
+                             "SELL_QUOTE_UNAVAILABLE_RESEARCH_ONLY")
+            advance(state,m1,None,BASE+timedelta(seconds=500),sleep_fn=lambda _:None)
+            self.assertEqual(getter.call_count,2)
+            self.assertEqual(getter.call_args.args[1],"badMint")
+            self.assertEqual(state["positions"]["bad"]["sell_quote_research_status"],
+                             "SELL_QUOTE_OBSERVED_RESEARCH_ONLY")
+
+    def test_mixed_error_breaks_consecutive_http_400_streak(self):
+        from research_jupiter_minute_quotes import consecutive_http_400
+        self.assertEqual(consecutive_http_400([
+            {"status":"QUOTE_HTTP_ERROR","http_status":400},
+            {"status":"QUOTE_AVAILABLE"},
+            {"status":"QUOTE_HTTP_ERROR","http_status":400}
+        ]),1)
+
+    def test_http_failure_details_exclude_untrusted_response_body(self):
+        from research_jupiter_minute_quotes import get_quote
+        class Response:
+            status_code=400
+            def json(self):
+                return {"errorCode":"NO_ROUTE","errorMessage":"No route found",
+                        "secret":"must not be included"}
+        class Session:
+            def get(self,*args,**kwargs):
+                return Response()
+        result=get_quote(Session(),"someToken","USDC",123,"private-key")
+        self.assertEqual(result["status"],"QUOTE_HTTP_ERROR")
+        self.assertEqual(result["error_code"],"NO_ROUTE")
+        self.assertEqual(result["error_message"],"No route found")
+        self.assertNotIn("secret",result)
+        self.assertNotIn("private-key",str(result))
+
     def test_beyond_grace_period_no_quote(self):
         m1={"mode":"M1_MINUTE_RESEARCH_ONLY","candidates":{}}
         state=initialize(BASE,m1)
