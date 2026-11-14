@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-14T07:07:00+00:00",
+  "checked_utc": "2026-11-14T07:12:02+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "PARTIAL",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 97028700082,
+        "output_raw": 97028703173,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,16 +21,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 97028700082,
-        "output_raw": 189,
-        "router": "dflow",
+        "input_raw": 97028703173,
+        "output_raw": 188,
+        "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000189",
+      "roundtrip_usdc": "0.000188",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 1358423296,
+        "output_raw": 1358423367,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,7 +64,7 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 1358423296,
+        "input_raw": 1358423367,
         "output_raw": 313,
         "router": "okx",
         "mode": "ultra",
@@ -118,7 +118,7 @@
           "estimated_exit_usdc": null,
           "estimated_net_pnl_usdc_before_network_cost": null,
           "exit_router": null,
-          "status": "HTTP_429"
+          "status": "HTTP_400"
         }
       ],
       "warnings": [
@@ -130,7 +130,16 @@
       "strategies": [
         "B"
       ],
-      "buy_quote": null,
+      "buy_quote": {
+        "input_raw": 25000000,
+        "output_raw": 17577538261054,
+        "router": "metis",
+        "mode": "ultra",
+        "fee_bps": 10,
+        "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "error_code": null,
+        "quote_only": true
+      },
       "sell_back_quote": null,
       "roundtrip_usdc": null,
       "roundtrip_pct": null,
