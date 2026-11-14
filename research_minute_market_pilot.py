@@ -66,63 +66,101 @@ def source_candidates(conn, now, limit=MAX_TOKENS):
     """, (cutoff, history_cutoff, limit)).fetchall()
     return [(r[0],r[1],r[2]) for r in rows]
 
-def adaptive_candidate_preview(source, pilot, now, limit=MAX_TOKENS):
-    """READ-ONLY shadow selection, not yet used by the running collector.
+def adaptive_candidate_preview(source, pilot, now, limit=MAX_TOKENS, shadow_db=None):
+    """Shadow v2: rotate persistently unobservable pairs using past evidence only.
 
-    Preserve a baseline of previously selected pairs while reserving room for
-    fresh market candidates. Penalize only pairs with repeatedly UNKNOWN
-    liquidity and no recent activity. UNKNOWN never becomes liquidity=0.
+    Preserve half of the legacy shortlist. Compare the rest using historical,
+    exact-pair A/B samples; never substitute missing liquidity with zero.
+    No active scanner, order, B3 or M1 selection is changed.
     """
-    from collections import Counter
-    expanded=source_candidates(source, now, limit=max(150,limit*5))
+    from collections import defaultdict
+    expanded=source_candidates(source,now,limit=max(150,limit*5))
     if not expanded:
-        return {"legacy":[],"proposed":[],"diagnostics":{}}
+        return {"legacy":[],"proposed":[],"diagnostics":{"version":"v2"}}
     legacy=expanded[:limit]
-    pairs={(mint,pair) for mint,pair,_ in expanded}
+    wanted={(m,p) for m,p,_ in expanded}
     cutoff=(now-timedelta(hours=6)).isoformat(timespec="seconds")
-    stats={}
-    # Read-only pilot evidence, bounded to the last six hours.
+    stats=defaultdict(lambda:{"total":0,"unknown":0,"unavailable":0,
+                              "known":0,"recent_good":False,
+                              "last_volume":None})
+    # The pilot only knows the legacy collector cohort; the separate shadow
+    # database adds prospective-only pairs that the pilot has never polled.
     rows=pilot.execute("""
         SELECT mint,pair,status,volume_m5,observed_at
-        FROM minute_observations
-        WHERE observed_at>=?
+        FROM minute_observations WHERE observed_at>=?
         ORDER BY observed_at DESC
     """,(cutoff,)).fetchall()
     for mint,pair,status,vol,stamp in rows:
-        k=(mint,pair)
-        if k not in pairs:continue
-        x=stats.setdefault(k,{"total":0,"unknown":0,"known":0,
-                              "last_volume":None,"last_status":None})
-        if x["total"]==0:
-            x["last_volume"]=vol
-            x["last_status"]=status
-        x["total"]+=1
-        x["unknown"]+=(status=="LIQUIDITY_UNKNOWN")
-        x["known"]+=(status=="QUOTE_MARKET_OBSERVED")
-    # Strong evidence of consistently missing liquidity + currently inactive.
-    # Do not penalize pairs with too few observations or recent activity.
+        key=(mint,pair)
+        if key not in wanted:continue
+        s=stats[key]
+        if s["total"]==0:s["last_volume"]=vol
+        s["total"]+=1
+        s["unknown"]+=status=="LIQUIDITY_UNKNOWN"
+        s["unavailable"]+=status=="MARKET_DATA_UNAVAILABLE"
+        s["known"]+=status=="QUOTE_MARKET_OBSERVED"
+    shadow_stats={}
+    if shadow_db is not None:
+        try:
+            with sqlite3.connect(Path(shadow_db).resolve().as_uri()+"?mode=ro",
+                                 uri=True) as db:
+                for mint,pair,n,unknown,unavailable,known,recent_good in db.execute("""
+                    SELECT mint,pair,COUNT(*),
+                      SUM(status='LIQUIDITY_UNKNOWN'),
+                      SUM(status='MARKET_DATA_UNAVAILABLE'),
+                      SUM(status='QUOTE_MARKET_OBSERVED'),
+                      MAX(CASE WHEN status='QUOTE_MARKET_OBSERVED'
+                          AND liquidity_usd>=20000 AND volume_m5>=250
+                          AND buys_m5>sells_m5 AND pair_age_hours BETWEEN 0 AND 24
+                          AND observed_at>=? THEN 1 ELSE 0 END)
+                    FROM selection_cohort_samples
+                    WHERE cohort='proposed' AND observed_at>=?
+                    GROUP BY mint,pair
+                """,((now-timedelta(minutes=30)).isoformat(timespec="seconds"),cutoff)):
+                    key=(mint,pair)
+                    if key in wanted:
+                        shadow_stats[key]={"total":n,"unknown":unknown or 0,
+                                           "unavailable":unavailable or 0,
+                                           "known":known or 0,
+                                           "recent_good":bool(recent_good)}
+        except (sqlite3.Error,OSError):
+            # Missing/old shadow DB: fall back to pilot observations safely.
+            pass
+    def evidence(row):
+        key=(row[0],row[1])
+        return shadow_stats.get(key) or stats.get(key)
+    def bad(row):
+        s=evidence(row)
+        if not s or s["total"]<5:return False
+        # Strong evidence of repeated absence, not a statement of zero liq.
+        return (s["unavailable"]>=5 and
+                s["unavailable"]/s["total"]>=0.80 and s["known"]==0)
     def stagnant(row):
-        mint,pair,_=row
-        s=stats.get((mint,pair))
+        s=evidence(row)
         if not s or s["total"]<10:return False
-        vol=s["last_volume"]
-        return s["unknown"]>=10 and s["known"]==0 and (vol is None or vol<250)
-    # Preserve half of original shortlist to avoid starving live follow-ups.
+        return (s["unknown"]>=10 and s["known"]==0 and
+                (s.get("last_volume") is None or s["last_volume"]<250))
+    def tier(row):
+        s=evidence(row)
+        if bad(row):return 3
+        if stagnant(row):return 2
+        if s and s.get("recent_good"):return 0
+        return 1
     reserve=min(len(legacy),(limit+1)//2)
     kept=legacy[:reserve]
     others=[r for r in expanded if r not in kept]
-    # Stable ordering: prefer previously ranked eligible candidates, but
-    # move only repeatedly unknown/inactive pairs behind other options.
-    ranked=sorted(enumerate(others),key=lambda x:(stagnant(x[1]),x[0]))
+    ranked=sorted(enumerate(others),key=lambda x:(tier(x[1]),x[0]))
     proposed=(kept+[row for _,row in ranked])[:limit]
     return {"legacy":legacy,"proposed":proposed,
-            "diagnostics":{"candidate_pool":len(expanded),
+            "diagnostics":{"version":"v2","candidate_pool":len(expanded),
                            "baseline_reserved":reserve,
+                           "legacy_repeated_unavailable":sum(map(bad,legacy)),
+                           "proposed_repeated_unavailable":sum(map(bad,proposed)),
                            "legacy_stagnant_unknown":sum(map(stagnant,legacy)),
                            "proposed_stagnant_unknown":sum(map(stagnant,proposed)),
                            "changed_slots":len(set((x[0],x[1]) for x in proposed)-
                                                set((x[0],x[1]) for x in legacy)),
-                           "unobserved_proposed_pairs":sum((x[0],x[1]) not in stats for x in proposed),
+                           "shadow_observed_pairs":len(shadow_stats),
                            "shadow_only":True,
                            "no_claim_of_improved_quote_coverage":True}}
 
