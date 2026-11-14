@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from research_b3_minute_safety_shadow import assess
+from research_selection_shadow import effective_cutoff
 
 DEFAULT = "/home/ubuntu/gta6-v32-gate-pilot/selection_shadow_comparison.sqlite"
 STATUSES = ("QUOTE_MARKET_OBSERVED", "LIQUIDITY_UNKNOWN", "MARKET_DATA_UNAVAILABLE")
@@ -118,6 +119,7 @@ def report(path=DEFAULT, hours=24, now=None):
     now = now or datetime.now(timezone.utc)
     cutoff = (now - timedelta(hours=hours)).isoformat(timespec="seconds")
     with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True) as db:
+        cutoff = effective_cutoff(db, cutoff)
         rows = db.execute("""
             SELECT observed_at, cohort, mint, pair, status, price_usd,
                    liquidity_usd, volume_m5, buys_m5, sells_m5, pair_age_hours
