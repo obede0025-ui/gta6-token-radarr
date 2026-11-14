@@ -165,10 +165,11 @@ def adaptive_candidate_preview(source, pilot, now, limit=MAX_TOKENS, shadow_db=N
                            "no_claim_of_improved_quote_coverage":True}}
 
 def selection_preview(original, pilot, now=None):
+    from research_selection_shadow import COMPARISON
     now=now or datetime.now(timezone.utc)
     with sqlite3.connect(Path(original).resolve().as_uri()+"?mode=ro",uri=True) as source:
         with sqlite3.connect(Path(pilot).resolve().as_uri()+"?mode=ro",uri=True) as history:
-            result=adaptive_candidate_preview(source,history,now)
+            result=adaptive_candidate_preview(source,history,now,shadow_db=COMPARISON)
     result["legacy"]=[{"mint":m,"pair":p,"snapshot_utc":t} for m,p,t in result["legacy"]]
     result["proposed"]=[{"mint":m,"pair":p,"snapshot_utc":t} for m,p,t in result["proposed"]]
     return result
