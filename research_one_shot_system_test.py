@@ -20,6 +20,7 @@ from research_jupiter_minute_evaluation import report as quote_report
 from research_selection_shadow import report as selection_report
 from research_selection_cohort_momentum import report as cohort_report
 from research_legacy_v32_gap_explain import explain as legacy_gap_explain
+from research_operational_diagnostics import report as operational_report
 
 ROOT=Path("/home/ubuntu")
 PILOT=ROOT/"gta6-v32-gate-pilot"
@@ -37,6 +38,7 @@ TEST_PATTERNS=[
     "test_research_one_shot_system_test.py",
     "test_research_legacy_v32_gap_explain.py",
     "test_research_selection_cohort_momentum.py",
+    "test_research_operational_diagnostics.py",
 ]
 ORDER={"PASS":0,"INFO":0,"WAITING":1,"WARN":2,"FAIL":3}
 
@@ -238,6 +240,31 @@ def evaluate(root=ROOT,now=None,with_tests=True,python=sys.executable):
               "; research only, no execution comparison")
     except Exception as exc:
         check(checks,"prospective_cohort_momentum","FAIL",
+              type(exc).__name__+": "+str(exc)[:160])
+    try:
+        op=operational_report(
+            ab=pilot/"selection_shadow_comparison.sqlite",
+            jupiter=pilot/"jupiter_minute_quotes_state.json",
+            hours=24,now=now)
+        metrics["operational_diagnostics"]=op
+        quotes_op=op["jupiter"]
+        new_op=op["selection"]["proposed"]
+        old_op=op["selection"]["legacy"]
+        recent_failures=quotes_op["recent_failure_count"]
+        check(checks,"operational:jupiter_recent_failures",
+              "WARN" if recent_failures else
+              ("PASS" if quotes_op["recent_exit_quotes"] else "WAITING"),
+              "last_24h_exit_quotes="+str(quotes_op["recent_exit_quotes"])+
+              ", errors="+str(recent_failures)+
+              ", HTTP_codes="+json.dumps(quotes_op["recent_http_error_codes"],sort_keys=True))
+        check(checks,"operational:proposed_exact_pairs",
+              "WARN" if new_op["missing_exact_pair_cycle_count"]>
+                        old_op["missing_exact_pair_cycle_count"] else "PASS",
+              "missing_exact_pairs: legacy="+str(old_op["missing_exact_pair_cycle_count"])+
+              ", proposed="+str(new_op["missing_exact_pair_cycle_count"])+
+              "; neither proves cause or trading benefit")
+    except Exception as exc:
+        check(checks,"operational_diagnostics","WARN",
               type(exc).__name__+": "+str(exc)[:160])
     counts=dict(Counter(item["status"] for item in checks))
     # A healthy quote-only research stack may have intentional legacy GAPs
