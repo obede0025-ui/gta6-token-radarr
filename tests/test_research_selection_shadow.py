@@ -63,5 +63,35 @@ class SelectionShadowTests(unittest.TestCase):
                 with sqlite3.connect(pilot) as db:
                     self.assertEqual(db.execute("SELECT COUNT(*) FROM minute_observations").fetchone()[0],0)
 
+    def test_v2_epoch_excludes_old_comparison_but_preserves_rows(self):
+        from research_selection_shadow import write_cycle, effective_cutoff
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/"shadow.sqlite"
+            with sqlite3.connect(path) as db:
+                db.execute("""CREATE TABLE comparison_cycles(
+                    observed_at TEXT PRIMARY KEY,legacy_selected INTEGER,
+                    proposed_selected INTEGER,legacy_known INTEGER,
+                    proposed_known INTEGER,legacy_volume INTEGER,
+                    proposed_volume INTEGER,legacy_base INTEGER,
+                    proposed_base INTEGER,legacy_missing INTEGER,
+                    proposed_missing INTEGER,changed_pairs INTEGER,
+                    extra_requested INTEGER,error TEXT)""")
+                db.execute("""INSERT INTO comparison_cycles VALUES
+                    (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(
+                    "2026-11-13T18:00:00+00:00",30,30,4,5,4,5,1,2,0,1,1,1,None))
+            a={"selected":30,"known_liquidity":5,"volume_ge_250":4,
+               "base_pass_without_age_or_momentum":1,"missing_exact_pairs":0}
+            write_cycle(path,"2026-11-14T18:00:00+00:00",
+                        a,a,0,0,samples=[])
+            now=datetime(2026,11,14,18,1,tzinfo=timezone.utc)
+            result=report(path,24,now)
+            self.assertEqual(result["cycles_recorded"],1)
+            self.assertEqual(result["selection_version"],"v2")
+            self.assertEqual(result["first_cycle_utc"],"2026-11-14T18:00:00+00:00")
+            with sqlite3.connect(path) as db:
+                self.assertEqual(db.execute("SELECT COUNT(*) FROM comparison_cycles").fetchone()[0],2)
+                self.assertEqual(effective_cutoff(db,"2026-11-13T18:01:00+00:00"),
+                                 "2026-11-14T18:00:00+00:00")
+
 if __name__=="__main__":
     unittest.main()
