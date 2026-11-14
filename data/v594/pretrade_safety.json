@@ -1,12 +1,28 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-14T08:56:21+00:00",
+  "checked_utc": "2026-11-14T09:02:09+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [],
+  "candidates": [
+    {
+      "mint": "Ep13piLgesAxM32dB4hVAsmhfWcsTJqVKmQHkYCKpump",
+      "pair": "CB7Hu6stKCDViaEWzbSRiDpH4DKCpXdECzLQ7KbisDf2",
+      "name": "VICE CITY",
+      "strategy": "C",
+      "scanned_at_utc": "2026-11-14T09:02:07+00:00",
+      "market_age_min": 0.05,
+      "price_usd": "0.0001273",
+      "liquidity_usd": "25441.23",
+      "volume_5m_usd": "32399.25",
+      "quote_gate": "PASS",
+      "reasons": [],
+      "roundtrip_pct": "-2.834",
+      "live_trade_approval": "BLOCK"
+    }
+  ],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 0,
-  "quote_gate_passed": 0,
+  "candidate_count": 1,
+  "quote_gate_passed": 1,
   "quote_gate_blocked": 0
 }
