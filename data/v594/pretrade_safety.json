@@ -1,12 +1,28 @@
 {
   "version": "2.0",
   "mode": "SHADOW_PRETRADE_READ_ONLY",
-  "checked_utc": "2026-11-14T18:26:50+00:00",
+  "checked_utc": "2026-11-14T18:32:09+00:00",
   "status": "OK",
   "live_orders_enabled": false,
-  "candidates": [],
+  "candidates": [
+    {
+      "mint": "6sZUjgnHTdezsZoMdbTcxsi58bXqnsz6mkj49Wgxpump",
+      "pair": "FMJbNP2T4DtMc4vxkzgz2ZigCrqyfXNKaFhkVfKTYQHk",
+      "name": "Ah shit, here we go again.",
+      "strategy": "C",
+      "scanned_at_utc": "2026-11-14T18:32:07+00:00",
+      "market_age_min": 0.04,
+      "price_usd": "0.0001004",
+      "liquidity_usd": "29413.38",
+      "volume_5m_usd": "6372.62",
+      "quote_gate": "PASS",
+      "reasons": [],
+      "roundtrip_pct": "-1.135",
+      "live_trade_approval": "BLOCK"
+    }
+  ],
   "note": "No order signing. Shadow signal replay only; not an inline pre-entry gate.",
-  "candidate_count": 0,
-  "quote_gate_passed": 0,
+  "candidate_count": 1,
+  "quote_gate_passed": 1,
   "quote_gate_blocked": 0
 }
