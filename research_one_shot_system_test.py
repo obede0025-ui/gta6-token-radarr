@@ -21,6 +21,7 @@ from research_selection_shadow import report as selection_report
 from research_selection_cohort_momentum import report as cohort_report
 from research_legacy_v32_gap_explain import explain as legacy_gap_explain
 from research_operational_diagnostics import report as operational_report
+from research_selection_pair_quality import report as pair_quality_report
 
 ROOT=Path("/home/ubuntu")
 PILOT=ROOT/"gta6-v32-gate-pilot"
@@ -39,6 +40,7 @@ TEST_PATTERNS=[
     "test_research_legacy_v32_gap_explain.py",
     "test_research_selection_cohort_momentum.py",
     "test_research_operational_diagnostics.py",
+    "test_research_selection_pair_quality.py",
 ]
 ORDER={"PASS":0,"INFO":0,"WAITING":1,"WARN":2,"FAIL":3}
 
@@ -265,6 +267,25 @@ def evaluate(root=ROOT,now=None,with_tests=True,python=sys.executable):
               "; neither proves cause or trading benefit")
     except Exception as exc:
         check(checks,"operational_diagnostics","WARN",
+              type(exc).__name__+": "+str(exc)[:160])
+    try:
+        pq=pair_quality_report(path=pilot/"selection_shadow_comparison.sqlite",
+                               hours=24,now=now)
+        metrics["selection_pair_quality"]=pq
+        groups=pq["groups"]
+        exclusive=groups["proposed_only"]
+        check(checks,"selection_pair_quality_attribution",
+              "PASS" if pq["coverage"].get("cycles",0) else "WAITING",
+              "shared="+str(groups["shared"]["observations"])+
+              ", proposed_only="+str(exclusive["observations"])+
+              ", proposed_only_unavailable="+str(exclusive["market_data_unavailable"])+
+              ", proposed_only_age_base_pass="+str(exclusive["base_pass_with_age"])+
+              "; diagnostic only")
+        if pq["coverage"].get("shared_status_mismatches",0):
+            check(checks,"selection_shared_pair_consistency","WARN",
+                  "shared_status_mismatches="+str(pq["coverage"]["shared_status_mismatches"]))
+    except Exception as exc:
+        check(checks,"selection_pair_quality","WARN",
               type(exc).__name__+": "+str(exc)[:160])
     counts=dict(Counter(item["status"] for item in checks))
     # A healthy quote-only research stack may have intentional legacy GAPs
