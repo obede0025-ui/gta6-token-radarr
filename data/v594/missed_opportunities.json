@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8410,
-  "unique_pairs": 478,
-  "window_start_utc": "2026-11-13T23:06:59+00:00",
-  "window_end_utc": "2026-11-14T23:06:59+00:00",
+  "observations": 8425,
+  "unique_pairs": 473,
+  "window_start_utc": "2026-11-13T23:12:22+00:00",
+  "window_end_utc": "2026-11-14T23:12:22+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 7932,
-    "gaps_over_20_min": 3442,
-    "gap_rate_pct": 43.39,
-    "gaps_with_observed_rise_over_20pct": 17
+    "intervals": 7952,
+    "gaps_over_20_min": 3456,
+    "gap_rate_pct": 43.46,
+    "gaps_with_observed_rise_over_20pct": 18
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 7932,
-    "gaps_over_20_min": 3442,
-    "gap_rate_pct": 43.39,
-    "gaps_with_observed_rise_over_20pct": 17
+    "intervals": 7952,
+    "gaps_over_20_min": 3456,
+    "gap_rate_pct": 43.46,
+    "gaps_with_observed_rise_over_20pct": 18
   },
   "top_potential_blind_spots": [
     {
@@ -159,6 +159,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "A3FxfAGM64TbZxzSoYAMyUe7aP8siMM33i3n54ufpump",
+      "pair": "6vb1VekEXgSRpE3QPNMgySVSRj9GHLzTJD1Z7wWfHEti",
+      "name": "Jason Duval",
+      "from_utc": "2026-11-14T22:07:14+00:00",
+      "to_utc": "2026-11-14T23:12:22+00:00",
+      "gap_minutes": 65.13,
+      "observed_price_change_pct": 24.6,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 6464.18,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "6fJPx1nWz6PvMifsee6AtTi4H3srtis5rHAUs3HYpump",
       "pair": "8ewuBNMADZL8bARPNK5GdW2iS1QDcppz7XTLHNZDmkXN",
       "name": "Jason Duval",
@@ -231,7 +243,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 17,
+  "blind_spot_count": 18,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
