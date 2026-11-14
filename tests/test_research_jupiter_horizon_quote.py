@@ -49,8 +49,8 @@ class HorizonQuoteTests(unittest.TestCase):
             self.assertEqual(state["positions"]["bad"]["sell_quote_research_status"],
                              "SELL_QUOTE_UNAVAILABLE_RESEARCH_ONLY")
             advance(state,m1,None,BASE+timedelta(seconds=500),sleep_fn=lambda _:None)
-            self.assertEqual(getter.call_count,2)
-            self.assertEqual(getter.call_args.args[1],"badMint")
+            self.assertEqual(getter.call_count,3)
+            self.assertEqual(getter.call_args_list[1].args[1],"badMint")
             self.assertEqual(state["positions"]["bad"]["sell_quote_research_status"],
                              "SELL_QUOTE_OBSERVED_RESEARCH_ONLY")
 
