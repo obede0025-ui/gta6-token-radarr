@@ -1,23 +1,7 @@
 {
   "version": 1,
-  "updated_utc": "2026-11-15T12:41:48+00:00",
+  "updated_utc": "2026-11-15T12:47:47+00:00",
   "runs": [
-    {
-      "checked_utc": "2026-11-08T11:00:50+00:00",
-      "status": "OK",
-      "candidate_count": 1,
-      "quote_gate_passed": 1,
-      "quote_gate_blocked": 0,
-      "candidates": [
-        {
-          "mint": "ZdwVPCu5sLACHkY2FozzKnF1rnTUTjRVjYddmS4EFVL",
-          "strategy": "A",
-          "quote_gate": "PASS",
-          "reasons": [],
-          "roundtrip_pct": "-1.001"
-        }
-      ]
-    },
     {
       "checked_utc": "2026-11-08T11:05:22+00:00",
       "status": "OK",
@@ -16515,6 +16499,14 @@
     },
     {
       "checked_utc": "2026-11-15T12:41:48+00:00",
+      "status": "OK",
+      "candidate_count": 0,
+      "quote_gate_passed": 0,
+      "quote_gate_blocked": 0,
+      "candidates": []
+    },
+    {
+      "checked_utc": "2026-11-15T12:47:47+00:00",
       "status": "OK",
       "candidate_count": 0,
       "quote_gate_passed": 0,
