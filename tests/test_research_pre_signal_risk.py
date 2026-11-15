@@ -23,7 +23,7 @@ class PreSignalRiskTests(unittest.TestCase):
             self.assertEqual(row["liquidity_usd"],30000)
             self.assertEqual(row["lag_seconds"],300.0)
             self.assertIsNone(previous(db,"minute_observations","a","pairMissing",stamp,["liquidity_usd"]))
-            self.assertIsNone(previous(db,"minute_observations","a","pairA",dt("2026-11-14T18:06:00+00:00"),["liquidity_usd"]))
+            self.assertIsNone(previous(db,"minute_observations","a","pairA",dt("2026-11-14T18:20:00+00:00"),["liquidity_usd"]))
 
     def test_report_preserves_missing_instead_of_filling_future(self):
         with tempfile.TemporaryDirectory() as folder:
