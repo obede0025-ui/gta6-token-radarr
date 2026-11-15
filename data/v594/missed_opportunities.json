@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8732,
-  "unique_pairs": 481,
-  "window_start_utc": "2026-11-14T21:26:55+00:00",
-  "window_end_utc": "2026-11-15T21:26:55+00:00",
+  "observations": 8743,
+  "unique_pairs": 480,
+  "window_start_utc": "2026-11-14T21:32:37+00:00",
+  "window_end_utc": "2026-11-15T21:32:37+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8251,
-    "gaps_over_20_min": 3837,
-    "gap_rate_pct": 46.5,
-    "gaps_with_observed_rise_over_20pct": 20
+    "intervals": 8263,
+    "gaps_over_20_min": 3850,
+    "gap_rate_pct": 46.59,
+    "gaps_with_observed_rise_over_20pct": 22
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8251,
-    "gaps_over_20_min": 3837,
-    "gap_rate_pct": 46.5,
-    "gaps_with_observed_rise_over_20pct": 20
+    "intervals": 8263,
+    "gaps_over_20_min": 3850,
+    "gap_rate_pct": 46.59,
+    "gaps_with_observed_rise_over_20pct": 22
   },
   "top_potential_blind_spots": [
     {
@@ -123,6 +123,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "2hwaRQs4WqThnp26XLpch5MBZhAHqses3vSv1Bkupump",
+      "pair": "6DLCbW5m5AskjJTJrgR4Vz5sxAyD63eAJEEvDhcpFGrQ",
+      "name": "Grand Theft Auto VI",
+      "from_utc": "2026-11-15T20:27:16+00:00",
+      "to_utc": "2026-11-15T21:32:37+00:00",
+      "gap_minutes": 65.35,
+      "observed_price_change_pct": 36.2,
+      "volume_m5_at_return": 107.35,
+      "liquidity_usd_at_return": 5985.83,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "21sFnUZ15fncG39S2btmX896x2PE9Zs1KCe9z5oopump",
       "pair": "8iBrxdFmKdorajigU9cNi337cFppAAwPY8rkWz3woGJ9",
       "name": "GTA VI",
@@ -168,6 +180,18 @@
       "observed_price_change_pct": 32.05,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 48022.72,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "4Dj8m9vWqu779F1KDBUttvXM8YFm7U92SDpvjBNKtEiB",
+      "pair": "3pEHyg4hvDF2chcaS7n11SBo3VYeJmzrvAtoqxRTE9Zz",
+      "name": "GTA VI",
+      "from_utc": "2026-11-15T20:27:16+00:00",
+      "to_utc": "2026-11-15T21:32:37+00:00",
+      "gap_minutes": 65.35,
+      "observed_price_change_pct": 30.31,
+      "volume_m5_at_return": 34.89,
+      "liquidity_usd_at_return": 4957.81,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -267,7 +291,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 20,
+  "blind_spot_count": 22,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
