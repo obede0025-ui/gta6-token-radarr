@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8557,
-  "unique_pairs": 427,
-  "window_start_utc": "2026-11-14T02:52:00+00:00",
-  "window_end_utc": "2026-11-15T02:52:00+00:00",
+  "observations": 8567,
+  "unique_pairs": 428,
+  "window_start_utc": "2026-11-14T02:57:21+00:00",
+  "window_end_utc": "2026-11-15T02:57:21+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8130,
-    "gaps_over_20_min": 3527,
-    "gap_rate_pct": 43.38,
+    "intervals": 8139,
+    "gaps_over_20_min": 3535,
+    "gap_rate_pct": 43.43,
     "gaps_with_observed_rise_over_20pct": 18
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8130,
-    "gaps_over_20_min": 3527,
-    "gap_rate_pct": 43.38,
+    "intervals": 8139,
+    "gaps_over_20_min": 3535,
+    "gap_rate_pct": 43.43,
     "gaps_with_observed_rise_over_20pct": 18
   },
   "top_potential_blind_spots": [
@@ -36,6 +36,18 @@
       "observed_price_change_pct": 131.19,
       "volume_m5_at_return": 24.22,
       "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "4b3ypv8i8vKUfCfETpbbPSLtvvW39eQVt5M41PxCpump",
+      "pair": "DJcLKiHMk2quns6HGcSoFRDcU1iKazacZ9h3LHfNRFsM",
+      "name": "Auda Markets",
+      "from_utc": "2026-11-15T02:32:38+00:00",
+      "to_utc": "2026-11-15T02:57:21+00:00",
+      "gap_minutes": 24.72,
+      "observed_price_change_pct": 64.0,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 2945.57,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -192,18 +204,6 @@
       "observed_price_change_pct": 24.6,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 6464.18,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "BzH6KKFFwrJ836yWXRtAbKsN1i5EzhbPQysJBU78pump",
-      "pair": "AEiDaNdH2Zr967cAGQsiMkDw4epH9di3WS9BUekSdJfA",
-      "name": "Grand Theft Auto VI",
-      "from_utc": "2026-11-14T02:56:29+00:00",
-      "to_utc": "2026-11-14T03:56:52+00:00",
-      "gap_minutes": 60.38,
-      "observed_price_change_pct": 23.25,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 19435.68,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
