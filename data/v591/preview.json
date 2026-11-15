@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-15T08:37:03+00:00",
+  "generated_utc": "2026-11-15T08:42:17+00:00",
   "last_processed": [
-    "2026-11-15T08:37:01+00:00",
-    "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump",
-    "5E3dXLXGwmTDCokA51WYYaKttjFZBwqCoyUHBUi5gt2m"
+    "2026-11-15T08:42:15+00:00",
+    "wKy6tEDZj6jS1GUMmnSSTrR1bXJQa35s7VHcWHxhNbA",
+    "i6Gkgadg8Je9QXwRiqjmiEU1ctpYY7dyf2RzTAFkkjZ"
   ],
   "run": {
-    "observations": 11,
+    "observations": 40,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,32 +25,36 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 11
+      "no_momentum_signal": 40
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "volume_5m_te_laag": 8,
+          "volume_5m_te_laag": 4,
+          "te_weinig_opeenvolgende_metingen": 33,
           "momentumvoorwaarden_niet_gehaald": 3
         },
         "B": {
-          "volume_5m_te_laag": 8,
+          "volume_5m_te_laag": 4,
+          "te_weinig_opeenvolgende_metingen": 33,
           "momentumvoorwaarden_niet_gehaald": 3
         },
         "C": {
-          "volume_5m_te_laag": 8,
+          "volume_5m_te_laag": 4,
+          "te_weinig_opeenvolgende_metingen": 33,
           "momentumvoorwaarden_niet_gehaald": 3
         }
       },
       "spacing": {
-        "interval_geldig": 11
+        "interval_geldig": 7,
+        "interval_te_lang": 32,
+        "geen_vorige_meting": 1
       },
       "market_filters": {
-        "volume_5m_te_laag_of_onbekend": 8,
-        "paarleeftijd_ongeldig": 9,
-        "microtransacties": 1,
-        "buys_niet_hoger_dan_sells": 8,
-        "liquiditeit_te_laag_of_onbekend": 2
+        "liquiditeit_te_laag_of_onbekend": 35,
+        "volume_5m_te_laag_of_onbekend": 37,
+        "paarleeftijd_ongeldig": 17,
+        "buys_niet_hoger_dan_sells": 38
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
