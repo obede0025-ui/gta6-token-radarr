@@ -22,6 +22,7 @@ from research_selection_cohort_momentum import report as cohort_report
 from research_legacy_v32_gap_explain import explain as legacy_gap_explain
 from research_operational_diagnostics import report as operational_report
 from research_selection_pair_quality import report as pair_quality_report
+from research_forward_age_shadow import report as forward_age_report
 
 ROOT=Path("/home/ubuntu")
 PILOT=ROOT/"gta6-v32-gate-pilot"
@@ -41,6 +42,7 @@ TEST_PATTERNS=[
     "test_research_selection_cohort_momentum.py",
     "test_research_operational_diagnostics.py",
     "test_research_selection_pair_quality.py",
+    "test_research_forward_age_shadow.py",
 ]
 ORDER={"PASS":0,"INFO":0,"WAITING":1,"WARN":2,"FAIL":3}
 
@@ -287,6 +289,32 @@ def evaluate(root=ROOT,now=None,with_tests=True,python=sys.executable):
     except Exception as exc:
         check(checks,"selection_pair_quality","WARN",
               type(exc).__name__+": "+str(exc)[:160])
+    try:
+        epoch_path=pilot/"forward_age_30m_epoch.json"
+        if not epoch_path.is_file():
+            check(checks,"forward_age_30m","WAITING",
+                  "Frozen epoch not initialized; no historical results counted")
+        else:
+            study=forward_age_report(
+                epoch_path=epoch_path,
+                state_path=pilot/"jupiter_minute_quotes_state.json",
+                minute_path=pilot/"minute_market_pilot.sqlite",
+                original_path=root/"gta6-paper-vps/data/learning.db",now=now)
+            metrics["forward_age_30m"]=study
+            a=study["A_3pct_gate"]
+            b=study["B_3pct_plus_30min"]
+            check(checks,"forward_age_30m",
+                  "PASS" if study["verdict"]!="INSUFFICIENT_FORWARD_SAMPLE" else "WAITING",
+                  "since="+study["epoch_utc"]+
+                  ", post_epoch="+str(study["eligible_new_positions"])+
+                  ", A_candidates="+str(a["candidates"])+
+                  ", B_candidates="+str(b["candidates"])+
+                  ", A_matured="+str(a["matured"])+
+                  ", B_matured="+str(b["matured"])+
+                  "; quote-only research, no trades")
+    except Exception as exc:
+        check(checks,"forward_age_30m","WARN",
+              type(exc).__name__+": "+str(exc)[:160])
     counts=dict(Counter(item["status"] for item in checks))
     # A healthy quote-only research stack may have intentional legacy GAPs
     # and limited data. Never turn that into profitability certification.
@@ -336,6 +364,18 @@ def readable(result):
                       "Proposed: observations="+str(new.get("observations",0))+
                       ", unique_signals="+str(new.get("first_unique_research_signals",0)),
                       "Signal comparison is research-only, not Jupiter fills."])
+    forward=result["metrics"].get("forward_age_30m",{})
+    if forward:
+        a=forward["A_3pct_gate"]
+        b=forward["B_3pct_plus_30min"]
+        lines.extend(["","=== FROZEN FORWARD AGE 30M QUOTE RESEARCH ===",
+                      "Epoch UTC: "+str(forward["epoch_utc"]),
+                      "New Jupiter candidates: "+str(forward["eligible_new_positions"]),
+                      "A (3%): "+str(a["candidates"])+" candidates, "+
+                      str(a["matured"])+" matured, "+str(a["outcomes"]),
+                      "B (3% + 30m): "+str(b["candidates"])+" candidates, "+
+                      str(b["matured"])+" matured, "+str(b["outcomes"]),
+                      "Quote-only observational comparison; insufficient samples do not prove benefits."])
     gap=result["metrics"].get("legacy_v32_gap_explanation",{})
     if gap:
         lines.extend(["","=== LEGACY V3.2 COVERAGE ===",
