@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 9678,
-  "unique_pairs": 587,
-  "window_start_utc": "2026-11-15T14:02:34+00:00",
-  "window_end_utc": "2026-11-16T14:02:34+00:00",
+  "observations": 9636,
+  "unique_pairs": 583,
+  "window_start_utc": "2026-11-15T14:07:47+00:00",
+  "window_end_utc": "2026-11-16T14:07:47+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 9091,
-    "gaps_over_20_min": 4151,
-    "gap_rate_pct": 45.66,
-    "gaps_with_observed_rise_over_20pct": 27
+    "intervals": 9053,
+    "gaps_over_20_min": 4129,
+    "gap_rate_pct": 45.61,
+    "gaps_with_observed_rise_over_20pct": 28
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 9091,
-    "gaps_over_20_min": 4151,
-    "gap_rate_pct": 45.66,
-    "gaps_with_observed_rise_over_20pct": 27
+    "intervals": 9053,
+    "gaps_over_20_min": 4129,
+    "gap_rate_pct": 45.61,
+    "gaps_with_observed_rise_over_20pct": 28
   },
   "top_potential_blind_spots": [
     {
@@ -34,6 +34,18 @@
       "to_utc": "2026-11-16T12:07:44+00:00",
       "gap_minutes": 23.7,
       "observed_price_change_pct": 2451512.9,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 0.0,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "6NWLY5kwFYtfr8aT7RoPQs7NRpaEwAWUQuGMrUqmWKzQ",
+      "pair": "6p4hAYkKWzgUYf6MWNpDNqfXM6WJQBd3fvKR324zxjjH",
+      "name": "State of Leonida",
+      "from_utc": "2026-11-16T13:47:17+00:00",
+      "to_utc": "2026-11-16T14:07:47+00:00",
+      "gap_minutes": 20.5,
+      "observed_price_change_pct": 240626.58,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 0.0,
       "classification": "POTENTIELE_BLINDE_VLEK"
@@ -351,7 +363,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 27,
+  "blind_spot_count": 28,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
