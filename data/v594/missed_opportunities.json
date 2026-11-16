@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 9840,
+  "observations": 9798,
   "unique_pairs": 590,
-  "window_start_utc": "2026-11-15T11:23:41+00:00",
-  "window_end_utc": "2026-11-16T11:23:41+00:00",
+  "window_start_utc": "2026-11-15T11:32:30+00:00",
+  "window_end_utc": "2026-11-16T11:32:30+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 9250,
-    "gaps_over_20_min": 4260,
-    "gap_rate_pct": 46.05,
+    "intervals": 9208,
+    "gaps_over_20_min": 4242,
+    "gap_rate_pct": 46.07,
     "gaps_with_observed_rise_over_20pct": 29
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 9250,
-    "gaps_over_20_min": 4260,
-    "gap_rate_pct": 46.05,
+    "intervals": 9208,
+    "gaps_over_20_min": 4242,
+    "gap_rate_pct": 46.07,
     "gaps_with_observed_rise_over_20pct": 29
   },
   "top_potential_blind_spots": [
@@ -183,18 +183,6 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "4a4GEcGrvRmwfjKMjaVeYSA9fhgqxeshuDVxTsGfpump",
-      "pair": "GqL6RMMyhCj4pxjeejKuuYfEvi1fbHEZnt4M5qLAn9Ca",
-      "name": "Lucia",
-      "from_utc": "2026-11-15T11:32:25+00:00",
-      "to_utc": "2026-11-15T11:56:34+00:00",
-      "gap_minutes": 24.15,
-      "observed_price_change_pct": 33.18,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
       "token": "wKy6tEDZj6jS1GUMmnSSTrR1bXJQa35s7VHcWHxhNbA",
       "pair": "i6Gkgadg8Je9QXwRiqjmiEU1ctpYY7dyf2RzTAFkkjZ",
       "name": "Jason Duval",
@@ -204,6 +192,18 @@
       "observed_price_change_pct": 32.05,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 48022.72,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "5NXCd7eoSFSVc4YDdgd6Mhri6AVUyYJL38ZbaHpCpump",
+      "pair": "8AbXeuwBMaMQXR4q447EMdVoU5MkTtWWnacuGsmwXke6",
+      "name": "Grand Theft Auto VI The Festival",
+      "from_utc": "2026-11-15T15:22:45+00:00",
+      "to_utc": "2026-11-16T11:32:30+00:00",
+      "gap_minutes": 1209.75,
+      "observed_price_change_pct": 31.23,
+      "volume_m5_at_return": 90.59,
+      "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
