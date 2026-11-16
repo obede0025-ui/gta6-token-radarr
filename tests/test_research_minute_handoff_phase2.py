@@ -50,6 +50,7 @@ class PhaseTwoTests(unittest.TestCase):
     def test_reject_incompatible_state(self):
         b3=b3_state()
         m1=initialize(NOW,b3)
+        m1["rules"]=dict(m1["rules"])
         m1["rules"]["tp_pct"]=99
         with self.assertRaises(ValueError):
             verify_sources(b3,m1)
