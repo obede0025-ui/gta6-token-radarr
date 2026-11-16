@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 9508,
-  "unique_pairs": 570,
-  "window_start_utc": "2026-11-15T05:12:40+00:00",
-  "window_end_utc": "2026-11-16T05:12:40+00:00",
+  "observations": 9505,
+  "unique_pairs": 569,
+  "window_start_utc": "2026-11-15T05:17:36+00:00",
+  "window_end_utc": "2026-11-16T05:17:36+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8938,
-    "gaps_over_20_min": 4085,
-    "gap_rate_pct": 45.7,
+    "intervals": 8936,
+    "gaps_over_20_min": 4083,
+    "gap_rate_pct": 45.69,
     "gaps_with_observed_rise_over_20pct": 22
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8938,
-    "gaps_over_20_min": 4085,
-    "gap_rate_pct": 45.7,
+    "intervals": 8936,
+    "gaps_over_20_min": 4083,
+    "gap_rate_pct": 45.69,
     "gaps_with_observed_rise_over_20pct": 22
   },
   "top_potential_blind_spots": [
@@ -59,18 +59,6 @@
       "gap_minutes": 60.48,
       "observed_price_change_pct": 85.09,
       "volume_m5_at_return": 663.15,
-      "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "2AR9J8Zb8EpGTDbxZz3fLfnxdbwnq9Hye9tm9qcwpump",
-      "pair": "AxCFVVoNMrRAU8sugK5Go2p9DJV3xVjy5LdB8PspwFUE",
-      "name": "Lucia",
-      "from_utc": "2026-11-15T05:17:31+00:00",
-      "to_utc": "2026-11-15T11:22:12+00:00",
-      "gap_minutes": 364.68,
-      "observed_price_change_pct": 72.85,
-      "volume_m5_at_return": 18.36,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
@@ -275,6 +263,18 @@
       "gap_minutes": 64.5,
       "observed_price_change_pct": 21.86,
       "volume_m5_at_return": 147.88,
+      "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "4sb8vqYZm9efnio5oe9nSpGStDYKpikbRW3EGMgQpump",
+      "pair": "5GVgHW6YZ9CPVPwWzzNoa9CNZ1s7FasvKXGLv6QWf4CJ",
+      "name": "Lucia Caminos",
+      "from_utc": "2026-11-16T04:17:05+00:00",
+      "to_utc": "2026-11-16T05:17:36+00:00",
+      "gap_minutes": 60.52,
+      "observed_price_change_pct": 20.94,
+      "volume_m5_at_return": 603.4,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
