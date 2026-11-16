@@ -135,7 +135,7 @@ def followup(db,now,quoter,now_fn=lambda:datetime.now(timezone.utc)):
                 status="JUPITER_SELL_ROUTE_QUOTED"
             except Exception:
                 value=None;status="SELL_ROUTE_UNAVAILABLE"
-        db.execute("""INSERT OR IGNORE INTO quote_followups VALUES(?,?,?,?,?,?)""",
+        db.execute("""INSERT OR IGNORE INTO quote_followups VALUES(?,?,?,?,?,?,?)""",
              (mint,pair,h,start.isoformat(timespec="seconds"),elapsed_actual,
               str(value) if value else None,status))
         db.commit()
