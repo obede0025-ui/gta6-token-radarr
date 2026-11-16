@@ -117,12 +117,12 @@ def due_quotes(db,now):
             (missed if elapsed>h+MAX_LATENESS else due).append(item)
     return due,missed
 
-def followup(db,now,quoter):
+def followup(db,now,quoter,now_fn=lambda:datetime.now(timezone.utc)):
     due,missed=due_quotes(db,now)
     # Quote requests can take time. A horizon is not retroactively recovered
     # if its request actually begins after the allowed window.
     for mint,pair,h,elapsed,buy in due+missed:
-        start=now if (mint,pair,h,elapsed,buy) in missed else datetime.now(timezone.utc)
+        start=now if (mint,pair,h,elapsed,buy) in missed else now_fn()
         elapsed_actual=(start-datetime.fromisoformat(db.execute(
             "SELECT signal_utc FROM first_signals WHERE mint=? AND pair=?",(mint,pair)).fetchone()[0])).total_seconds()
         if elapsed>h+MAX_LATENESS or elapsed_actual>h+MAX_LATENESS:
@@ -210,7 +210,7 @@ def run(source=SOURCE,outcomes=OUTCOMES,cycles=CYCLES,discovery_cycles=DISCOVERY
                         if result.get("status")!="RECORDED":
                             raise RuntimeError("Bad source sample status "+str(result.get("status")))
                         collect_new_signals(source,db,now,collector)
-                    followup(db,now_fn(),collector)
+                    followup(db,now_fn(),collector,now_fn=now_fn)
                     consecutive=0
                 except Exception as exc:
                     errors.append({"cycle":i+1,"type":type(exc).__name__,"error":str(exc)[:200]})
