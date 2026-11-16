@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 11216,
-  "unique_pairs": 787,
-  "window_start_utc": "2026-11-15T22:09:09+00:00",
-  "window_end_utc": "2026-11-16T22:09:09+00:00",
+  "observations": 11169,
+  "unique_pairs": 786,
+  "window_start_utc": "2026-11-15T22:17:25+00:00",
+  "window_end_utc": "2026-11-16T22:17:25+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 10429,
-    "gaps_over_20_min": 4255,
-    "gap_rate_pct": 40.8,
-    "gaps_with_observed_rise_over_20pct": 22
+    "intervals": 10383,
+    "gaps_over_20_min": 4265,
+    "gap_rate_pct": 41.08,
+    "gaps_with_observed_rise_over_20pct": 24
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 10429,
-    "gaps_over_20_min": 4255,
-    "gap_rate_pct": 40.8,
-    "gaps_with_observed_rise_over_20pct": 22
+    "intervals": 10383,
+    "gaps_over_20_min": 4265,
+    "gap_rate_pct": 41.08,
+    "gaps_with_observed_rise_over_20pct": 24
   },
   "top_potential_blind_spots": [
     {
@@ -207,6 +207,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "4RgnhfTV9171c9FD2KwexCT1tqWPTihtFiUiQR4Jpump",
+      "pair": "2pqrrQeH6qBhpYM9bWdzJieVoF7RHsCBPEA6paMqrYYu",
+      "name": "LUCIA CAMINOS",
+      "from_utc": "2026-11-16T16:18:33+00:00",
+      "to_utc": "2026-11-16T22:17:25+00:00",
+      "gap_minutes": 358.87,
+      "observed_price_change_pct": 26.51,
+      "volume_m5_at_return": 16.97,
+      "liquidity_usd_at_return": 7762.6,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "wKy6tEDZj6jS1GUMmnSSTrR1bXJQa35s7VHcWHxhNbA",
       "pair": "i6Gkgadg8Je9QXwRiqjmiEU1ctpYY7dyf2RzTAFkkjZ",
       "name": "Jason Duval",
@@ -228,6 +240,18 @@
       "observed_price_change_pct": 21.86,
       "volume_m5_at_return": 147.88,
       "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "GmrDgvX7rjAJzqcAuP1cSd3RXeeF1Pcw2nnVubgiC5oy",
+      "pair": "3FmyGrJPLDVgDVwRVenuaq1xBwkZauP5TSskHRz72wSS",
+      "name": "Vice City",
+      "from_utc": "2026-11-16T21:13:37+00:00",
+      "to_utc": "2026-11-16T22:17:25+00:00",
+      "gap_minutes": 63.8,
+      "observed_price_change_pct": 21.35,
+      "volume_m5_at_return": 0.0,
+      "liquidity_usd_at_return": 4989.09,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -291,7 +315,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 22,
+  "blind_spot_count": 24,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
