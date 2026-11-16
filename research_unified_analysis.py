@@ -89,7 +89,7 @@ def quality_report(samples):
             "unique_mints_momentum_pass":len({r[1] for r in subset if r[13]}),
             "base_pass_observations":sum(r[12] for r in subset),
             "momentum_pass_observations":sum(r[13] for r in subset),
-            "base_blockers_overlapping":dict(base_blockers.most_common()),
+            "base_blockers_overlapping":dict(sorted(base_blockers.items(), key=lambda item: (-item[1], item[0]))),
             "base_pass_but_not_momentum_reasons":dict(why.most_common())}
     return bycohort
 
