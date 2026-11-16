@@ -7,9 +7,7 @@ change production databases, submit orders or touch frozen cohorts.
 import argparse
 import json
 import math
-import sqlite3
 import time
-from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -91,7 +89,7 @@ def run(path=SHADOW,cycles=DEFAULT_CYCLES,interval=DEFAULT_INTERVAL,slots=20,
                 raise RuntimeError("Unexpected sample status: "+str(result.get("status")))
             completed.append(result)
             successive_errors=0
-        except (OSError,ValueError,RuntimeError,sqlite3.Error,Exception) as exc:
+        except Exception as exc:
             errors.append({"attempt":n+1,"type":type(exc).__name__,
                            "message":str(exc)[:300]})
             successive_errors+=1
