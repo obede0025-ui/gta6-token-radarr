@@ -14,7 +14,7 @@ import requests
 
 from research_discovery_shadow_v2 import (
     PROFILE_URL, BOOST_URL, SHADOW as V2_DB, discover,
-    choose_pairs, fetch_list, fetch_markets, make_sample, count
+    choose_pairs, fetch_list, fetch_markets, momentum, count
 )
 from research_minute_market_pilot import finite
 
@@ -88,12 +88,36 @@ def rank_from_history(mints,previous,slots):
     ordered=sorted(enumerate(mints),key=lambda v:(priority(v[1]),v[0]))
     return [mint for _,mint in ordered[:slots]]
 
+def make_sample(db,now,mint,pair,cohort,feed,market):
+    """Same V2 gates, using own cohort history and exact pair identity."""
+    from research_discovery_shadow_v2 import MIN_LIQUIDITY, MIN_VOLUME, MAX_PAIR_AGE_HOURS
+    stamp=now.isoformat(timespec="seconds")
+    price=finite(market.get("priceUsd"))
+    liq=finite((market.get("liquidity") or {}).get("usd"))
+    if liq is not None and liq<0:liq=None
+    vol=finite((market.get("volume") or {}).get("m5"))
+    tx=(market.get("txns") or {}).get("m5") or {}
+    buys=finite(tx.get("buys"))
+    sells=finite(tx.get("sells"))
+    created=finite(market.get("pairCreatedAt"))
+    age=(now.timestamp()*1000-created)/3600000 if created is not None and created>0 else None
+    if age is not None and age<0:age=None
+    status=("MARKET_DATA_UNAVAILABLE" if price is None or price<=0 else
+            "LIQUIDITY_UNKNOWN" if liq is None else "QUOTE_MARKET_OBSERVED")
+    base=(status=="QUOTE_MARKET_OBSERVED" and liq>=MIN_LIQUIDITY
+          and vol is not None and vol>=MIN_VOLUME
+          and buys is not None and sells is not None and buys>sells
+          and age is not None and 0<=age<=MAX_PAIR_AGE_HOURS)
+    old=db.execute("""SELECT observed_at,volume_m5 FROM quality_cohort_samples
+          WHERE mint=? AND pair=? AND cohort=? AND observed_at<?
+          ORDER BY observed_at DESC LIMIT 1""",
+          (mint,pair,cohort,stamp)).fetchone()
+    passed,reason=momentum(now,old,vol,buys,sells)
+    return (stamp,mint,pair,cohort,feed,price,liq,vol,buys,sells,age,
+            status,int(base),int(base and passed),reason)
+
 def market_sample(now,mint,p):
     """Exact selected pair attributes; unknown is retained as None."""
-    from research_discovery_shadow_v2 import make_sample
-    # Reuse calculation with an in-memory, no-prior database only for fields;
-    # do not persist this provisional row or claim momentum.
-    # Inline safe extraction here to avoid side effects.
     tx=(p.get("txns") or {}).get("m5") or {}
     created=finite(p.get("pairCreatedAt"))
     age=(now.timestamp()*1000-created)/3600000 if created and created>0 else None
