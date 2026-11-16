@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 9351,
-  "unique_pairs": 559,
-  "window_start_utc": "2026-11-15T04:28:02+00:00",
-  "window_end_utc": "2026-11-16T04:28:02+00:00",
+  "observations": 9356,
+  "unique_pairs": 562,
+  "window_start_utc": "2026-11-15T04:32:51+00:00",
+  "window_end_utc": "2026-11-16T04:32:51+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8792,
-    "gaps_over_20_min": 4029,
-    "gap_rate_pct": 45.83,
-    "gaps_with_observed_rise_over_20pct": 21
+    "intervals": 8794,
+    "gaps_over_20_min": 4028,
+    "gap_rate_pct": 45.8,
+    "gaps_with_observed_rise_over_20pct": 22
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8792,
-    "gaps_over_20_min": 4029,
-    "gap_rate_pct": 45.83,
-    "gaps_with_observed_rise_over_20pct": 21
+    "intervals": 8794,
+    "gaps_over_20_min": 4028,
+    "gap_rate_pct": 45.8,
+    "gaps_with_observed_rise_over_20pct": 22
   },
   "top_potential_blind_spots": [
     {
@@ -96,6 +96,18 @@
       "observed_price_change_pct": 42.91,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 5146.28,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "586h1CzA8Rr2iAMDu7kg6pbRKxEGUCMR3LE7y66rpump",
+      "pair": "wW3ddSbCKGjcyF2dz14GpvTY7M5GrjeVwhxMfQJgq7U",
+      "name": "GRAND THEFT AUTO VI GAMING CHAIR",
+      "from_utc": "2026-11-15T23:22:29+00:00",
+      "to_utc": "2026-11-16T04:32:51+00:00",
+      "gap_minutes": 310.37,
+      "observed_price_change_pct": 39.11,
+      "volume_m5_at_return": 1504.55,
+      "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -279,7 +291,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 21,
+  "blind_spot_count": 22,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
