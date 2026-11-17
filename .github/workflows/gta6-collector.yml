@@ -140,7 +140,6 @@ jobs:
             git rm --cached --ignore-unmatch data/learning.db
             git add -A data/learning_archive
             git add \
-              data/learning.db \
               data/latest_scan.json \
               data/v591/portfolio.json \
               data/v591/preview.json \
