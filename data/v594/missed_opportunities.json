@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 10941,
-  "unique_pairs": 607,
-  "window_start_utc": "2026-11-16T17:33:13+00:00",
-  "window_end_utc": "2026-11-17T17:33:13+00:00",
+  "observations": 10924,
+  "unique_pairs": 609,
+  "window_start_utc": "2026-11-16T17:39:21+00:00",
+  "window_end_utc": "2026-11-17T17:39:21+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 10334,
-    "gaps_over_20_min": 4638,
-    "gap_rate_pct": 44.88,
+    "intervals": 10315,
+    "gaps_over_20_min": 4641,
+    "gap_rate_pct": 44.99,
     "gaps_with_observed_rise_over_20pct": 18
   },
   "before_cooldown": {
@@ -20,12 +20,24 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 10334,
-    "gaps_over_20_min": 4638,
-    "gap_rate_pct": 44.88,
+    "intervals": 10315,
+    "gaps_over_20_min": 4641,
+    "gap_rate_pct": 44.99,
     "gaps_with_observed_rise_over_20pct": 18
   },
   "top_potential_blind_spots": [
+    {
+      "token": "EcWuWyaYxeBEjfvGWbLSmsuBiKddLD7Hjt37MFznq3dN",
+      "pair": "9XXqB1UXss1GTNo8YqKiRHKNVEWr8jVU63oEZwz9vdsH",
+      "name": "State of Leonida",
+      "from_utc": "2026-11-17T17:15:06+00:00",
+      "to_utc": "2026-11-17T17:39:21+00:00",
+      "gap_minutes": 24.25,
+      "observed_price_change_pct": 47299.18,
+      "volume_m5_at_return": null,
+      "liquidity_usd_at_return": 0.0,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
     {
       "token": "54eQjyYHQr6QeL93GyPEDGL1LH4zSnXF87tjbrzc6CLk",
       "pair": "58nEkLnfA3nVxB1zcHMDRH1ZQsSGZQLwRP1oDeJEQ6R9",
@@ -48,18 +60,6 @@
       "observed_price_change_pct": 70.99,
       "volume_m5_at_return": 80.37,
       "liquidity_usd_at_return": 2586.61,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "HgEHR2BQ7sXUL8fomSdPnwUeyNMA7Vr34jQjaik5pump",
-      "pair": "G5VVVqQEcdE2nZXhCNHQZ3yRzSGCw6otzrWN8Csw2Dq8",
-      "name": "VICE CITY",
-      "from_utc": "2026-11-16T17:37:50+00:00",
-      "to_utc": "2026-11-17T08:23:18+00:00",
-      "gap_minutes": 885.47,
-      "observed_price_change_pct": 67.55,
-      "volume_m5_at_return": 78.07,
-      "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
