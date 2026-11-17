@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 11680,
-  "unique_pairs": 705,
-  "window_start_utc": "2026-11-16T12:29:12+00:00",
-  "window_end_utc": "2026-11-17T12:29:12+00:00",
+  "observations": 11678,
+  "unique_pairs": 703,
+  "window_start_utc": "2026-11-16T12:33:39+00:00",
+  "window_end_utc": "2026-11-17T12:33:39+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
     "intervals": 10975,
-    "gaps_over_20_min": 4473,
-    "gap_rate_pct": 40.76,
+    "gaps_over_20_min": 4470,
+    "gap_rate_pct": 40.73,
     "gaps_with_observed_rise_over_20pct": 19
   },
   "before_cooldown": {
@@ -21,8 +21,8 @@
   },
   "after_cooldown": {
     "intervals": 10975,
-    "gaps_over_20_min": 4473,
-    "gap_rate_pct": 40.76,
+    "gaps_over_20_min": 4470,
+    "gap_rate_pct": 40.73,
     "gaps_with_observed_rise_over_20pct": 19
   },
   "top_potential_blind_spots": [
@@ -48,18 +48,6 @@
       "observed_price_change_pct": 15725.37,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 0.07,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "9iaXwjVAtRQmDKuYuxMmT5GBKiVJ3dQ4ji1vWkEXY1Jz",
-      "pair": "DuRQxRJ4gDL7fPWLEo2FK1qaKL11w8SafjDhx6JXS2Hp",
-      "name": "iFruit",
-      "from_utc": "2026-11-16T12:33:38+00:00",
-      "to_utc": "2026-11-17T05:48:56+00:00",
-      "gap_minutes": 1035.3,
-      "observed_price_change_pct": 160.68,
-      "volume_m5_at_return": 3.64,
-      "liquidity_usd_at_return": 23575.68,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -204,6 +192,18 @@
       "observed_price_change_pct": 21.75,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 7790.0,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "EHS3LnJrp5CMpyUZjN3vdNwukSnzTRQzvuweqChppump",
+      "pair": "8AxFo6DyX5mnRjvN2Q6LyFsmKLfGefSR9VPHBnJTuEP9",
+      "name": "Vice City ",
+      "from_utc": "2026-11-17T12:13:24+00:00",
+      "to_utc": "2026-11-17T12:33:39+00:00",
+      "gap_minutes": 20.25,
+      "observed_price_change_pct": 21.36,
+      "volume_m5_at_return": null,
+      "liquidity_usd_at_return": 1.56,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
