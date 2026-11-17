@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Growing SQLite state is reconstructed from integrity-verified archive chunks.
+/data/learning.db
+/data/learning.db-journal
+/data/learning.db-wal
+/data/learning.db-shm
