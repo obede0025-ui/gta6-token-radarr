@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 11706,
-  "unique_pairs": 696,
-  "window_start_utc": "2026-11-16T13:38:16+00:00",
-  "window_end_utc": "2026-11-17T13:38:16+00:00",
+  "observations": 11708,
+  "unique_pairs": 700,
+  "window_start_utc": "2026-11-16T13:43:31+00:00",
+  "window_end_utc": "2026-11-17T13:43:31+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 11010,
+    "intervals": 11008,
     "gaps_over_20_min": 4510,
-    "gap_rate_pct": 40.96,
+    "gap_rate_pct": 40.97,
     "gaps_with_observed_rise_over_20pct": 19
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 11010,
+    "intervals": 11008,
     "gaps_over_20_min": 4510,
-    "gap_rate_pct": 40.96,
+    "gap_rate_pct": 40.97,
     "gaps_with_observed_rise_over_20pct": 19
   },
   "top_potential_blind_spots": [
@@ -183,18 +183,6 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "2FcsqRrhvgSfYxJWh32xW873vyqBZ9jmMyXqYSPgNtuZ",
-      "pair": "9LP64XgWXb7Q8qzmLfRinGjYCfUTxe4KNMXWwZSwuKjF",
-      "name": "Lucia From GTA 6",
-      "from_utc": "2026-11-16T13:42:50+00:00",
-      "to_utc": "2026-11-16T22:28:34+00:00",
-      "gap_minutes": 525.73,
-      "observed_price_change_pct": 22.46,
-      "volume_m5_at_return": 493.12,
-      "liquidity_usd_at_return": 48198.38,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
       "token": "4RgnhfTV9171c9FD2KwexCT1tqWPTihtFiUiQR4Jpump",
       "pair": "2pqrrQeH6qBhpYM9bWdzJieVoF7RHsCBPEA6paMqrYYu",
       "name": "LUCIA CAMINOS",
@@ -204,6 +192,18 @@
       "observed_price_change_pct": 21.75,
       "volume_m5_at_return": 0.0,
       "liquidity_usd_at_return": 7790.0,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "2wMTr4ZttVr5tmS4wLStee59wi8f9QQfMtT2Hoispump",
+      "pair": "99RTagSD6VDUCzjwmzi4q1RrAdtyAuYnR7xsXLfesz69",
+      "name": "Grand Theft Auto",
+      "from_utc": "2026-11-17T12:38:20+00:00",
+      "to_utc": "2026-11-17T13:43:31+00:00",
+      "gap_minutes": 65.18,
+      "observed_price_change_pct": 21.71,
+      "volume_m5_at_return": 1989.28,
+      "liquidity_usd_at_return": 35042.15,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
