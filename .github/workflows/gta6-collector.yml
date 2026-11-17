@@ -38,6 +38,9 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
 
+      - name: Restore integrity-verified learning database
+        run: python learning_db_archive.py restore
+
       - name: Verify Python engines
         run: |
           python -m py_compile \
@@ -130,6 +133,12 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
           for attempt in 1 2 3; do
+            # The live SQLite DB is NOT committed: GitHub rejects files >100 MB.
+            # Produce and verify lossless backup chunks before removing DB
+            # from the git index. The on-disk learning.db is never deleted.
+            python learning_db_archive.py snapshot
+            git rm --cached --ignore-unmatch data/learning.db
+            git add -A data/learning_archive
             git add \
               data/learning.db \
               data/latest_scan.json \
@@ -163,6 +172,8 @@ jobs:
             echo 'Remote changed - rescan safely'
             git fetch origin main
             git reset --hard origin/main
+            # Restore the last published complete snapshot before retrying.
+            python learning_db_archive.py restore
 
             python collector.py
             python radar_pretrade_safety.py > data/v594/pretrade_safety.json
