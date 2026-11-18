@@ -86,10 +86,10 @@ def evaluate(candidate,route,security,now=None):
             reasons.append("SECURITY_EVIDENCE_STALE")
         if security.get("program")!=EXPECTED_PROGRAM:
             reasons.append("TOKEN_PROGRAM_UNVERIFIED")
-        if security.get("mint_authority") is not None:
-            reasons.append("MINT_AUTHORITY_NOT_DISABLED")
-        if security.get("freeze_authority") is not None:
-            reasons.append("FREEZE_AUTHORITY_NOT_DISABLED")
+        if "mint_authority" not in security or security.get("mint_authority") is not None:
+            reasons.append("MINT_AUTHORITY_NOT_DISABLED_OR_UNKNOWN")
+        if "freeze_authority" not in security or security.get("freeze_authority") is not None:
+            reasons.append("FREEZE_AUTHORITY_NOT_DISABLED_OR_UNKNOWN")
         exts=security.get("extensions")
         if not isinstance(exts,list):
             reasons.append("TOKEN_EXTENSIONS_UNKNOWN")
