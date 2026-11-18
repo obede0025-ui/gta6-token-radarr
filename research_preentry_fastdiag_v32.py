@@ -10,9 +10,22 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from research_preentry_probe_v31 import selection
+from radar_pretrade_safety import select_candidates
 
 DEFAULT_DB="/home/ubuntu/gta6-paper-vps/data/learning.db"
 DEFAULT_STATE="/home/ubuntu/gta6-paper-vps/data/v591/portfolio.json"
+
+def shadow_without_capacity(db_path, state, now):
+    """Re-run SAME momentum selector with only open-position slots empty.
+
+    State remains an in-memory copy; traded history and all thresholds stay
+    intact. This is only a diagnostic; no paper/live entries are permitted.
+    """
+    isolated=dict(state)
+    isolated["open"]={key:{} for key in ("A","B","C")}
+    with sqlite3.connect(Path(db_path).resolve().as_uri()+"?mode=ro",uri=True) as conn:
+        conn.execute("PRAGMA query_only=ON")
+        return select_candidates(conn,isolated,now,limit=5)
 
 def diagnose(db_path,state_path,now=None):
     now=now or datetime.now(timezone.utc)
@@ -63,12 +76,27 @@ def diagnose(db_path,state_path,now=None):
         result["selected_candidates"]=None
         result["diagnosis"].append("SELECTION_ERROR_"+type(exc).__name__)
         return result
+    result["shadow_candidates_without_capacity_limit"]=None
+    if not candidates:
+        try:
+            shadow=shadow_without_capacity(db,stat,now)
+            result["shadow_candidates_without_capacity_limit"]=len(shadow)
+            result["shadow_strategies"]={k:sum(c["strategy"]==k for c in shadow)
+                for k in ("A","B","C")}
+        except (sqlite3.Error,ValueError,TypeError,KeyError):
+            result["shadow_diagnostic_error"]="SHADOW_SELECTOR_UNAVAILABLE"
     age=result["latest_age_minutes"]
     if age is None or age<0 or age>12:result["diagnosis"].append("SCANNER_DATA_STALE")
     if result["last_12m"]["snapshots"]==0:result["diagnosis"].append("NO_RECENT_SNAPSHOTS")
     elif result["last_12m"]["liquidity_volume_buy_pressure"]==0:
         result["diagnosis"].append("MARKET_FILTERS_REJECT_RECENT_DATA")
-    elif not candidates:result["diagnosis"].append("MOMENTUM_OR_PORTFOLIO_FILTERS_REJECT_ALL")
+    elif not candidates:
+        if result["shadow_candidates_without_capacity_limit"]:
+            result["diagnosis"].append("PORTFOLIO_CAPACITY_BLOCKS_CANDIDATES")
+        elif result["shadow_candidates_without_capacity_limit"]==0:
+            result["diagnosis"].append("MOMENTUM_OR_TRADED_HISTORY_FILTERS_REJECT_ALL")
+        else:
+            result["diagnosis"].append("MOMENTUM_OR_PORTFOLIO_FILTERS_REJECT_ALL")
     if not result["diagnosis"]:result["diagnosis"].append("RECENT_CANDIDATES_PRESENT")
     return result
 
