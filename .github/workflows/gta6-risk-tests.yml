@@ -10,6 +10,7 @@ on:
       - 'research_observer_health_v34.py'
       - 'research_dashboard_v34.py'
       - 'research_v34_cycle.py'
+      - 'deploy/systemd/gta6-v34-research.*'
       - 'research_risk_gate_v29.py'
       - 'radar_jupiter_pacing_v30.py'
       - 'radar_quote_monitor.py'
@@ -40,7 +41,7 @@ jobs:
           python -m py_compile research_preentry_evidence_v31.py research_preentry_probe_v31.py research_preentry_fastdiag_v32.py research_quote_cohort_v33.py research_observer_health_v34.py research_dashboard_v34.py research_v34_cycle.py research_risk_gate_v29.py radar_jupiter_pacing_v30.py
       - name: Run comprehensive offline regression tests
         run: |
-          python -m unittest tests.test_research_v34_cycle tests.test_research_dashboard_v34 tests.test_research_observer_health_v34 tests.test_research_mint_integrity_v33 tests.test_research_quote_cohort_v33 tests.test_research_preentry_fastdiag_v32 tests.test_research_preentry_probe_v31 tests.test_research_preentry_evidence_v31 tests.test_radar_jupiter_pacing_v30 tests.test_research_risk_gate_v29 -v
+          python -m unittest tests.test_research_v34_service tests.test_research_v34_cycle tests.test_research_dashboard_v34 tests.test_research_observer_health_v34 tests.test_research_mint_integrity_v33 tests.test_research_quote_cohort_v33 tests.test_research_preentry_fastdiag_v32 tests.test_research_preentry_probe_v31 tests.test_research_preentry_evidence_v31 tests.test_radar_jupiter_pacing_v30 tests.test_research_risk_gate_v29 -v
       - name: Assert no trading credentials are available
         env:
           JUPITER_API_KEY: ''
