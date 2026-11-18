@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 10253,
+  "observations": 10267,
   "unique_pairs": 628,
-  "window_start_utc": "2026-11-17T18:21:23+00:00",
-  "window_end_utc": "2026-11-18T18:21:23+00:00",
+  "window_start_utc": "2026-11-17T18:27:15+00:00",
+  "window_end_utc": "2026-11-18T18:27:15+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 9625,
-    "gaps_over_20_min": 3857,
-    "gap_rate_pct": 40.07,
+    "intervals": 9639,
+    "gaps_over_20_min": 3861,
+    "gap_rate_pct": 40.06,
     "gaps_with_observed_rise_over_20pct": 17
   },
   "before_cooldown": {
@@ -20,24 +20,12 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 9625,
-    "gaps_over_20_min": 3857,
-    "gap_rate_pct": 40.07,
+    "intervals": 9639,
+    "gaps_over_20_min": 3861,
+    "gap_rate_pct": 40.06,
     "gaps_with_observed_rise_over_20pct": 17
   },
   "top_potential_blind_spots": [
-    {
-      "token": "HQjXLbFPkpJP1BmF55DgXj9F6614FURvGLKuyCZQpump",
-      "pair": "J3BYGU9dTkVZ28PXfKbpp8R6ienTEWcYYnPbyDYo2xCW",
-      "name": "Official Grand Theft Auto VI",
-      "from_utc": "2026-11-17T18:23:31+00:00",
-      "to_utc": "2026-11-18T03:24:48+00:00",
-      "gap_minutes": 541.28,
-      "observed_price_change_pct": 495.46,
-      "volume_m5_at_return": 54136.08,
-      "liquidity_usd_at_return": 28092.18,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
     {
       "token": "8iWWRVByNYLqmuhap8KgT1rCABj33WJWAh9arGtApump",
       "pair": "GqGWCBf8SCUxFY2Vr1BGNBh8XZJPhxuy8nTrJoKnAMRP",
@@ -156,6 +144,18 @@
       "observed_price_change_pct": 44.99,
       "volume_m5_at_return": 86.82,
       "liquidity_usd_at_return": 6894.96,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "imYt22usW6YUkgF3KGg97YKNn51FGk4rt4b3dtypump",
+      "pair": "42TTYaKh4JrJwR1rxF3o85ib6z5tYQQFCPSYy6dxt1Xk",
+      "name": "Founder",
+      "from_utc": "2026-11-18T18:05:52+00:00",
+      "to_utc": "2026-11-18T18:27:15+00:00",
+      "gap_minutes": 21.38,
+      "observed_price_change_pct": 40.12,
+      "volume_m5_at_return": 1282.91,
+      "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
