@@ -13,11 +13,36 @@ from pathlib import Path
 import requests
 
 from radar_pretrade_safety import select_candidates
-from research_discovery_quote_v27 import Quoter,USDC,BUY_USDC_RAW
+from research_discovery_quote_v27 import USDC,BUY_USDC_RAW,ORDER_URL
+from radar_jupiter_pacing_v30 import SHARED_PACER
 from radar_token_security import evaluate_mint,rpc_get_account,DEFAULT_RPC
 from research_preentry_evidence_v31 import evaluate
 
 MAX_CANDIDATES=5
+
+class KeylessQuoteOnly:
+    """Keyless Jupiter GET-only quote client with V3.0 bounded retries."""
+    def __init__(self):
+        self.session=requests.Session()
+
+    def quote(self,input_mint,output_mint,amount):
+        if not isinstance(amount,int) or amount<=0:
+            raise ValueError("Invalid quote amount")
+        response=SHARED_PACER.get(self.session,ORDER_URL,
+            params={"inputMint":input_mint,"outputMint":output_mint,
+                    "amount":str(amount)},timeout=15)
+        payload=response.json()
+        if not isinstance(payload,dict) or payload.get("error") or payload.get("errorCode"):
+            raise ValueError("Jupiter route error")
+        if payload.get("inputMint",input_mint)!=input_mint or payload.get("outputMint",output_mint)!=output_mint:
+            raise ValueError("Jupiter mint mismatch")
+        out=payload.get("outAmount")
+        if not isinstance(out,str) or not out.isdigit() or int(out)<=0:
+            raise ValueError("No positive quote")
+        return int(out)
+
+    def close(self):
+        self.session.close()
 
 def selection(db_path,state_path,now,limit=MAX_CANDIDATES):
     if not 1<=limit<=MAX_CANDIDATES:raise ValueError("bounded maximum 5")
@@ -74,7 +99,7 @@ def run(db_path,state_path,limit=MAX_CANDIDATES,rpc_url=DEFAULT_RPC,clock=None):
     selected=selection(Path(db_path),Path(state_path),now,limit)
     results=[]
     with requests.Session() as rpc:
-        q=Quoter()
+        q=KeylessQuoteOnly()
         try:
             for c in selected:
                 verdict,route,security=probe_candidate(c,q,rpc,rpc_url,clock)
