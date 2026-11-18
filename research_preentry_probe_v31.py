@@ -16,7 +16,7 @@ from radar_pretrade_safety import select_candidates
 from research_discovery_quote_v27 import USDC,BUY_USDC_RAW,ORDER_URL
 from radar_jupiter_pacing_v30 import SHARED_PACER
 from radar_token_security import evaluate_mint,rpc_get_account,DEFAULT_RPC
-from research_preentry_evidence_v31 import evaluate
+from research_preentry_evidence_v31 import evaluate,seconds_since,MAX_MARK_AGE_SECONDS
 
 MAX_CANDIDATES=5
 
@@ -78,6 +78,14 @@ def probe_candidate(c,quoter,rpc_session,rpc_url,clock):
            "buy_quote_only":False,"sell_quote_only":False,
            "buy_status":"UNAVAILABLE","sell_status":"UNAVAILABLE",
            "stake_usdc":"10","immediate_sell_usdc":None}
+    age=seconds_since(clock(),c.get("scanned_at_utc"))
+    # Do not spend API quota on irrecoverably stale observations.
+    if age is None or age<0 or age>MAX_MARK_AGE_SECONDS:
+        security=evaluate_mint(mint,["new_preentry_candidate"],None)
+        security["checked_utc"]=clock().isoformat(timespec="seconds")
+        route["buy_status"]="SKIPPED_STALE_MARK"
+        route["sell_status"]="SKIPPED_STALE_MARK"
+        return evaluate(c,route,security,clock()),route,security
     try:
         buy=quoter.quote(USDC,mint,BUY_USDC_RAW)
         route["buy_quote_only"]=True;route["buy_status"]="OK"
@@ -92,8 +100,16 @@ def probe_candidate(c,quoter,rpc_session,rpc_url,clock):
     try:
         account=rpc_get_account(rpc_session,rpc_url,mint)
         security=evaluate_mint(mint,["new_preentry_candidate"],account)
+    except requests.Timeout:
+        security=evaluate_mint(mint,["new_preentry_candidate"],None)
+        security["reasons"]=["RPC_TIMEOUT"]
+    except requests.HTTPError as exc:
+        security=evaluate_mint(mint,["new_preentry_candidate"],None)
+        status=getattr(getattr(exc,"response",None),"status_code",None)
+        security["reasons"]=["RPC_HTTP_429" if status==429 else "RPC_HTTP_ERROR"]
     except (requests.RequestException,ValueError,TypeError,KeyError):
         security=evaluate_mint(mint,["new_preentry_candidate"],None)
+        security["reasons"]=["RPC_NETWORK_OR_INVALID_RESPONSE"]
     security["checked_utc"]=clock().isoformat(timespec="seconds")
     return evaluate(c,route,security,clock()),route,security
 
