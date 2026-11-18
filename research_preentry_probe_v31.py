@@ -44,7 +44,7 @@ class KeylessQuoteOnly:
     def close(self):
         self.session.close()
 
-def selection(db_path,state_path,now,limit=MAX_CANDIDATES):
+def selection(db_path,state_path,now,limit=MAX_CANDIDATES,ignore_paper_capacity=False):
     if not 1<=limit<=MAX_CANDIDATES:raise ValueError("bounded maximum 5")
     if not db_path.is_file() or not state_path.is_file():
         raise FileNotFoundError("Existing source DB or paper state missing")
@@ -54,7 +54,13 @@ def selection(db_path,state_path,now,limit=MAX_CANDIDATES):
     with sqlite3.connect(db_path.resolve().as_uri()+"?mode=ro",uri=True) as db:
         db.execute("PRAGMA query_only=ON")
         if db.execute("PRAGMA quick_check").fetchone()[0]!="ok":raise RuntimeError("DB failed quick_check")
-        selected=select_candidates(db,state,now,limit)
+        # Shadow evidence mode: ignore only OPEN POSITION CAPACITY in memory.
+        # Historic traded lists and all signal/market thresholds remain intact.
+        research_state=state
+        if ignore_paper_capacity:
+            research_state=dict(state)
+            research_state["open"]={k:{} for k in ("A","B","C")}
+        selected=select_candidates(db,research_state,now,limit)
         for c in selected:
             row=db.execute("""SELECT buys_m5,sells_m5,pair_age_hours
               FROM snapshots WHERE token_address=? AND pair_address=?
@@ -91,12 +97,12 @@ def probe_candidate(c,quoter,rpc_session,rpc_url,clock):
     security["checked_utc"]=clock().isoformat(timespec="seconds")
     return evaluate(c,route,security,clock()),route,security
 
-def run(db_path,state_path,limit=MAX_CANDIDATES,rpc_url=DEFAULT_RPC,clock=None):
+def run(db_path,state_path,limit=MAX_CANDIDATES,rpc_url=DEFAULT_RPC,clock=None,ignore_paper_capacity=False):
     clock=clock or (lambda:datetime.now(timezone.utc))
     now=clock()
     if not rpc_url.startswith("https://"):
         raise ValueError("HTTPS RPC only")
-    selected=selection(Path(db_path),Path(state_path),now,limit)
+    selected=selection(Path(db_path),Path(state_path),now,limit,ignore_paper_capacity)
     results=[]
     with requests.Session() as rpc:
         q=KeylessQuoteOnly()
@@ -114,6 +120,7 @@ def run(db_path,state_path,limit=MAX_CANDIDATES,rpc_url=DEFAULT_RPC,clock=None):
                     "live_trade_permission":"BLOCK"})
         finally:q.close()
     return {"mode":"V31_PROSPECTIVE_EVIDENCE_PAPER_ONLY",
+       "paper_capacity_ignored_for_research_only":bool(ignore_paper_capacity),
        "checked_utc":clock().isoformat(timespec="seconds"),
        "candidate_count":len(selected),"research_evidence_passed":
            sum(r["evidence_state"]=="PASS_RESEARCH_ONLY" for r in results),
@@ -125,6 +132,9 @@ if __name__=="__main__":
     p.add_argument("--db",default="data/learning.db")
     p.add_argument("--state",default="data/v591/portfolio.json")
     p.add_argument("--limit",type=int,default=MAX_CANDIDATES)
+    p.add_argument("--shadow-capacity",action="store_true",
+      help="Ignore existing paper-position capacity IN MEMORY for research only")
     p.add_argument("--rpc-url",default=DEFAULT_RPC)
     args=p.parse_args()
-    print(json.dumps(run(args.db,args.state,args.limit,args.rpc_url),indent=2))
+    print(json.dumps(run(args.db,args.state,args.limit,args.rpc_url,
+      ignore_paper_capacity=args.shadow_capacity),indent=2))
