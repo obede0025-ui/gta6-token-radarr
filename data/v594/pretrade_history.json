@@ -1,25 +1,7 @@
 {
   "version": 1,
-  "updated_utc": "2026-11-18T04:08:55+00:00",
+  "updated_utc": "2026-11-18T04:13:44+00:00",
   "runs": [
-    {
-      "checked_utc": "2026-11-10T21:35:43+00:00",
-      "status": "OK",
-      "candidate_count": 1,
-      "quote_gate_passed": 0,
-      "quote_gate_blocked": 1,
-      "candidates": [
-        {
-          "mint": "3RftwQUBcyXMGGTUbc6NnF3RoenZBMf8AC2n3PxmSHyu",
-          "strategy": "C",
-          "quote_gate": "BLOCK",
-          "reasons": [
-            "LIQUIDITY_BELOW_20000"
-          ],
-          "roundtrip_pct": "-1.594"
-        }
-      ]
-    },
     {
       "checked_utc": "2026-11-10T21:40:44+00:00",
       "status": "OK",
@@ -16319,6 +16301,14 @@
     },
     {
       "checked_utc": "2026-11-18T04:08:55+00:00",
+      "status": "OK",
+      "candidate_count": 0,
+      "quote_gate_passed": 0,
+      "quote_gate_blocked": 0,
+      "candidates": []
+    },
+    {
+      "checked_utc": "2026-11-18T04:13:44+00:00",
       "status": "OK",
       "candidate_count": 0,
       "quote_gate_passed": 0,
