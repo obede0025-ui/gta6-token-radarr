@@ -18,6 +18,7 @@ from decimal import Decimal, InvalidOperation, ROUND_DOWN
 from pathlib import Path
 
 import requests
+from radar_jupiter_pacing_v30 import SHARED_PACER
 
 JUP_ORDER = 'https://api.jup.ag/swap/v2/order'
 SOLANA_RPC = 'https://api.mainnet-beta.solana.com'
@@ -59,8 +60,8 @@ def quote(session, key, input_mint, output_mint, raw_amount):
     raw_amount = positive_raw(raw_amount)
     if raw_amount <= 0:
         raise ValueError('Zero amount')
-    response = session.get(
-        JUP_ORDER,
+    response = SHARED_PACER.get(
+        session, JUP_ORDER,
         params={
             'inputMint': input_mint,
             'outputMint': output_mint,
@@ -70,13 +71,14 @@ def quote(session, key, input_mint, output_mint, raw_amount):
         headers={'x-api-key': key, 'Accept': 'application/json'},
         timeout=15,
     )
-    response.raise_for_status()
     payload = response.json()
     if not isinstance(payload, dict):
         raise ValueError('Jupiter returned invalid payload')
     out = positive_raw(payload.get('outAmount'))
     if not out:
         raise ValueError('Jupiter returned empty output amount')
+    if payload.get('errorCode') or payload.get('error'):
+        raise ValueError('Jupiter returned an error or non-routable amount')
     # No raw response attached: avoid persisting transaction/order metadata.
     return {
         'input_raw': raw_amount,
@@ -165,7 +167,9 @@ def compare_positions(state, *, session, api_key, rpc_url, stake_usdc):
                 'estimated_net_pnl_usdc_before_network_cost': None,
                 'exit_router': None, 'status': 'UNAVAILABLE',
             }
-            if decimals is not None:
+            if decimals is None:
+                one['status'] = 'DECIMALS_UNAVAILABLE'
+            else:
                 try:
                     raw_qty = token_amount_to_raw(position['quantity'], decimals)
                     exit_quote = quote(session, api_key, mint, USDC, raw_qty)
