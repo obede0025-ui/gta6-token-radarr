@@ -46,6 +46,34 @@ If paths differ, do not guess or overwrite anything. Missing inputs
 fail closed. No output means no qualifying recent candidate; it does
 not indicate safety or absence of meme coins.
 
+## Research-only shadow capacity (V3.2)
+
+The current A/B/C portfolios are each 3/3 full. The ordinary selector
+therefore finds 0 candidates even when new signals may exist. V3.2 adds
+a research-only diagnostic which copies the portfolio state in memory,
+clears only the virtual OPEN slots and **retains all traded histories**.
+The underlying portfolio file and SQLite source remain untouched.
+
+First run the offline tests and diagnose which of momentum/capacity
+is responsible:
+
+```bash
+cd ~/gta6-v32-gate-pilot && git pull --ff-only origin feature/v32-preentry-gate-pilot && ~/gta6-source/.venv/bin/python -m unittest tests.test_research_preentry_fastdiag_v32 tests.test_research_preentry_probe_v31 tests.test_research_preentry_evidence_v31 tests.test_radar_jupiter_pacing_v30 tests.test_research_risk_gate_v29 -q && ~/gta6-source/.venv/bin/python research_preentry_fastdiag_v32.py
+```
+
+If the diagnostic reports `PORTFOLIO_CAPACITY_BLOCKS_CANDIDATES`,
+the optional read-only Jupiter/RPC check can evaluate up to 3
+new research candidates without paper entries, closes or trades:
+
+```bash
+~/gta6-source/.venv/bin/python research_preentry_probe_v31.py --db /home/ubuntu/gta6-paper-vps/data/learning.db --state /home/ubuntu/gta6-paper-vps/data/v591/portfolio.json --limit 3 --shadow-capacity
+```
+
+The probe sends bounded HTTP quote GETs and read-only Solana RPC calls.
+It **never grants trade approval** even when evidence passes.
+Do NOT increase scan frequency or expand the sample automatically
+until actual quote/route and rate limit evidence is evaluated.
+
 ## Unresolved before any automated live trading
 
 - Transaction simulation and verifiable end-to-end sell settlement
