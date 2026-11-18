@@ -82,6 +82,9 @@ def evaluate_mint(mint, sources, account):
     if owner not in (LEGACY, TOKEN_2022):
         reasons.append('UNKNOWN_PROGRAM_OWNER')
         return info
+    if account.get('executable') is True:
+        reasons.append('EXECUTABLE_PROGRAM_ACCOUNT')
+        return info
     data = account.get('data')
     parsed = data.get('parsed') if isinstance(data, dict) else None
     if not isinstance(parsed, dict) or parsed.get('type') != 'mint':
@@ -90,6 +93,18 @@ def evaluate_mint(mint, sources, account):
     details = parsed.get('info')
     if not isinstance(details, dict) or not all(k in details for k in ('mintAuthority','freezeAuthority','decimals','supply')):
         reasons.append('INCOMPLETE_MINT_FIELDS')
+        return info
+    # Reject corrupted or incomplete SPL mint payloads. A parsed account
+    # that merely omits authorities is not proof of a safe mint.
+    decimals, supply = details['decimals'], details['supply']
+    if (isinstance(decimals, bool) or not isinstance(decimals,int)
+            or not 0 <= decimals <= 18
+            or not isinstance(supply,str) or not supply.isdigit()):
+        reasons.append('MINT_FIELDS_INVALID')
+        return info
+    if not all(v is None or (isinstance(v,str) and MINT_RE.fullmatch(v))
+               for v in (details['mintAuthority'],details['freezeAuthority'])):
+        reasons.append('MINT_AUTHORITIES_INVALID')
         return info
     mint_auth, freeze_auth = details['mintAuthority'], details['freezeAuthority']
     info['mint_authority'] = mint_auth
