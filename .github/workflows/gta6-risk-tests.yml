@@ -1,0 +1,50 @@
+name: GTA6 Research Risk Tests
+
+on:
+  push:
+    branches:
+      - feature/v32-preentry-gate-pilot
+    paths:
+      - 'research_preentry_*.py'
+      - 'research_risk_gate_v29.py'
+      - 'radar_jupiter_pacing_v30.py'
+      - 'radar_quote_monitor.py'
+      - 'radar_pretrade_safety.py'
+      - 'radar_token_security.py'
+      - 'tests/test_research_*.py'
+      - 'tests/test_radar_jupiter_pacing_v30.py'
+      - '.github/workflows/gta6-risk-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  risk-tests:
+    name: Research safety tests (offline only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install offline test dependencies
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Compile research and quote safety modules
+        run: |
+          python -m py_compile research_preentry_evidence_v31.py research_preentry_probe_v31.py research_preentry_fastdiag_v32.py research_risk_gate_v29.py radar_jupiter_pacing_v30.py
+      - name: Run 27+ offline regression tests
+        run: |
+          python -m unittest tests.test_research_preentry_fastdiag_v32 tests.test_research_preentry_probe_v31 tests.test_research_preentry_evidence_v31 tests.test_radar_jupiter_pacing_v30 tests.test_research_risk_gate_v29 -v
+      - name: Assert no trading credentials are available
+        env:
+          JUPITER_API_KEY: ''
+          SOLANA_RPC_URL: ''
+        run: |
+          python - <<'PY'
+          import os
+          assert not os.getenv('JUPITER_API_KEY')
+          assert not os.getenv('SOLANA_RPC_URL')
+          print('offline-only test workflow')
+          PY
