@@ -61,7 +61,6 @@ class QuoteHorizonTests(unittest.TestCase):
 
     def test_late_horizon_is_missed_and_not_backfilled(self):
         s=state();q=FakeQuoter([])
-        with patch("research_quote_cohort_v33.datetime",FrozenClock):
         FrozenClock._now=START+timedelta(minutes=8)
         results=resolve_followups(s,FrozenClock._now,q)
         self.assertEqual(results,[(KEY,"300","HORIZON_MISSED")])
@@ -70,7 +69,6 @@ class QuoteHorizonTests(unittest.TestCase):
 
     def test_network_unavailable_does_not_become_profit(self):
         s=state();q=FakeQuoter([ValueError("no quote")])
-        with patch("research_quote_cohort_v33.datetime",FrozenClock):
         FrozenClock._now=START+timedelta(minutes=5,seconds=5)
         result=resolve_followups(s,FrozenClock._now,q)
         self.assertEqual(result[0][2],"SELL_ROUTE_UNAVAILABLE")
