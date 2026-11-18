@@ -88,6 +88,21 @@ jobs:
         timeout-minutes: 3
         run: |
           python research_preentry_probe_v31.py --db main-data/data/learning.db --state main-data/data/v591/portfolio.json --limit 3 --shadow-capacity
+      - name: Smoke-test isolated V3.4 cycle with restored main snapshot
+        timeout-minutes: 3
+        run: |
+          python research_v34_cycle.py --db main-data/data/learning.db --portfolio main-data/data/v591/portfolio.json --output "$RUNNER_TEMP/gta6-v34-ci"
+          python - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"gta6-v34-ci"
+          health=json.loads((root/"research_health.json").read_text())
+          ledger=json.loads((root/"research_ledger.json").read_text())
+          assert health["trades_executed"]==0
+          assert ledger["paper_orders_executed"]==0
+          assert ledger["live_orders_executed"]==0
+          assert (root/"research_dashboard.html").is_file()
+          print("V3.4 CI smoke test OK", health["signal_count"],"signals")
+          PY
       - name: Clean up disposable database
         if: always()
         run: rm -f main-data/data/learning.db
