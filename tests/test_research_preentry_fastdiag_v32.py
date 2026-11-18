@@ -39,9 +39,9 @@ class Tests(unittest.TestCase):
             with sqlite3.connect(db) as c:
                 c.execute("INSERT INTO snapshots VALUES(?,?,?,?,?,?,?)",
                     (NOW.isoformat(timespec="seconds"),"A"*44,"B"*44,30000,1000,20,1))
-            with patch("research_preentry_fastdiag_v32.selection",return_value=[]),\\
-                 patch("research_preentry_fastdiag_v32.shadow_without_capacity",
-                       return_value=[{"strategy":"B"}]):
+            with (patch("research_preentry_fastdiag_v32.selection",return_value=[]),
+                  patch("research_preentry_fastdiag_v32.shadow_without_capacity",
+                        return_value=[{"strategy":"B"}])):
                 r=diagnose(db,state,NOW)
             self.assertIn("PORTFOLIO_CAPACITY_BLOCKS_CANDIDATES",r["diagnosis"])
             self.assertEqual(r["shadow_strategies"]["B"],1)
