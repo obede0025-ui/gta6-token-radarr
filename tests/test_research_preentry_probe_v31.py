@@ -1,4 +1,8 @@
 import unittest
+import json
+import sqlite3
+import tempfile
+from pathlib import Path
 from unittest.mock import patch
 from datetime import datetime,timezone
 from research_preentry_probe_v31 import probe_candidate,KeylessQuoteOnly
@@ -50,6 +54,32 @@ class Tests(unittest.TestCase):
             verdict,route,sec=probe_candidate(C,FakeQuoter(),object(),"https://rpc.example",lambda:NOW)
         self.assertEqual(verdict["evidence_state"],"BLOCKED")
         self.assertEqual(sec["security_gate"],"BLOCK")
+
+    def test_shadow_capacity_keeps_original_state_and_traded_history(self):
+        from research_preentry_probe_v31 import selection
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            db=root/"learning.db"
+            with sqlite3.connect(db) as conn:
+                conn.execute("""CREATE TABLE snapshots(
+                    token_address TEXT, pair_address TEXT, scanned_at TEXT,
+                    buys_m5 INTEGER, sells_m5 INTEGER, pair_age_hours REAL)""")
+            state=root/"portfolio.json"
+            original={"version":1,
+                "traded":{"A":["historic"],"B":[],"C":[]},
+                "open":{"A":{"position1":{}}, "B":{"position2":{}}, "C":{}},"closed":{}}
+            state.write_text(json.dumps(original))
+            captured=[]
+            def selector(conn,copy_state,now,limit):
+                captured.append(copy_state)
+                return []
+            with patch("research_preentry_probe_v31.select_candidates",side_effect=selector):
+                selection(db,state,NOW,3,ignore_paper_capacity=True)
+                selection(db,state,NOW,3,ignore_paper_capacity=False)
+            self.assertEqual(captured[0]["open"],{"A":{},"B":{},"C":{}})
+            self.assertEqual(captured[0]["traded"],original["traded"])
+            self.assertEqual(captured[1]["open"],original["open"])
+            self.assertEqual(json.loads(state.read_text()),original)
 
     def test_quote_pacer_get_only(self):
         class Resp:
