@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8019,
-  "unique_pairs": 512,
-  "window_start_utc": "2026-11-17T02:38:31+00:00",
-  "window_end_utc": "2026-11-18T02:38:31+00:00",
+  "observations": 8015,
+  "unique_pairs": 510,
+  "window_start_utc": "2026-11-17T02:44:41+00:00",
+  "window_end_utc": "2026-11-18T02:44:41+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 7507,
-    "gaps_over_20_min": 3307,
-    "gap_rate_pct": 44.05,
-    "gaps_with_observed_rise_over_20pct": 18
+    "intervals": 7505,
+    "gaps_over_20_min": 3302,
+    "gap_rate_pct": 44.0,
+    "gaps_with_observed_rise_over_20pct": 17
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 7507,
-    "gaps_over_20_min": 3307,
-    "gap_rate_pct": 44.05,
-    "gaps_with_observed_rise_over_20pct": 18
+    "intervals": 7505,
+    "gaps_over_20_min": 3302,
+    "gap_rate_pct": 44.0,
+    "gaps_with_observed_rise_over_20pct": 17
   },
   "top_potential_blind_spots": [
     {
@@ -171,18 +171,6 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "4RgnhfTV9171c9FD2KwexCT1tqWPTihtFiUiQR4Jpump",
-      "pair": "2pqrrQeH6qBhpYM9bWdzJieVoF7RHsCBPEA6paMqrYYu",
-      "name": "LUCIA CAMINOS",
-      "from_utc": "2026-11-17T02:43:54+00:00",
-      "to_utc": "2026-11-17T03:48:55+00:00",
-      "gap_minutes": 65.02,
-      "observed_price_change_pct": 21.75,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 7790.0,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
       "token": "2wMTr4ZttVr5tmS4wLStee59wi8f9QQfMtT2Hoispump",
       "pair": "99RTagSD6VDUCzjwmzi4q1RrAdtyAuYnR7xsXLfesz69",
       "name": "Grand Theft Auto",
@@ -243,7 +231,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 18,
+  "blind_spot_count": 17,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
