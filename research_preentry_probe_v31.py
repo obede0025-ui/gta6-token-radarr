@@ -77,7 +77,7 @@ def probe_candidate(c,quoter,rpc_session,rpc_url,clock):
     route={"mint":mint,"discovery_pair":c["pair"],"checked_utc":stamp,
            "buy_quote_only":False,"sell_quote_only":False,
            "buy_status":"UNAVAILABLE","sell_status":"UNAVAILABLE",
-           "stake_usdc":"10","immediate_sell_usdc":None}
+           "stake_usdc":"10","immediate_sell_usdc":None,"buy_raw_out":None}
     age=seconds_since(clock(),c.get("scanned_at_utc"))
     # Do not spend API quota on irrecoverably stale observations.
     if age is None or age<0 or age>MAX_MARK_AGE_SECONDS:
@@ -89,6 +89,7 @@ def probe_candidate(c,quoter,rpc_session,rpc_url,clock):
     try:
         buy=quoter.quote(USDC,mint,BUY_USDC_RAW)
         route["buy_quote_only"]=True;route["buy_status"]="OK"
+        route["buy_raw_out"]=buy
         try:
             sell=quoter.quote(mint,USDC,buy)
             route["sell_quote_only"]=True;route["sell_status"]="OK"
