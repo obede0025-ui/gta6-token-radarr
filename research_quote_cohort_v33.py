@@ -98,7 +98,7 @@ def resolve_followups(state,now,quoter):
     outcomes=[]
     for key,horizon,start in due_followups(state["signals"],now):
         item=state["signals"][key]
-        observed=datetime.now(timezone.utc)
+        observed=now
         elapsed=(observed-start).total_seconds()
         name=str(horizon)
         if elapsed>horizon+LATE_GRACE:
