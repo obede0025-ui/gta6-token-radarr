@@ -6,7 +6,6 @@ import tempfile
 import unittest
 from pathlib import Path
 from datetime import datetime,timedelta,timezone
-from unittest.mock import patch
 from research_quote_cohort_v33 import new_state,resolve_followups
 from research_observer_health_v34 import metrics
 
@@ -44,37 +43,36 @@ def state():
 class QuoteHorizonTests(unittest.TestCase):
     def test_realistic_five_and_fifteen_minute_followups(self):
         s=state();q=FakeQuoter([9200000,11200000])
-        with patch("research_quote_cohort_v33.datetime",FrozenClock):
-            FrozenClock._now=START+timedelta(minutes=4,seconds=55)
-            self.assertEqual(resolve_followups(s,FrozenClock._now,q),[])
-            FrozenClock._now=START+timedelta(minutes=5,seconds=25)
-            out=resolve_followups(s,FrozenClock._now,q)
-            self.assertEqual([x[1] for x in out],["300"])
-            self.assertEqual(s["signals"][KEY]["followups"]["300"]["status"],
-                             "JUPITER_SELL_ROUTE_QUOTED")
-            self.assertEqual(s["signals"][KEY]["followups"]["300"]["quote_return_pct_before_network_fees"],"-8.00")
-            self.assertEqual(resolve_followups(s,FrozenClock._now,q),[])
-            FrozenClock._now=START+timedelta(minutes=15,seconds=28)
-            out=resolve_followups(s,FrozenClock._now,q)
-            self.assertEqual([x[1] for x in out],["900"])
-            self.assertEqual(s["signals"][KEY]["followups"]["900"]["quote_return_pct_before_network_fees"],"12.00")
+        FrozenClock._now=START+timedelta(minutes=4,seconds=55)
+        self.assertEqual(resolve_followups(s,FrozenClock._now,q),[])
+        FrozenClock._now=START+timedelta(minutes=5,seconds=25)
+        out=resolve_followups(s,FrozenClock._now,q)
+        self.assertEqual([x[1] for x in out],["300"])
+        self.assertEqual(s["signals"][KEY]["followups"]["300"]["status"],
+                         "JUPITER_SELL_ROUTE_QUOTED")
+        self.assertEqual(s["signals"][KEY]["followups"]["300"]["quote_return_pct_before_network_fees"],"-8.00")
+        self.assertEqual(resolve_followups(s,FrozenClock._now,q),[])
+        FrozenClock._now=START+timedelta(minutes=15,seconds=28)
+        out=resolve_followups(s,FrozenClock._now,q)
+        self.assertEqual([x[1] for x in out],["900"])
+        self.assertEqual(s["signals"][KEY]["followups"]["900"]["quote_return_pct_before_network_fees"],"12.00")
         self.assertEqual(len(q.calls),2)
         self.assertTrue(all(c[2]==5000000 for c in q.calls))
 
     def test_late_horizon_is_missed_and_not_backfilled(self):
         s=state();q=FakeQuoter([])
         with patch("research_quote_cohort_v33.datetime",FrozenClock):
-            FrozenClock._now=START+timedelta(minutes=8)
-            results=resolve_followups(s,FrozenClock._now,q)
-            self.assertEqual(results,[(KEY,"300","HORIZON_MISSED")])
+        FrozenClock._now=START+timedelta(minutes=8)
+        results=resolve_followups(s,FrozenClock._now,q)
+        self.assertEqual(results,[(KEY,"300","HORIZON_MISSED")])
         self.assertEqual(len(q.calls),0)
         self.assertIsNone(s["signals"][KEY]["followups"]["300"]["quote_return_pct_before_network_fees"])
 
     def test_network_unavailable_does_not_become_profit(self):
         s=state();q=FakeQuoter([ValueError("no quote")])
         with patch("research_quote_cohort_v33.datetime",FrozenClock):
-            FrozenClock._now=START+timedelta(minutes=5,seconds=5)
-            result=resolve_followups(s,FrozenClock._now,q)
+        FrozenClock._now=START+timedelta(minutes=5,seconds=5)
+        result=resolve_followups(s,FrozenClock._now,q)
         self.assertEqual(result[0][2],"SELL_ROUTE_UNAVAILABLE")
         health=metrics(s,{"checked_utc":FrozenClock._now.isoformat()},FrozenClock._now)
         self.assertEqual(health["sell_unavailable"],1)
