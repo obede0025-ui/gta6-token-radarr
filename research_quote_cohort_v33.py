@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import sqlite3
+import tempfile
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -118,16 +119,23 @@ def resolve_followups(state,now,quoter):
     return outcomes
 
 def persist(state,ledger,report_path,report):
-    # Never overwrite unrelated files, existing paper portfolios or source DB.
+    # Unique per-run temporary files prevent abandoned *.new collisions.
+    # Originals, existing paper portfolios and source DB are untouched.
     for path,obj in ((ledger,state),(report_path,report)):
         path.parent.mkdir(parents=True,exist_ok=True)
-        tmp=path.with_name(path.name+".new")
-        with tmp.open("x",encoding="utf-8") as file:
-            json.dump(obj,file,indent=2,ensure_ascii=False)
-            file.write("\n")
-            file.flush()
-            os.fsync(file.fileno())
-        os.replace(tmp,path)
+        temp_name=None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w",dir=path.parent,
+                    prefix=path.name+".tmp-",delete=False,encoding="utf-8") as file:
+                temp_name=file.name
+                json.dump(obj,file,indent=2,ensure_ascii=False)
+                file.write("\\n")
+                file.flush()
+                os.fsync(file.fileno())
+            os.replace(temp_name,path)
+        finally:
+            if temp_name and os.path.exists(temp_name):
+                os.unlink(temp_name)
 
 def run(db,state_path,ledger,report_path,now=None,rpc_url=DEFAULT_RPC):
     now=now or datetime.now(timezone.utc)
