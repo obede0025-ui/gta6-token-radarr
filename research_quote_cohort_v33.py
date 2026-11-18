@@ -129,7 +129,7 @@ def persist(state,ledger,report_path,report):
                     prefix=path.name+".tmp-",delete=False,encoding="utf-8") as file:
                 temp_name=file.name
                 json.dump(obj,file,indent=2,ensure_ascii=False)
-                file.write("\\n")
+                file.write("\n")
                 file.flush()
                 os.fsync(file.fileno())
             os.replace(temp_name,path)
