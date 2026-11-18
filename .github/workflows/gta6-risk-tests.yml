@@ -48,3 +48,37 @@ jobs:
           assert not os.getenv('SOLANA_RPC_URL')
           print('offline-only test workflow')
           PY
+
+  recent-data-diagnostic:
+    name: Diagnose latest main collector snapshot (read-only)
+    needs: risk-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout research tools
+        uses: actions/checkout@v4
+        with:
+          ref: feature/v32-preentry-gate-pilot
+          fetch-depth: 1
+      - name: Checkout current main collector snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-data
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install research-only dependencies
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Restore ephemeral copy of main learning archive
+        working-directory: main-data
+        run: python learning_db_archive.py restore
+      - name: Diagnose active market observations and portfolio capacity
+        run: |
+          python research_preentry_fastdiag_v32.py --db main-data/data/learning.db --state main-data/data/v591/portfolio.json
+      - name: Clean up disposable database
+        if: always()
+        run: rm -f main-data/data/learning.db
