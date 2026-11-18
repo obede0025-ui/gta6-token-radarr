@@ -79,6 +79,10 @@ jobs:
       - name: Diagnose active market observations and portfolio capacity
         run: |
           python research_preentry_fastdiag_v32.py --db main-data/data/learning.db --state main-data/data/v591/portfolio.json
+      - name: Probe up to 3 new B candidates (read-only Jupiter and Solana RPC)
+        timeout-minutes: 3
+        run: |
+          python research_preentry_probe_v31.py --db main-data/data/learning.db --state main-data/data/v591/portfolio.json --limit 3 --shadow-capacity
       - name: Clean up disposable database
         if: always()
         run: rm -f main-data/data/learning.db
