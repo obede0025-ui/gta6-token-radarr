@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8621,
-  "unique_pairs": 558,
-  "window_start_utc": "2026-11-17T08:29:05+00:00",
-  "window_end_utc": "2026-11-18T08:29:05+00:00",
+  "observations": 8609,
+  "unique_pairs": 556,
+  "window_start_utc": "2026-11-17T08:35:03+00:00",
+  "window_end_utc": "2026-11-18T08:35:03+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8063,
-    "gaps_over_20_min": 3538,
-    "gap_rate_pct": 43.88,
-    "gaps_with_observed_rise_over_20pct": 17
+    "intervals": 8053,
+    "gaps_over_20_min": 3520,
+    "gap_rate_pct": 43.71,
+    "gaps_with_observed_rise_over_20pct": 15
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8063,
-    "gaps_over_20_min": 3538,
-    "gap_rate_pct": 43.88,
-    "gaps_with_observed_rise_over_20pct": 17
+    "intervals": 8053,
+    "gaps_over_20_min": 3520,
+    "gap_rate_pct": 43.71,
+    "gaps_with_observed_rise_over_20pct": 15
   },
   "top_potential_blind_spots": [
     {
@@ -159,18 +159,6 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "2pvb2EMKCkSnRCeyJRWs2W4jzsppGzXDJT7ccXZGpump",
-      "pair": "HZtaEMmJrcsSXpTB1LukiUQPzaJoNdpYteSTYfEFkYW8",
-      "name": "Jason Duval",
-      "from_utc": "2026-11-17T08:34:30+00:00",
-      "to_utc": "2026-11-17T09:38:18+00:00",
-      "gap_minutes": 63.8,
-      "observed_price_change_pct": 28.78,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 7013.6,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
       "token": "2wMTr4ZttVr5tmS4wLStee59wi8f9QQfMtT2Hoispump",
       "pair": "99RTagSD6VDUCzjwmzi4q1RrAdtyAuYnR7xsXLfesz69",
       "name": "Grand Theft Auto",
@@ -207,18 +195,6 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "3anti4KZKt2y4MkkQTNkRtC75pjBrhcCQeXhj3NuXA65",
-      "pair": "6yfG7YZpjD5oTUWZsGDDUKGxqJZ6Ghp1mgfXQ5twNeny",
-      "name": "Jason Duval",
-      "from_utc": "2026-11-17T08:34:30+00:00",
-      "to_utc": "2026-11-17T09:38:18+00:00",
-      "gap_minutes": 63.8,
-      "observed_price_change_pct": 20.5,
-      "volume_m5_at_return": 0.0,
-      "liquidity_usd_at_return": 50745.86,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
       "token": "EaxAUcXxNnVwcqm2BBocbows7D1XVY2Q63V38NEypump",
       "pair": "9KgSWjrKCzS3EbUkvBKbgdwj8BwTdWzzqXKufDHAPS2a",
       "name": "GTA6",
@@ -231,7 +207,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 17,
+  "blind_spot_count": 15,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
