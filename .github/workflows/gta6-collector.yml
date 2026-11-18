@@ -58,6 +58,11 @@ jobs:
             v611_b2_shadow.py \
             radar_execution_accuracy.py
 
+      - name: Verify quote-only pacing and retry safety
+        run: |
+          python -m py_compile radar_quote_monitor.py radar_execution_accuracy.py radar_jupiter_pacing_v30.py
+          python -m unittest tests.test_radar_jupiter_pacing_v30 -q
+
       - name: Collect GTA6 market data
         run: python collector.py
 
