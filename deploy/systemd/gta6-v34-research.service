@@ -1,0 +1,19 @@
+[Unit]
+Description=GTA6 V3.4 quote-only research observation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/gta6-v32-gate-pilot
+ExecStart=/home/ubuntu/gta6-source/.venv/bin/python /home/ubuntu/gta6-v32-gate-pilot/research_v34_cycle.py --db /home/ubuntu/gta6-paper-vps/data/learning.db --portfolio /home/ubuntu/gta6-paper-vps/data/v591/portfolio.json --output /home/ubuntu/gta6-v32-gate-pilot/data/v33
+TimeoutStartSec=90
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+UMask=0077
+
+# This service is observation-only; never supply private keys, wallets or
+# order execution variables. Separate from all active A/B/C/B2 timers.
