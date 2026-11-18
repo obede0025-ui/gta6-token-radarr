@@ -1,8 +1,8 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-18T00:04:13+00:00",
+  "generated_utc": "2026-11-18T00:08:35+00:00",
   "last_processed": [
-    "2026-11-18T00:04:09+00:00",
+    "2026-11-18T00:08:34+00:00",
     "cLwa74ExM8hdXuNMwRrBLjZk8rguj5LrALs7mTBpump",
     "Fn5C4gWnNyViBRFqgz7bNQkiQqhjGbpUA2zoB1jzvEDE"
   ],
@@ -27,40 +27,37 @@
     "rejected": {
       "invalid_price": 11,
       "no_momentum_signal": 43,
-      "market_safety_filters": 1
+      "max_positions": 1
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
           "ongeldige_prijs": 11,
-          "volume_5m_te_laag": 31,
-          "te_weinig_opeenvolgende_metingen": 8,
-          "momentumvoorwaarden_niet_gehaald": 5
+          "volume_5m_te_laag": 33,
+          "te_weinig_opeenvolgende_metingen": 4,
+          "momentumvoorwaarden_niet_gehaald": 7
         },
         "B": {
           "ongeldige_prijs": 11,
-          "volume_5m_te_laag": 31,
-          "te_weinig_opeenvolgende_metingen": 8,
-          "momentumvoorwaarden_niet_gehaald": 4,
-          "signaal_geblokkeerd_paarleeftijd": 1
+          "volume_5m_te_laag": 33,
+          "te_weinig_opeenvolgende_metingen": 4,
+          "momentumvoorwaarden_niet_gehaald": 6,
+          "maximum_open_posities": 1
         },
         "C": {
           "ongeldige_prijs": 11,
-          "volume_5m_te_laag": 34,
-          "momentumvoorwaarden_niet_gehaald": 7,
-          "te_weinig_opeenvolgende_metingen": 3
+          "volume_5m_te_laag": 36,
+          "momentumvoorwaarden_niet_gehaald": 8
         }
       },
       "spacing": {
-        "interval_geldig": 41,
-        "geen_vorige_meting": 2,
-        "interval_te_lang": 1
+        "interval_geldig": 44
       },
       "market_filters": {
         "volume_5m_te_laag_of_onbekend": 36,
         "paarleeftijd_ongeldig": 12,
-        "buys_niet_hoger_dan_sells": 34,
-        "liquiditeit_te_laag_of_onbekend": 34
+        "buys_niet_hoger_dan_sells": 37,
+        "liquiditeit_te_laag_of_onbekend": 33
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
