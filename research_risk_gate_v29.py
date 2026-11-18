@@ -7,6 +7,7 @@ Inputs and databases are READ ONLY; output is JSON stdout only.
 import argparse
 import json
 import math
+import subprocess
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -146,16 +147,32 @@ def assess(health,quotes,security,execution,now):
         ]
     }
 
+def read_git(ref,path):
+    """Read a specific already-fetched Git blob; no working-tree mutation."""
+    if ref!="origin/main":
+        raise ValueError("Only origin/main supported for current collector reports")
+    proc=subprocess.run(["git","show",ref+":"+path],capture_output=True,
+                        text=True,check=False,timeout=20)
+    if proc.returncode!=0:return {},"MISSING_GIT_REPORT"
+    try:
+        data=json.loads(proc.stdout)
+        return (data,None) if isinstance(data,dict) else ({},"INVALID_GIT_REPORT")
+    except ValueError:return {},"INVALID_GIT_REPORT"
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--root",default=".")
+    p.add_argument("--git-main",action="store_true",
+      help="Read published origin/main report blobs after git fetch origin main")
     args=p.parse_args()
     root=Path(args.root)
     now=datetime.now(timezone.utc)
-    health,e1=read(root/"data/v594/radar_healthcheck.json")
-    quotes,e2=read(root/"data/v594/jupiter_quote_monitor.json")
-    security,e3=read(root/"data/v594/token_security.json")
-    execution,e4=read(root/"data/v612/execution_accuracy.json")
+    reader=(lambda path:read_git("origin/main",path)) if args.git_main else (
+        lambda path:read(root/path))
+    health,e1=reader("data/v594/radar_healthcheck.json")
+    quotes,e2=reader("data/v594/jupiter_quote_monitor.json")
+    security,e3=reader("data/v594/token_security.json")
+    execution,e4=reader("data/v612/execution_accuracy.json")
     result=assess(health,quotes,security,execution,now)
     result["input_errors"]={k:v for k,v in
       (("health",e1),("quotes",e2),("security",e3),("execution",e4)) if v}
