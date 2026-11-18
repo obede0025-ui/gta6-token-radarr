@@ -4,7 +4,7 @@ import sqlite3
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
 from research_preentry_probe_v31 import probe_candidate,KeylessQuoteOnly
 from radar_token_security import LEGACY
 from research_discovery_quote_v27 import USDC
@@ -80,6 +80,28 @@ class Tests(unittest.TestCase):
             self.assertEqual(captured[0]["traded"],original["traded"])
             self.assertEqual(captured[1]["open"],original["open"])
             self.assertEqual(json.loads(state.read_text()),original)
+
+    def test_stale_market_skips_external_quotes_and_rpc(self):
+        old=dict(C)
+        old["scanned_at_utc"]=(NOW-timedelta(minutes=4)).isoformat()
+        q=FakeQuoter()
+        with patch("research_preentry_probe_v31.rpc_get_account") as rpc:
+            verdict,route,security=probe_candidate(old,q,object(),"https://rpc.example",lambda:NOW)
+        self.assertEqual(q.calls,[])
+        rpc.assert_not_called()
+        self.assertEqual(route["buy_status"],"SKIPPED_STALE_MARK")
+        self.assertIn("MARK_STALE_OR_UNKNOWN",verdict["reasons"])
+        self.assertEqual(verdict["live_trade_permission"],"BLOCK")
+
+    def test_rpc_rate_limit_keeps_security_blocked(self):
+        import requests
+        error=requests.HTTPError("429")
+        error.response=type("Resp",(),{"status_code":429})()
+        with patch("research_preentry_probe_v31.rpc_get_account",side_effect=error):
+            verdict,route,security=probe_candidate(C,FakeQuoter(),object(),
+                                             "https://rpc.example",lambda:NOW)
+        self.assertEqual(security["reasons"],["RPC_HTTP_429"])
+        self.assertEqual(verdict["evidence_state"],"BLOCKED")
 
     def test_quote_pacer_get_only(self):
         class Resp:
