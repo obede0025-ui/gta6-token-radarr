@@ -17,24 +17,15 @@ is an informational fail-closed **research report** only. It never silently
 closes existing simulated positions, changes live permissions, network
 requests, databases or existing JSON files.
 
-## Single command on VPS
-
-The VPS checkout contains the V2.9 module only on
-`feature/v32-preentry-gate-pilot`. The default paths in that checkout
-may not include the GitHub main collector reports, so first retrieve
-the collector reports separately if necessary. Better: run this against
-a local checkout of `main` that includes `data/v594` and
-`data/v612` JSON reports, or pass a root with those paths.
+## Single VPS command for current GitHub collector reports
 
 ```bash
-cd ~/gta6-v32-gate-pilot && git pull --ff-only origin feature/v32-preentry-gate-pilot && ~/gta6-source/.venv/bin/python -m unittest tests.test_research_risk_gate_v29 -q && ~/gta6-source/.venv/bin/python research_risk_gate_v29.py --root .
+cd ~/gta6-v32-gate-pilot && git pull --ff-only origin feature/v32-preentry-gate-pilot && git fetch origin main && ~/gta6-source/.venv/bin/python -m unittest tests.test_research_risk_gate_v29 -q && ~/gta6-source/.venv/bin/python research_risk_gate_v29.py --git-main
 ```
 
-If the report files are missing or stale, the report will explicitly
-say BLOCKED. This is correct fail-closed behavior, not proof that
-active servers have failed.
+Reads the four latest published reports directly from git object `origin/main`
+without modifying the active main checkout. The data may still be stale
+depending on GitHub workflow freshness; stale inputs fail closed.
 
-For a comprehensive CURRENT GitHub report, run the module where current
-GitHub main collector reports exist, ensuring no production changes.
-Review failed-rate-limit evidence before implementing globally shared
-Jupiter rate limiting and capped backoff in a separate tested revision.
+
+This audit is **diagnostic only**. A separate tested change is needed before any operational paper engine uses these findings. No automated liquidation or live trading approval.
