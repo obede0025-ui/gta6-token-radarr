@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 12655,
-  "unique_pairs": 676,
-  "window_start_utc": "2026-11-18T02:21:31+00:00",
-  "window_end_utc": "2026-11-19T02:21:31+00:00",
+  "observations": 12662,
+  "unique_pairs": 680,
+  "window_start_utc": "2026-11-18T02:29:15+00:00",
+  "window_end_utc": "2026-11-19T02:29:15+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 11979,
-    "gaps_over_20_min": 4691,
-    "gap_rate_pct": 39.16,
-    "gaps_with_observed_rise_over_20pct": 17
+    "intervals": 11982,
+    "gaps_over_20_min": 4693,
+    "gap_rate_pct": 39.17,
+    "gaps_with_observed_rise_over_20pct": 18
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,12 +20,24 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 11979,
-    "gaps_over_20_min": 4691,
-    "gap_rate_pct": 39.16,
-    "gaps_with_observed_rise_over_20pct": 17
+    "intervals": 11982,
+    "gaps_over_20_min": 4693,
+    "gap_rate_pct": 39.17,
+    "gaps_with_observed_rise_over_20pct": 18
   },
   "top_potential_blind_spots": [
+    {
+      "token": "7no4DN8bKbbEYnaa9h4LgobGoeT4HGk8fjQ5ZPMCpump",
+      "pair": "HeFUxUhQGo8HMzrVdvUzJSWGMxXtyxTHnUaYa7gSe9tp",
+      "name": "DacityCoin",
+      "from_utc": "2026-11-19T01:25:52+00:00",
+      "to_utc": "2026-11-19T02:29:15+00:00",
+      "gap_minutes": 63.38,
+      "observed_price_change_pct": 425.74,
+      "volume_m5_at_return": 132.25,
+      "liquidity_usd_at_return": 5991.81,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
     {
       "token": "8iWWRVByNYLqmuhap8KgT1rCABj33WJWAh9arGtApump",
       "pair": "GqGWCBf8SCUxFY2Vr1BGNBh8XZJPhxuy8nTrJoKnAMRP",
@@ -231,7 +243,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 17,
+  "blind_spot_count": 18,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
