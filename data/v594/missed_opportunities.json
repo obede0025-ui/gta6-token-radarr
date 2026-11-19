@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8826,
+  "observations": 8818,
   "unique_pairs": 506,
-  "window_start_utc": "2026-11-18T23:28:29+00:00",
-  "window_end_utc": "2026-11-19T23:28:29+00:00",
+  "window_start_utc": "2026-11-18T23:35:44+00:00",
+  "window_end_utc": "2026-11-19T23:35:44+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8320,
-    "gaps_over_20_min": 4015,
-    "gap_rate_pct": 48.26,
-    "gaps_with_observed_rise_over_20pct": 34
+    "intervals": 8312,
+    "gaps_over_20_min": 4027,
+    "gap_rate_pct": 48.45,
+    "gaps_with_observed_rise_over_20pct": 35
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8320,
-    "gaps_over_20_min": 4015,
-    "gap_rate_pct": 48.26,
-    "gaps_with_observed_rise_over_20pct": 34
+    "intervals": 8312,
+    "gaps_over_20_min": 4027,
+    "gap_rate_pct": 48.45,
+    "gaps_with_observed_rise_over_20pct": 35
   },
   "top_potential_blind_spots": [
     {
@@ -375,19 +375,19 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "6FUaqDmSf5iAa93KTC9beMpEebnox29cg4gnCD5Fpump",
-      "pair": "BN5EyKQTQx1zYsFHnVHeNByYoVFUCPKH7YR518syiHTD",
-      "name": "GTA6",
-      "from_utc": "2026-11-19T01:56:56+00:00",
-      "to_utc": "2026-11-19T02:21:31+00:00",
-      "gap_minutes": 24.58,
-      "observed_price_change_pct": 22.22,
-      "volume_m5_at_return": 21.38,
+      "token": "ExuDpg1nTE6h1VAmYrCRj1gEqLuE85x68nPP2MJpump",
+      "pair": "DMSrNu6h7HFyV8YtAkwaDqxaoZhXz8UrMGNLodhwbLw",
+      "name": "RIP LUCIA CAMINOS",
+      "from_utc": "2026-11-19T22:28:53+00:00",
+      "to_utc": "2026-11-19T23:35:44+00:00",
+      "gap_minutes": 66.85,
+      "observed_price_change_pct": 23.67,
+      "volume_m5_at_return": null,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 34,
+  "blind_spot_count": 35,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
