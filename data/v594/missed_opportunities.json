@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 10500,
-  "unique_pairs": 563,
-  "window_start_utc": "2026-11-18T17:36:15+00:00",
-  "window_end_utc": "2026-11-19T17:36:15+00:00",
+  "observations": 10324,
+  "unique_pairs": 555,
+  "window_start_utc": "2026-11-18T17:57:49+00:00",
+  "window_end_utc": "2026-11-19T17:57:49+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 9937,
-    "gaps_over_20_min": 4177,
-    "gap_rate_pct": 42.03,
-    "gaps_with_observed_rise_over_20pct": 27
+    "intervals": 9769,
+    "gaps_over_20_min": 4174,
+    "gap_rate_pct": 42.73,
+    "gaps_with_observed_rise_over_20pct": 30
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 9937,
-    "gaps_over_20_min": 4177,
-    "gap_rate_pct": 42.03,
-    "gaps_with_observed_rise_over_20pct": 27
+    "intervals": 9769,
+    "gaps_over_20_min": 4174,
+    "gap_rate_pct": 42.73,
+    "gaps_with_observed_rise_over_20pct": 30
   },
   "top_potential_blind_spots": [
     {
@@ -87,6 +87,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "48NvJoxww17Ay6zSoCHVTLj6NMSaELNZ3jQMhG4vED6M",
+      "pair": "5JWX4B8cRBavMzq6Nof1uvBfCfUUMeptzdmrU8bo6vbv",
+      "name": "State of Leonida",
+      "from_utc": "2026-11-19T17:36:15+00:00",
+      "to_utc": "2026-11-19T17:57:49+00:00",
+      "gap_minutes": 21.57,
+      "observed_price_change_pct": 198.73,
+      "volume_m5_at_return": 61707.36,
+      "liquidity_usd_at_return": 30394.51,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "GbLFA71YFKPgSeTVXnTPxaUq4zz4SvmmxS74yskJpump",
       "pair": "H61x76F8yaEtFRoYJFF6bZA7reGphEv5ToZaVu2qQNVD",
       "name": "Cuck Simulator ",
@@ -132,6 +144,18 @@
       "observed_price_change_pct": 95.96,
       "volume_m5_at_return": 1743.95,
       "liquidity_usd_at_return": 7903.37,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "GGGXE1FPrbcrbMEvptZipqUWXtv92G16yQvo9QadDvCy",
+      "pair": "3t8QqpALdowjVhjj4roLjoonfaGj24ABHoRomrLh2NiC",
+      "name": "Grand Theft Auto",
+      "from_utc": "2026-11-19T17:36:15+00:00",
+      "to_utc": "2026-11-19T17:57:49+00:00",
+      "gap_minutes": 21.57,
+      "observed_price_change_pct": 85.46,
+      "volume_m5_at_return": 26795.6,
+      "liquidity_usd_at_return": 73642.05,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -216,6 +240,18 @@
       "observed_price_change_pct": 36.24,
       "volume_m5_at_return": 20.26,
       "liquidity_usd_at_return": 12845.68,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "ERDrmaqsoeLdsCMMpBKkRM4LV1mzTA2KHrVxKLpqpump",
+      "pair": "BjMQQwAEqp7PkucsMzSyZBSAeEhj3Djc1bZmG67xdmLi",
+      "name": "AudaCity",
+      "from_utc": "2026-11-19T17:36:15+00:00",
+      "to_utc": "2026-11-19T17:57:49+00:00",
+      "gap_minutes": 21.57,
+      "observed_price_change_pct": 30.58,
+      "volume_m5_at_return": 55.44,
+      "liquidity_usd_at_return": 20515.28,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -351,7 +387,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 27,
+  "blind_spot_count": 30,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
