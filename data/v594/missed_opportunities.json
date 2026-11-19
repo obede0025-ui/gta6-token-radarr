@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 12514,
-  "unique_pairs": 652,
-  "window_start_utc": "2026-11-18T04:38:25+00:00",
-  "window_end_utc": "2026-11-19T04:38:25+00:00",
+  "observations": 12530,
+  "unique_pairs": 655,
+  "window_start_utc": "2026-11-18T04:43:19+00:00",
+  "window_end_utc": "2026-11-19T04:43:19+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 11862,
-    "gaps_over_20_min": 4615,
-    "gap_rate_pct": 38.91,
+    "intervals": 11875,
+    "gaps_over_20_min": 4627,
+    "gap_rate_pct": 38.96,
     "gaps_with_observed_rise_over_20pct": 22
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 11862,
-    "gaps_over_20_min": 4615,
-    "gap_rate_pct": 38.91,
+    "intervals": 11875,
+    "gaps_over_20_min": 4627,
+    "gap_rate_pct": 38.96,
     "gaps_with_observed_rise_over_20pct": 22
   },
   "top_potential_blind_spots": [
@@ -48,6 +48,18 @@
       "observed_price_change_pct": 425.74,
       "volume_m5_at_return": 132.25,
       "liquidity_usd_at_return": 5991.81,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "G9fPRHJ91BqqbNGdU7DzE5S1ZDSbkXhM443odFT2pump",
+      "pair": "2HcGD9rNuqGvH9BHmBf3HJQcJu4Ynx7do5nJkmd3Zd8T",
+      "name": "GTA6",
+      "from_utc": "2026-11-19T04:19:20+00:00",
+      "to_utc": "2026-11-19T04:43:19+00:00",
+      "gap_minutes": 23.98,
+      "observed_price_change_pct": 271.01,
+      "volume_m5_at_return": 287.68,
+      "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -156,18 +168,6 @@
       "observed_price_change_pct": 45.65,
       "volume_m5_at_return": null,
       "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "GtAUtApvLbYu3xwowergGfcFXy3JiWyBHJjY6k1dCash",
-      "pair": "5SNKhJXNTCWQZP1JzDNfgkpegYCoHJ3coMz8mywCDUpT",
-      "name": "GTA Dollar",
-      "from_utc": "2026-11-18T04:39:48+00:00",
-      "to_utc": "2026-11-18T05:45:15+00:00",
-      "gap_minutes": 65.45,
-      "observed_price_change_pct": 44.99,
-      "volume_m5_at_return": 86.82,
-      "liquidity_usd_at_return": 6894.96,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
