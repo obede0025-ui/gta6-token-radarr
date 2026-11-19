@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 11425,
-  "unique_pairs": 605,
-  "window_start_utc": "2026-11-18T13:18:24+00:00",
-  "window_end_utc": "2026-11-19T13:18:24+00:00",
+  "observations": 11387,
+  "unique_pairs": 604,
+  "window_start_utc": "2026-11-18T13:24:33+00:00",
+  "window_end_utc": "2026-11-19T13:24:33+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 10820,
-    "gaps_over_20_min": 4285,
-    "gap_rate_pct": 39.6,
-    "gaps_with_observed_rise_over_20pct": 22
+    "intervals": 10783,
+    "gaps_over_20_min": 4292,
+    "gap_rate_pct": 39.8,
+    "gaps_with_observed_rise_over_20pct": 24
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 10820,
-    "gaps_over_20_min": 4285,
-    "gap_rate_pct": 39.6,
-    "gaps_with_observed_rise_over_20pct": 22
+    "intervals": 10783,
+    "gaps_over_20_min": 4292,
+    "gap_rate_pct": 39.8,
+    "gaps_with_observed_rise_over_20pct": 24
   },
   "top_potential_blind_spots": [
     {
@@ -147,6 +147,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "7no4DN8bKbbEYnaa9h4LgobGoeT4HGk8fjQ5ZPMCpump",
+      "pair": "HeFUxUhQGo8HMzrVdvUzJSWGMxXtyxTHnUaYa7gSe9tp",
+      "name": "DacityCoin",
+      "from_utc": "2026-11-19T06:50:47+00:00",
+      "to_utc": "2026-11-19T13:24:33+00:00",
+      "gap_minutes": 393.77,
+      "observed_price_change_pct": 51.56,
+      "volume_m5_at_return": 285.33,
+      "liquidity_usd_at_return": 11977.19,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "ExuDpg1nTE6h1VAmYrCRj1gEqLuE85x68nPP2MJpump",
       "pair": "DMSrNu6h7HFyV8YtAkwaDqxaoZhXz8UrMGNLodhwbLw",
       "name": "RIP LUCIA CAMINOS",
@@ -231,6 +243,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "Gop41DJD2xPNBDvbBeNiPRjvvain3V9gTCuKgnDKpump",
+      "pair": "C4Tp12HPAT28iZxcZFchYeuLcdDW9rcgV8H3zi5fsGdd",
+      "name": "Loserfruit (Kathleen)",
+      "from_utc": "2026-11-19T13:03:38+00:00",
+      "to_utc": "2026-11-19T13:24:33+00:00",
+      "gap_minutes": 20.92,
+      "observed_price_change_pct": 30.01,
+      "volume_m5_at_return": 451.26,
+      "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "7NyaU75Q9nP9WXmnigi6m3M7AzaS2hXLsJCKkuyKpump",
       "pair": "BZox1nhj8dYtsP8yjQL71ip7VbQaPUx33Gcgu1KRjYN1",
       "name": "GTA6 Streamoor",
@@ -291,7 +315,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 22,
+  "blind_spot_count": 24,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
