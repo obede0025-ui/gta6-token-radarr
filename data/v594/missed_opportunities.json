@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 9488,
-  "unique_pairs": 530,
-  "window_start_utc": "2026-11-18T20:10:01+00:00",
-  "window_end_utc": "2026-11-19T20:10:01+00:00",
+  "observations": 9413,
+  "unique_pairs": 526,
+  "window_start_utc": "2026-11-18T20:23:22+00:00",
+  "window_end_utc": "2026-11-19T20:23:22+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8958,
-    "gaps_over_20_min": 4021,
-    "gap_rate_pct": 44.89,
-    "gaps_with_observed_rise_over_20pct": 33
+    "intervals": 8887,
+    "gaps_over_20_min": 4023,
+    "gap_rate_pct": 45.27,
+    "gaps_with_observed_rise_over_20pct": 32
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8958,
-    "gaps_over_20_min": 4021,
-    "gap_rate_pct": 44.89,
-    "gaps_with_observed_rise_over_20pct": 33
+    "intervals": 8887,
+    "gaps_over_20_min": 4023,
+    "gap_rate_pct": 45.27,
+    "gaps_with_observed_rise_over_20pct": 32
   },
   "top_potential_blind_spots": [
     {
@@ -107,18 +107,6 @@
       "gap_minutes": 63.65,
       "observed_price_change_pct": 162.1,
       "volume_m5_at_return": 4992.14,
-      "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "CiSTgysVQxnqKbWQVXvEyzKenuDxkAAzFs98iRchpump",
-      "pair": "2RkGCy1vZyp7C3LM77YYcokP8NAhGiCqYuTFMW9nLDVQ",
-      "name": "GTAVI",
-      "from_utc": "2026-11-18T20:11:03+00:00",
-      "to_utc": "2026-11-18T21:16:59+00:00",
-      "gap_minutes": 65.93,
-      "observed_price_change_pct": 120.84,
-      "volume_m5_at_return": null,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
@@ -385,9 +373,21 @@
       "volume_m5_at_return": 43.25,
       "liquidity_usd_at_return": 5631.31,
       "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "GrQx2gnK3yBPsVghDiP7npbmrJHzwZW62joJgDknpump",
+      "pair": "42nxNs67GoMxdLX4njHHqHUrn5vL1q2rFV3oJGajXa3h",
+      "name": "GTA6",
+      "from_utc": "2026-11-19T17:14:19+00:00",
+      "to_utc": "2026-11-19T18:05:07+00:00",
+      "gap_minutes": 50.8,
+      "observed_price_change_pct": 21.89,
+      "volume_m5_at_return": 50.38,
+      "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 33,
+  "blind_spot_count": 32,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
