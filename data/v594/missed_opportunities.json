@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 10292,
+  "observations": 10200,
   "unique_pairs": 557,
-  "window_start_utc": "2026-11-18T18:05:07+00:00",
-  "window_end_utc": "2026-11-19T18:05:07+00:00",
+  "window_start_utc": "2026-11-18T18:11:31+00:00",
+  "window_end_utc": "2026-11-19T18:11:31+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 9735,
-    "gaps_over_20_min": 4169,
-    "gap_rate_pct": 42.82,
-    "gaps_with_observed_rise_over_20pct": 31
+    "intervals": 9643,
+    "gaps_over_20_min": 4141,
+    "gap_rate_pct": 42.94,
+    "gaps_with_observed_rise_over_20pct": 30
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 9735,
-    "gaps_over_20_min": 4169,
-    "gap_rate_pct": 42.82,
-    "gaps_with_observed_rise_over_20pct": 31
+    "intervals": 9643,
+    "gaps_over_20_min": 4141,
+    "gap_rate_pct": 42.94,
+    "gaps_with_observed_rise_over_20pct": 30
   },
   "top_potential_blind_spots": [
     {
@@ -207,18 +207,6 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "imYt22usW6YUkgF3KGg97YKNn51FGk4rt4b3dtypump",
-      "pair": "42TTYaKh4JrJwR1rxF3o85ib6z5tYQQFCPSYy6dxt1Xk",
-      "name": "Founder",
-      "from_utc": "2026-11-18T18:05:52+00:00",
-      "to_utc": "2026-11-18T18:27:15+00:00",
-      "gap_minutes": 21.38,
-      "observed_price_change_pct": 40.12,
-      "volume_m5_at_return": 1282.91,
-      "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
       "token": "AXVowhHHiw1vdcWg8eSrdbTp7jDTLdqmtP9PibDipump",
       "pair": "8iT4TCfeeajeqvkr9wtuUmeM1oJXrHMyBjZqGtWBzMBq",
       "name": "Mission Passed",
@@ -385,9 +373,21 @@
       "volume_m5_at_return": 50.38,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "2wMTr4ZttVr5tmS4wLStee59wi8f9QQfMtT2Hoispump",
+      "pair": "99RTagSD6VDUCzjwmzi4q1RrAdtyAuYnR7xsXLfesz69",
+      "name": "Grand Theft Auto",
+      "from_utc": "2026-11-19T14:14:40+00:00",
+      "to_utc": "2026-11-19T15:16:31+00:00",
+      "gap_minutes": 61.85,
+      "observed_price_change_pct": 20.6,
+      "volume_m5_at_return": 1.14,
+      "liquidity_usd_at_return": 19574.44,
+      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 31,
+  "blind_spot_count": 30,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
