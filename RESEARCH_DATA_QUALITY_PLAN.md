@@ -49,3 +49,7 @@ Live read-only telling uit `minute_market_pilot.sqlite` (alle statussen):
 `research_minute_market_pilot.py` `extract()` neemt `liquidity.usd` uit de DexScreener-payload via `finite()` over, en `record()` markeert een waarde `0` als `QUOTE_MARKET_OBSERVED` wanneer de prijs positief is. `None` wordt `LIQUIDITY_UNKNOWN`. Dit verklaart classificatie in de database maar **bewijst geen werkelijke lege pool**.
 
 Toegevoegd: `research_zero_liquidity_persistence.py` + tests voor observatie van nul na 5 minuten en m5-volume/transacties in een later venster. Het script mag niets schrijven en wijzigt geen tradinglabels, orders of services. Een nulstatus blijft **onbevestigd** totdat een onafhankelijke marktbewijsbron is gecheckt. Bij hypothetische nieuwe instappen moet ontbrekende of nul-liquidity fail-closed blijven; deze PR implementeert geen actieve instapcontrole.
+
+## Beschrijvende liquiditeitsstatus (research-only)
+
+`research_liquidity_states.py` classificeert een positieve quote-liquiditeit als `LIQUIDITY_POSITIVE_OBSERVED`, API-nul als `LIQUIDITY_ZERO_UNVERIFIED` en ontbrekende bronvelden als `LIQUIDITY_UNKNOWN`. Ongeldige (negatieve/niet-eindige) getallen krijgen `LIQUIDITY_INVALID`. Positieve LP is geen onafhankelijke on-chain bevestiging en geen handelsgoedkeuring. De classifier is bewust niet aan de actieve collector, entry filter of paper/live orders gekoppeld. Nieuwe tests: `tests.test_research_liquidity_states`.
