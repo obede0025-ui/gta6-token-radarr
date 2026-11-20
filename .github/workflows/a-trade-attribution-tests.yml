@@ -1,0 +1,28 @@
+name: Strategy A attribution offline tests
+
+on:
+  push:
+    branches:
+      - feature/a-trade-attribution-20261120
+    paths:
+      - 'research_a_trade_attribution.py'
+      - 'tests/test_research_a_trade_attribution.py'
+      - '.github/workflows/a-trade-attribution-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  attribution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax compile
+        run: python -m py_compile research_a_trade_attribution.py
+      - name: Run offline trade-attribution tests
+        run: python -m unittest tests.test_research_a_trade_attribution -v
