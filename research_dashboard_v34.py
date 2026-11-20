@@ -51,6 +51,14 @@ def render(ledger,health):
     alerts=health.get("alerts",[])
     alert_markup="<p class='good'>No health alerts currently reported.</p>" if not alerts else (
         "<p class='bad'>"+esc(", ".join(alerts))+"</p>")
+    reasons=health.get("entry_rejection_reason_counts",{})
+    reason_lines="".join("<tr><td>"+esc(k)+"</td><td>"+esc(v)+"</td></tr>"
+        for k,v in sorted(reasons.items(),key=lambda p:(-p[1],p[0]))[:12])
+    coverage=health.get("followups_by_horizon_seconds",{})
+    coverage_lines="".join("<tr><td>"+esc(h)+" seconds</td>"+''.join(
+        "<td>"+esc(row.get(k,0))+"</td>" for k in
+        ("quoted","unavailable","missed","pending"))+"</tr>"
+        for h,row in sorted(coverage.items()))
     header=''.join("<th>"+esc(s)+"</th>" for s in
         ["Mint","Strategy","Research state","Mint check","Buy quote",
          "5m exit","5m quoted %","15m exit","15m quoted %"])
@@ -65,6 +73,13 @@ def render(ledger,health):
         '<section class="notice"><b>Safety and data quality</b>'+alert_markup+
         '<small>Sample of 100 signals reached: '+esc(health.get("sample_sufficient",False))+
         '. Available-route return averages exclude missing sells and are not executable returns.</small></section>'
+        '<h2>Sell-quote coverage by horizon</h2><div class="scroll"><table><thead><tr>'
+        '<th>Horizon</th><th>Quoted</th><th>Unavailable</th><th>Missed</th><th>Pending</th>'
+        '</tr></thead><tbody>'+coverage_lines+'</tbody></table></div>'
+        '<h2>Top research-entry rejection reasons</h2><div class="scroll"><table><thead><tr>'
+        '<th>Reason</th><th>Signals rejected</th></tr></thead><tbody>'
+        +reason_lines+'</tbody></table></div>'
+        '<p>Health OK means the observer is running, not that a token is safe to trade.</p>'
         '<h2>Most recently recorded signals (up to 100)</h2><div class="scroll">'
         '<table><thead><tr>'+header+'</tr></thead><tbody>'+''.join(rows)+
         '</tbody></table></div><p>Generated '+esc(datetime.now(timezone.utc).isoformat(timespec="seconds"))+
