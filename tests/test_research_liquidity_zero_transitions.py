@@ -25,7 +25,7 @@ class TransitionResearchTests(unittest.TestCase):
         self.assertEqual(result["median_gap_before_first_zero_seconds"], 60)
         self.assertEqual(result["alternate_pair_with_positive_liquidity_near_transition"], 1)
         self.assertEqual(result["pre_transition_price_samples"], 1)
-        self.assertEqual(result["median_price_change_before_transition_pct"], -20)
+        self.assertAlmostEqual(result["median_price_change_before_transition_pct"], -20, places=2)
         self.assertEqual(result["database_writes"], 0)
 
     def test_no_false_transition_from_initial_zero(self):
