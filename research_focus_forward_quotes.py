@@ -71,6 +71,8 @@ def run(db_path, state_path, now=None, quoter=None, clock=None):
     state_path = Path(state_path).resolve()
     if not db_path.is_file() or db_path == state_path:
         raise ValueError("Source DB required; state must have a different path")
+    if state_path.name != "forward_quotes.json" or state_path.parent.name != "focus":
+        raise ValueError("Isolated state must be focus/forward_quotes.json; refusing other output paths")
     # A process-level lock prevents lost JSON updates from overlapping one-shots.
     lock_path = state_path.with_suffix(state_path.suffix + ".lock")
     lock_path.parent.mkdir(parents=True, exist_ok=True)
