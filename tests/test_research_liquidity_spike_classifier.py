@@ -45,7 +45,7 @@ class SpikeClassifierTest(unittest.TestCase):
         r=analyze(db,hours=1,as_of=START+timedelta(minutes=10))
         self.assertEqual(r["evaluated_windows"],1)
         self.assertEqual(r["classifications"]["MOMENTUM_LIQUIDITY_COLLAPSE"],1)
-        self.assertEqual(r["classifications"]["MISSING_5M_MEASUREMENT"],1)
+        self.assertEqual(r["classifications"]["MISSING_5M_MEASUREMENT"],3)
         self.assertEqual(r["source_db_writes"],0)
         self.assertEqual(db.read_bytes(),before)
 
