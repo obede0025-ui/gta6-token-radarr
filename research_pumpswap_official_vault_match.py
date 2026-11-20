@@ -61,8 +61,8 @@ def analyze(meta_report, pools):
     for case, classified in zip(meta_report.get("cases", []),candidates):
         pool_info = pools.get(case.get("pool"),{"status":"UNAVAILABLE"})
         mint = case.get("mint")
-        valid = (pool_info.get("status")=="POOL_LAYOUT_VERIFIED"
-                 and pool_info.get("base_mint")==mint)
+        layout_ok = pool_info.get("status")=="POOL_LAYOUT_VERIFIED"
+        valid = layout_ok and mint in (pool_info.get("base_mint"), pool_info.get("quote_mint"))
         expected = {}
         if valid:
             expected = {
@@ -91,9 +91,13 @@ def analyze(meta_report, pools):
         results.append({
             "case":case.get("case"),"pool":case.get("pool"),
             "pool_layout_status":pool_info.get("status"),
-            "pool_base_mint_matches_case":bool(valid),
-            "base_vault":pool_info.get("base_vault") if valid else None,
-            "quote_vault":pool_info.get("quote_vault") if valid else None,
+            "pool_base_mint_matches_case":layout_ok and pool_info.get("base_mint")==mint,
+            "pool_quote_mint_matches_case":layout_ok and pool_info.get("quote_mint")==mint,
+            "decoded_base_mint":pool_info.get("base_mint") if layout_ok else None,
+            "decoded_quote_mint":pool_info.get("quote_mint") if layout_ok else None,
+            "base_vault":pool_info.get("base_vault") if layout_ok else None,
+            "quote_vault":pool_info.get("quote_vault") if layout_ok else None,
+            "mint_matches_either_pool_side":bool(valid),
             "verified_vault_addresses_in_successful_transactions":matches,
             "successful_transactions":classified["successful_transactions"],
             "failed_transactions":classified["failed_transactions"],
