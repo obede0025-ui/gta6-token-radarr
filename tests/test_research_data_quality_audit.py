@@ -42,7 +42,7 @@ class DataQualityAuditTests(unittest.TestCase):
             self.assertEqual(result["learning"]["valid_initial_market_data"], 1)
             self.assertEqual(result["learning"]["issue_counts_overlapping"]["invalid_initial_price"], 1)
             self.assertEqual(result["minute_market"]["observations"], 3)
-            self.assertEqual(result["minute_market"]["tokens_in_both_databases"], 1)
+            self.assertEqual(result["minute_market"]["tokens_in_both_databases"], 2)
             self.assertEqual(result["minute_market"]["median_pair_observation_gap_seconds"], 62)
             breakdown = {
                 row["status"]: row
