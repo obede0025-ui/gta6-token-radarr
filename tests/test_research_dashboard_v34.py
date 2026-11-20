@@ -21,6 +21,18 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn("<script>alert",output)
         self.assertIn("Quote-only research",output)
 
+    def test_rejection_reason_escaped_and_coverage_displayed(self):
+        h={"status":"OK","signal_count":1,
+           "entry_rejection_reason_counts":{"<unsafe>":1},
+           "followups_by_horizon_seconds":{
+             "300":{"quoted":1,"missed":0,"unavailable":0,"pending":0},
+             "900":{"quoted":0,"missed":0,"unavailable":0,"pending":1}}}
+        output=render({"signals":{}},h)
+        self.assertIn("&lt;unsafe&gt;",output)
+        self.assertNotIn("<unsafe>",output)
+        self.assertIn("Sell-quote coverage by horizon",output)
+        self.assertIn("not that a token is safe to trade",output)
+
     def test_no_source_files_overwritten(self):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td)
