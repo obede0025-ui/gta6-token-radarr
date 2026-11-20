@@ -1,0 +1,37 @@
+name: V3.5 market evidence offline tests
+
+on:
+  push:
+    branches:
+      - feature/v35-market-evidence-20261120
+    paths:
+      - 'research_v35_market_evidence.py'
+      - 'tests/test_research_v35_market_evidence.py'
+      - '.github/workflows/v35-market-evidence-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  v35-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install minimal offline dependency
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Compile isolated research modules
+        run: python -m py_compile research_v35_market_evidence.py research_token2022_risk_diagnostics.py radar_token_security.py
+      - name: Test V3.5 and Token-2022 security regression (NO network calls)
+        run: |
+          python -m unittest \
+            tests.test_research_v35_market_evidence \
+            tests.test_token2022_canonical_program_id \
+            tests.test_token2022_metadata_audit \
+            tests.test_token2022_risk_diagnostics \
+            tests.test_research_preentry_evidence_v31 \
+            tests.test_research_preentry_probe_v31 -v
