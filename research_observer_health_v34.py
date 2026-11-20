@@ -38,6 +38,7 @@ def metrics(ledger,report=None,now=None):
         problems.append("UNEXPECTED_TRADING_COUNTER")
     signals=ledger["signals"]
     counts=Counter();returns=[];eligible=0;unresolved=0
+    rejections=Counter();security=Counter();per_horizon={h:Counter() for h in HORIZONS}
     for key,item in signals.items():
         if not isinstance(item,dict) or not isinstance(item.get("followups"),dict):
             problems.append("INVALID_SIGNAL_RECORD")
@@ -45,6 +46,13 @@ def metrics(ledger,report=None,now=None):
         if item.get("paper_trade_approval")!="BLOCK" or item.get("live_trade_approval")!="BLOCK":
             problems.append("ENTRY_PERMISSION_NOT_BLOCKED")
         if item.get("evidence_state")=="PASS_RESEARCH_ONLY":eligible+=1
+        security[item.get("security_status") or "UNKNOWN"]+=1
+        reasons=item.get("entry_rejection_reasons",[])
+        if not isinstance(reasons,list):
+            problems.append("INVALID_REJECTION_REASONS")
+        else:
+            for reason in set(x for x in reasons if isinstance(x,str)):
+                rejections[reason]+=1
         entry=utc(item.get("first_seen_utc"))
         if entry is None or entry>now:
             problems.append("INVALID_SIGNAL_TIMESTAMP")
@@ -60,6 +68,7 @@ def metrics(ledger,report=None,now=None):
                 problems.append("INVALID_FOLLOWUP_RECORD");continue
             status=follow.get("status")
             counts[status or "UNKNOWN"]+=1
+            per_horizon[horizon][status or "UNKNOWN"]+=1
             if status=="JUPITER_SELL_ROUTE_QUOTED":
                 val=decimal(follow.get("quote_return_pct_before_network_fees"))
                 if val is None:
@@ -80,9 +89,22 @@ def metrics(ledger,report=None,now=None):
         "mode":"V34_OBSERVER_HEALTH_READ_ONLY",
         "checked_utc":now.isoformat(timespec="seconds"),
         "status":"ATTENTION" if problems else "OK",
+        "status_meaning":"Observer operational health only; NOT token or trading safety",
         "alerts":sorted(set(problems)),
         "signal_count":total,
         "research_evidence_passed":eligible,
+        "security_gate_counts":dict(sorted(security.items())),
+        "entry_rejection_reason_counts":dict(sorted(rejections.items())),
+        "followups_by_horizon_seconds":{
+            h:{"quoted":per_horizon[h]["JUPITER_SELL_ROUTE_QUOTED"],
+               "missed":per_horizon[h]["HORIZON_MISSED"],
+               "unavailable":per_horizon[h]["SELL_ROUTE_UNAVAILABLE"],
+               "pending":sum(1 for item in signals.values()
+                   if isinstance(item,dict)
+                   and isinstance(item.get("followups"),dict)
+                   and item.get("buy_raw_out")
+                   and h not in item["followups"])}
+            for h in HORIZONS},
         "quote_samples":num_quote,
         "quote_return_average_pct_observed_only":pct,
         "horizon_missed":counts["HORIZON_MISSED"],
