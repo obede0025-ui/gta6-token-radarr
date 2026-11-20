@@ -43,6 +43,16 @@ class VaultTimelineTests(unittest.TestCase):
         self.assertEqual(result["transactions_with_vault_changes"],0)
         self.assertEqual(result["state"],"UNVERIFIED")
 
+    def test_rate_limit_evidence_distinct_from_not_requested(self):
+        fields,pool,case=self.sample()
+        sigs=[{"signature":"A","blockTime":1795168800},
+              {"signature":"B","blockTime":1795168920}]
+        result=summarize_case(case,pool,sigs,{},1,{"A"})
+        self.assertEqual(result["rpc_error_transactions"],1)
+        self.assertEqual(result["not_requested_transactions"],1)
+        self.assertEqual(result["missing_transactions"],2)
+        self.assertFalse(result["historical_reserves_fully_verified"])
+
     def test_wrong_mint_fails_closed(self):
         fields,pool,case=self.sample()
         case["mint"]="unrelated"
