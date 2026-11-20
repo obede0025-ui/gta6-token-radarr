@@ -30,6 +30,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          # Reuse downloaded wheels between frequent collector runs.
+          # This does not cache or modify the learning database.
+          cache: 'pip'
+          cache-dependency-path: requirements-collector.txt
 
       - name: Install dependencies
         run: |
