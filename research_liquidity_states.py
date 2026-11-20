@@ -40,10 +40,3 @@ def classify_liquidity(status, liquidity_usd, price_usd):
         return ZERO_UNVERIFIED
     return CONFIRMED_POSITIVE
 
-
-def allows_research_entry(status, liquidity_usd, price_usd):
-    """Placeholder conservative guard only: never grant trade approval.
-
-    No market observation by itself is enough to approve a new position.
-    """
-    return False
