@@ -5,6 +5,7 @@ Unverified checks remain UNKNOWN and contribute only to the possible worst
 case. Even a zero lower bound cannot establish that a token is tradable.
 """
 from decimal import Decimal, InvalidOperation
+from datetime import datetime, timezone
 
 WEIGHTS = {
     "program": 10,
@@ -103,8 +104,26 @@ def assess_token2022_risk(security, market=None):
             put("other_extensions", "UNKNOWN", "Extension review incomplete")
 
     # Do not mix an arbitrary market snapshot with the mint being assessed.
-    market_valid = (isinstance(security.get("mint"), str)
-                    and market.get("mint") == security["mint"])
+    def parsed_utc(value):
+        if not isinstance(value, str):
+            return None
+        try:
+            dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return dt.astimezone(timezone.utc) if dt.tzinfo is not None else None
+        except (ValueError, OverflowError):
+            return None
+
+    market_time = parsed_utc(market.get("checked_utc"))
+    security_time = parsed_utc(security.get("checked_utc"))
+    now = datetime.now(timezone.utc)
+    market_valid = (
+        isinstance(security.get("mint"), str)
+        and market.get("mint") == security["mint"]
+        and market_time is not None and security_time is not None
+        and 0 <= (now - market_time).total_seconds() <= 120
+        and 0 <= (now - security_time).total_seconds() <= 120
+        and abs((market_time - security_time).total_seconds()) <= 120
+    )
     liq = _decimal(market.get("liquidity_usd")) if market_valid else None
     if liq is None or liq < 0:
         put("liquidity", "UNKNOWN", "Contemporaneous liquidity evidence unavailable")
