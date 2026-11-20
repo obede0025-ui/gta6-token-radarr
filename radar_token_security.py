@@ -74,7 +74,8 @@ def rpc_get_account(session, url, mint):
 def evaluate_mint(mint, sources, account):
     def _finish(result):
         # Diagnostic only; no change to original safety or trading decisions.
-        result['risk_diagnostics'] = assess_token2022_risk(result)
+        result['risk_diagnostics'] = (assess_token2022_risk(result)
+                                      if result.get('program') != 'SPL_TOKEN' else None)
         return result
 
     reasons, warnings = [], []
