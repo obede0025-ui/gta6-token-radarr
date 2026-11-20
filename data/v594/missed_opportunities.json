@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8702,
-  "unique_pairs": 502,
-  "window_start_utc": "2026-11-19T00:07:29+00:00",
-  "window_end_utc": "2026-11-20T00:07:29+00:00",
+  "observations": 8692,
+  "unique_pairs": 503,
+  "window_start_utc": "2026-11-19T00:14:55+00:00",
+  "window_end_utc": "2026-11-20T00:14:55+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8200,
-    "gaps_over_20_min": 4004,
-    "gap_rate_pct": 48.83,
-    "gaps_with_observed_rise_over_20pct": 35
+    "intervals": 8189,
+    "gaps_over_20_min": 4005,
+    "gap_rate_pct": 48.91,
+    "gaps_with_observed_rise_over_20pct": 36
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8200,
-    "gaps_over_20_min": 4004,
-    "gap_rate_pct": 48.83,
-    "gaps_with_observed_rise_over_20pct": 35
+    "intervals": 8189,
+    "gaps_over_20_min": 4005,
+    "gap_rate_pct": 48.91,
+    "gaps_with_observed_rise_over_20pct": 36
   },
   "top_potential_blind_spots": [
     {
@@ -219,6 +219,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "25XHv5ANJTMKxE15yAQALoQ73MxQGJqFrQusA2otYC3h",
+      "pair": "ASG3v8mwxVmE381ZPUo1nSaHHBd9DvCDWAukV7et2nRA",
+      "name": "Goy Theft Auto 6",
+      "from_utc": "2026-11-19T22:34:15+00:00",
+      "to_utc": "2026-11-20T00:14:55+00:00",
+      "gap_minutes": 100.67,
+      "observed_price_change_pct": 45.17,
+      "volume_m5_at_return": 772.4,
+      "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "GbLFA71YFKPgSeTVXnTPxaUq4zz4SvmmxS74yskJpump",
       "pair": "H61x76F8yaEtFRoYJFF6bZA7reGphEv5ToZaVu2qQNVD",
       "name": "Cuck Simulator ",
@@ -373,21 +385,9 @@
       "volume_m5_at_return": null,
       "liquidity_usd_at_return": 4972.46,
       "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "ExuDpg1nTE6h1VAmYrCRj1gEqLuE85x68nPP2MJpump",
-      "pair": "DMSrNu6h7HFyV8YtAkwaDqxaoZhXz8UrMGNLodhwbLw",
-      "name": "RIP LUCIA CAMINOS",
-      "from_utc": "2026-11-19T22:28:53+00:00",
-      "to_utc": "2026-11-19T23:35:44+00:00",
-      "gap_minutes": 66.85,
-      "observed_price_change_pct": 23.67,
-      "volume_m5_at_return": null,
-      "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 35,
+  "blind_spot_count": 36,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
