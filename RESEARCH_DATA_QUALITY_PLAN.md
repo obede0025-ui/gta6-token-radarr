@@ -43,3 +43,9 @@ Live read-only telling uit `minute_market_pilot.sqlite` (alle statussen):
 | MARKET_DATA_UNAVAILABLE | 7.552 | 7.552 | 0 | 0 | 7.175 |
 
 **Belangrijk:** deze all-status telling is niet gelijk aan de bestaande auditcohort voor `QUOTE_MARKET_OBSERVED`. Een LP-waarde van 0 bij die status is nog geen bewijs van rug pull of echte poolleegloop. Geen historische koersuitkomst of crashlabel mag uit NULL worden afgeleid. De audit rapporteert voortaan de splitsing per status; handels- en crashfilters blijven ongewijzigd tot de producer van nulwaarden is geverifieerd.
+
+## Codeonderzoek producer (20 november 2026)
+
+`research_minute_market_pilot.py` `extract()` neemt `liquidity.usd` uit de DexScreener-payload via `finite()` over, en `record()` markeert een waarde `0` als `QUOTE_MARKET_OBSERVED` wanneer de prijs positief is. `None` wordt `LIQUIDITY_UNKNOWN`. Dit verklaart classificatie in de database maar **bewijst geen werkelijke lege pool**.
+
+Toegevoegd: `research_zero_liquidity_persistence.py` + tests voor observatie van nul na 5 minuten en m5-volume/transacties in een later venster. Het script mag niets schrijven en wijzigt geen tradinglabels, orders of services. Een nulstatus blijft **onbevestigd** totdat een onafhankelijke marktbewijsbron is gecheckt. Bij hypothetische nieuwe instappen moet ontbrekende of nul-liquidity fail-closed blijven; deze PR implementeert geen actieve instapcontrole.
