@@ -1,0 +1,37 @@
+name: Focus A vs B2 read-only research tests
+
+on:
+  push:
+    branches:
+      - feature/focus-abc-b2-20261120
+    paths:
+      - 'research_focus_a_b2.py'
+      - 'research_focus_forward_quotes.py'
+      - 'tests/test_research_focus_a_b2.py'
+      - 'tests/test_research_focus_forward_quotes.py'
+      - '.github/workflows/focus-a-b2-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install requests for existing safe quote client imports
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Compile research modules
+        run: python -m py_compile research_focus_a_b2.py research_focus_forward_quotes.py
+      - name: Run purely offline comparison and follow-up tests
+        run: |
+          python -m unittest \
+            tests.test_research_focus_a_b2 \
+            tests.test_research_focus_forward_quotes \
+            tests.test_token2022_risk_diagnostics \
+            tests.test_research_v35_market_evidence -v
