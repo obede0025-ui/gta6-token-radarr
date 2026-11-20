@@ -16,7 +16,7 @@ from research_pumpswap_transaction_meta import tx_summary, select_signatures
 WSOL = "So11111111111111111111111111111111111111112"
 
 
-def summarize_case(case, pool_data, signature_rows, transactions, each_side=5):
+def summarize_case(case, pool_data, signature_rows, transactions, each_side=5, rpc_error_signatures=None):
     """transactions is dict signature -> parsed RPC tx or None."""
     info = decode_pool(pool_data, case["pair"])
     match = (info.get("status") == "POOL_LAYOUT_VERIFIED"
@@ -43,9 +43,16 @@ def summarize_case(case, pool_data, signature_rows, transactions, each_side=5):
     outcome["sampled_history_spans_zero"]=bool(
         timestamps and min(timestamps)<=target<=max(timestamps))
     events=[]
+    rpc_error_signatures = set(rpc_error_signatures or [])
+    outcome["rpc_error_transactions"] = 0
+    outcome["not_requested_transactions"] = 0
     for sig in selected:
         transaction=transactions.get(sig["signature"])
         if transaction is None:
+            if sig["signature"] in rpc_error_signatures:
+                outcome["rpc_error_transactions"]+=1
+            else:
+                outcome["not_requested_transactions"]+=1
             outcome["missing_transactions"]+=1
             continue
         parsed=tx_summary(sig["signature"],transaction)
@@ -94,12 +101,17 @@ def main():
     if not 1<=args.each_side<=10:
         ap.error("--each-side must be between 1 and 10")
     results=[]
+    halted_by_rate_limit=False
     with requests.Session() as session:
         for case in CASES:
+            if halted_by_rate_limit:
+                results.append({"case":case["label"], "pool":case["pair"], "state":"UNVERIFIED", "not_requested_due_to_rpc_rate_limit":True, "historical_reserves_fully_verified":False})
+                continue
             pool_data=None
             sig_rows=[]
             transactions={}
             errors=[]
+            rpc_error_signatures=[]
             try:
                 response=rpc(session,args.rpc,"getAccountInfo",
                     [case["pair"],{"encoding":"base64","commitment":"finalized"}])
@@ -117,14 +129,22 @@ def main():
                                 "maxSupportedTransactionVersion":0}])
                     except (requests.RequestException,RuntimeError,ValueError,TypeError) as exc:
                         errors.append(str(exc)[:150])
+                        rpc_error_signatures.append(sig["signature"])
+                        if "429" in str(exc) or "rate limit" in str(exc).lower():
+                            halted_by_rate_limit=True
+                            break
             except (requests.RequestException,RuntimeError,ValueError,TypeError) as exc:
                 errors.append(str(exc)[:150])
-            item=summarize_case(case,pool_data,sig_rows,transactions,args.each_side)
+                if "429" in str(exc) or "rate limit" in str(exc).lower():
+                    halted_by_rate_limit=True
+            item=summarize_case(case,pool_data,sig_rows,transactions,args.each_side,rpc_error_signatures)
             item["rpc_errors"]=errors
+            item["rpc_rate_limited"]=halted_by_rate_limit
             results.append(item)
     print(json.dumps({
         "mode":"READ_ONLY_BOUNDED_PUMPSWAP_VAULT_TIMELINE",
         "cases":results,
+        "stopped_due_to_rpc_rate_limit":halted_by_rate_limit,
         "limitations":[
             "Only a capped signature sample; missing events may change reserve interpretation.",
             "No deterministic within-slot transaction order without block transaction indices.",
