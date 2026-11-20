@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 6375,
-  "unique_pairs": 393,
-  "window_start_utc": "2026-11-19T14:00:23+00:00",
-  "window_end_utc": "2026-11-20T14:00:23+00:00",
+  "observations": 6421,
+  "unique_pairs": 395,
+  "window_start_utc": "2026-11-19T14:07:15+00:00",
+  "window_end_utc": "2026-11-20T14:07:15+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 5982,
-    "gaps_over_20_min": 3585,
-    "gap_rate_pct": 59.93,
-    "gaps_with_observed_rise_over_20pct": 28
+    "intervals": 6026,
+    "gaps_over_20_min": 3616,
+    "gap_rate_pct": 60.01,
+    "gaps_with_observed_rise_over_20pct": 29
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 5982,
-    "gaps_over_20_min": 3585,
-    "gap_rate_pct": 59.93,
-    "gaps_with_observed_rise_over_20pct": 28
+    "intervals": 6026,
+    "gaps_over_20_min": 3616,
+    "gap_rate_pct": 60.01,
+    "gaps_with_observed_rise_over_20pct": 29
   },
   "top_potential_blind_spots": [
     {
@@ -96,6 +96,18 @@
       "observed_price_change_pct": 85.46,
       "volume_m5_at_return": 26795.6,
       "liquidity_usd_at_return": 73642.05,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "FXAHj7mqmSBEpUuVnfJABqB51MgaZHFX8D6Ue85Mpump",
+      "pair": "3GsQSf9RUmbwYzhPqh73oc2GZsrS29kNCrGzDBFfhSu4",
+      "name": "Jimmy De Santa",
+      "from_utc": "2026-11-20T13:45:13+00:00",
+      "to_utc": "2026-11-20T14:07:15+00:00",
+      "gap_minutes": 22.03,
+      "observed_price_change_pct": 78.47,
+      "volume_m5_at_return": 6509.84,
+      "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -363,7 +375,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 28,
+  "blind_spot_count": 29,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
