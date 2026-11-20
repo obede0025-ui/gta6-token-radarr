@@ -1,0 +1,24 @@
+name: Strategy A first minutes research tests
+on:
+  push:
+    branches: [feature/a-first-minutes-20261120]
+    paths:
+      - 'research_a_first_minutes.py'
+      - 'tests/test_research_a_first_minutes.py'
+      - '.github/workflows/a-first-minutes-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research_a_first_minutes.py
+          python -m unittest tests.test_research_a_first_minutes -v
