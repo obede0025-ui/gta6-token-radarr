@@ -53,3 +53,9 @@ Toegevoegd: `research_zero_liquidity_persistence.py` + tests voor observatie van
 ## Beschrijvende liquiditeitsstatus (research-only)
 
 `research_liquidity_states.py` classificeert een positieve quote-liquiditeit als `LIQUIDITY_POSITIVE_OBSERVED`, API-nul als `LIQUIDITY_ZERO_UNVERIFIED` en ontbrekende bronvelden als `LIQUIDITY_UNKNOWN`. Ongeldige (negatieve/niet-eindige) getallen krijgen `LIQUIDITY_INVALID`. Positieve LP is geen onafhankelijke on-chain bevestiging en geen handelsgoedkeuring. De classifier is bewust niet aan de actieve collector, entry filter of paper/live orders gekoppeld. Nieuwe tests: `tests.test_research_liquidity_states`.
+
+## Drie concrete cases: read-only publieke RPC probe
+
+`research_public_solana_pool_probe.py` gebruikt uitsluitend publieke `getMultipleAccounts` en `getSignaturesForAddress` RPC-read calls voor drie vooraf geselecteerde historische paren (aanhoudend nul, beperkt herstel, vervolgmeting ontbreekt). Het script onthult het **huidige** owner-programma van het account en of recente transactiegeschiedenis in een beperkte steekproef het historische moment raakt. Het registreert geen historische reserves en houdt de classificatie op `UNVERIFIED`. De publieke RPC kan worden beperkt of historiek missen; gebruik geen betaald RPC-adres in gedeelde logs.
+
+Op de aparte VPS-testkopie: `python -m unittest tests.test_research_public_solana_pool_probe -v` en `python research_public_solana_pool_probe.py`. Echte verificatie vereist daarna programma-afhankelijke reserveaccount-identificatie en onafhankelijke slot-historische tokenbalansen.
