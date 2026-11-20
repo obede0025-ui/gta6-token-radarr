@@ -1,0 +1,23 @@
+name: A minute quote research unit tests
+on:
+  push:
+    branches: [feature/a-minute-quote-evidence-20261120]
+    paths:
+      - 'research_a_minute_quote_join.py'
+      - 'tests/test_research_a_minute_quote_join.py'
+      - '.github/workflows/research-a-minute-quote-join-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m unittest tests.test_research_a_minute_quote_join -v
+          python -m unittest tests.test_research_liquidity_spike_classifier -v
