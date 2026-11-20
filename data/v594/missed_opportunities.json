@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 8659,
-  "unique_pairs": 501,
-  "window_start_utc": "2026-11-19T00:40:23+00:00",
-  "window_end_utc": "2026-11-20T00:40:23+00:00",
+  "observations": 8645,
+  "unique_pairs": 497,
+  "window_start_utc": "2026-11-19T00:48:05+00:00",
+  "window_end_utc": "2026-11-20T00:48:05+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 8158,
-    "gaps_over_20_min": 4037,
-    "gap_rate_pct": 49.49,
+    "intervals": 8148,
+    "gaps_over_20_min": 4038,
+    "gap_rate_pct": 49.56,
     "gaps_with_observed_rise_over_20pct": 36
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 8158,
-    "gaps_over_20_min": 4037,
-    "gap_rate_pct": 49.49,
+    "intervals": 8148,
+    "gaps_over_20_min": 4038,
+    "gap_rate_pct": 49.56,
     "gaps_with_observed_rise_over_20pct": 36
   },
   "top_potential_blind_spots": [
@@ -255,6 +255,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "GmrDgvX7rjAJzqcAuP1cSd3RXeeF1Pcw2nnVubgiC5oy",
+      "pair": "3FmyGrJPLDVgDVwRVenuaq1xBwkZauP5TSskHRz72wSS",
+      "name": "Vice City",
+      "from_utc": "2026-11-19T23:43:15+00:00",
+      "to_utc": "2026-11-20T00:48:05+00:00",
+      "gap_minutes": 64.83,
+      "observed_price_change_pct": 40.48,
+      "volume_m5_at_return": null,
+      "liquidity_usd_at_return": 3560.8,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "2afcRhtGYgp1e3xPBMu2UbnELL8AUMZzguLQsPo8pump",
       "pair": "7xLmwsPbCSMVvfFQ9JuhMwfbkehJA3mswshVBBWcJ1j2",
       "name": "VICE CITY",
@@ -324,18 +336,6 @@
       "observed_price_change_pct": 30.01,
       "volume_m5_at_return": 451.26,
       "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "7NyaU75Q9nP9WXmnigi6m3M7AzaS2hXLsJCKkuyKpump",
-      "pair": "BZox1nhj8dYtsP8yjQL71ip7VbQaPUx33Gcgu1KRjYN1",
-      "name": "GTA6 Streamoor",
-      "from_utc": "2026-11-19T00:43:27+00:00",
-      "to_utc": "2026-11-19T01:07:37+00:00",
-      "gap_minutes": 24.17,
-      "observed_price_change_pct": 29.16,
-      "volume_m5_at_return": 3.96,
-      "liquidity_usd_at_return": 4472.51,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
