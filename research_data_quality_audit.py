@@ -129,7 +129,32 @@ def minute_report(db, learning_mints):
             if seconds > 0:
                 gaps.append(seconds)
         by_pair[key] = time
+    status_rows = db.execute("""
+        SELECT COALESCE(status, '(NULL)') AS label,
+               COUNT(*),
+               SUM(CASE WHEN liquidity_usd IS NULL THEN 1 ELSE 0 END),
+               SUM(CASE WHEN liquidity_usd = 0 THEN 1 ELSE 0 END),
+               SUM(CASE WHEN liquidity_usd < 0 THEN 1 ELSE 0 END),
+               SUM(CASE WHEN liquidity_usd > 0 THEN 1 ELSE 0 END),
+               SUM(CASE WHEN price_usd IS NULL THEN 1 ELSE 0 END)
+        FROM minute_observations
+        GROUP BY COALESCE(status, '(NULL)')
+        ORDER BY COUNT(*) DESC, label
+    """).fetchall()
+    status_breakdown = [
+        {
+            "status": label, "observations": total,
+            "liquidity_null": null_count,
+            "liquidity_zero": zero_count,
+            "liquidity_negative": negative_count,
+            "liquidity_positive": positive_count,
+            "price_null": price_null,
+        }
+        for (label, total, null_count, zero_count,
+             negative_count, positive_count, price_null) in status_rows
+    ]
     return {
+        "status_breakdown_all_observations": status_breakdown,
         "observations": count,
         "unique_tokens": len(mints),
         "unique_pairs": len(pairs),
@@ -154,6 +179,7 @@ def audit(learning, minute):
             "First stored snapshot is not necessarily launch time.",
             "Issue categories overlap; do not add them together.",
             "This is all available history, not a rolling 7-day cohort.",
+            "Zero liquidity is not automatically proof of a real liquidity collapse.",
             "Market prices are not executed trade prices."
         ],
         "database_writes": 0,
