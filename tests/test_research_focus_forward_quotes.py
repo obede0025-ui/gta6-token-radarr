@@ -28,7 +28,7 @@ class TestForward(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         p = Path(tmp.name)
-        self.db, self.state = p/"market.sqlite", p/"data"/"focus.json"
+        self.db, self.state = p/"market.sqlite", p/"data"/"focus"/"forward_quotes.json"
         with sqlite3.connect(self.db) as c:
             c.execute("""CREATE TABLE snapshots(scanned_at TEXT,token_address TEXT,
                 pair_address TEXT,price_usd REAL,liquidity_usd REAL,volume_m5 REAL,
