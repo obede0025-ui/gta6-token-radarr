@@ -18,7 +18,7 @@ from urllib.parse import urlparse
 import requests
 
 LEGACY = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-TOKEN_2022 = 'TokenzQdBNbLqP5VEhdkAS6EPF2uL8CaNKVhnK2tS9'
+TOKEN_2022 = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
 DEFAULT_RPC = 'https://api.mainnet-beta.solana.com'
 MINT_RE = re.compile(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$')
 BLOCK_EXTENSIONS = {'permanentdelegate', 'transferhook', 'nontransferable',
