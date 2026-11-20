@@ -31,3 +31,15 @@ cd ~/gta6-v32-gate-pilot
 ```
 
 **Beperkingen:** all-time gegevens zijn niet hetzelfde cohort als een 7-daagse studie; een eerste snapshot is geen tokenlancering; een overlap in mints alleen bewijst niet dat dezelfde vroege observaties bestaan. Deze audit bewijst geen handelsvoordeel en wijzigt geen filters.
+
+## Update: liquiditeit per marktstatus (20 november 2026)
+
+Live read-only telling uit `minute_market_pilot.sqlite` (alle statussen):
+
+| Status | Observaties | LP NULL | LP 0 | LP > 0 | Prijs NULL |
+|---|---:|---:|---:|---:|---:|
+| QUOTE_MARKET_OBSERVED | 204.185 | 0 | 57.283 | 146.902 | 0 |
+| LIQUIDITY_UNKNOWN | 136.023 | 136.023 | 0 | 0 | 0 |
+| MARKET_DATA_UNAVAILABLE | 7.552 | 7.552 | 0 | 0 | 7.175 |
+
+**Belangrijk:** deze all-status telling is niet gelijk aan de bestaande auditcohort voor `QUOTE_MARKET_OBSERVED`. Een LP-waarde van 0 bij die status is nog geen bewijs van rug pull of echte poolleegloop. Geen historische koersuitkomst of crashlabel mag uit NULL worden afgeleid. De audit rapporteert voortaan de splitsing per status; handels- en crashfilters blijven ongewijzigd tot de producer van nulwaarden is geverifieerd.
