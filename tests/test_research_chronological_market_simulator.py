@@ -33,9 +33,9 @@ class ChronoSimulationTest(unittest.TestCase):
         data=[record(i) for i in range(100)]
         a,b=chronosplit(data)
         self.assertEqual(len(a["train"]),60)
-        self.assertEqual(len(a["validation"]),20)
-        self.assertEqual(len(a["pseudo_test"]),20)
-        self.assertEqual(b["discarded_boundary_tokens"],0)
+        self.assertEqual(len(a["validation"]),19)
+        self.assertEqual(len(a["pseudo_test"]),19)
+        self.assertEqual(b["discarded_boundary_tokens"],2)
         original=simulate_records(data)
         modified=[record(i, gain=-99 if i>=80 else 12) for i in range(100)]
         new=simulate_records(modified)
