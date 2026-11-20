@@ -33,15 +33,25 @@ class DataQualityAuditTests(unittest.TestCase):
                 db.executemany("INSERT INTO minute_observations VALUES (?,?,?,?,?,?)", [
                     ("2026-11-20T10:00:00Z", "A", "P", "QUOTE_MARKET_OBSERVED", 1, 20000),
                     ("2026-11-20T10:01:02Z", "A", "P", "QUOTE_MARKET_OBSERVED", 2, 21000),
-                    ("2026-11-20T10:01:02Z", "B", "Q", "OTHER", 2, 21000)
+                    ("2026-11-20T10:01:02Z", "B", "Q", "LIQUIDITY_UNKNOWN", 2, None),
+                    ("2026-11-20T10:02:02Z", "B", "Q", "MARKET_DATA_UNAVAILABLE", None, None),
+                    ("2026-11-20T10:03:02Z", "B", "Q", "QUOTE_MARKET_OBSERVED", 2, 0)
                 ])
             result = audit(learning, minute)
             self.assertEqual(result["learning"]["unique_tokens"], 2)
             self.assertEqual(result["learning"]["valid_initial_market_data"], 1)
             self.assertEqual(result["learning"]["issue_counts_overlapping"]["invalid_initial_price"], 1)
-            self.assertEqual(result["minute_market"]["observations"], 2)
+            self.assertEqual(result["minute_market"]["observations"], 3)
             self.assertEqual(result["minute_market"]["tokens_in_both_databases"], 1)
             self.assertEqual(result["minute_market"]["median_pair_observation_gap_seconds"], 62)
+            breakdown = {
+                row["status"]: row
+                for row in result["minute_market"]["status_breakdown_all_observations"]
+            }
+            self.assertEqual(breakdown["QUOTE_MARKET_OBSERVED"]["liquidity_zero"], 1)
+            self.assertEqual(breakdown["LIQUIDITY_UNKNOWN"]["liquidity_null"], 1)
+            self.assertEqual(breakdown["MARKET_DATA_UNAVAILABLE"]["price_null"], 1)
+            self.assertEqual(sum(r["observations"] for r in breakdown.values()), 5)
             self.assertEqual(result["database_writes"], 0)
 
 
