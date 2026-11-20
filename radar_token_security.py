@@ -17,8 +17,10 @@ from urllib.parse import urlparse
 
 import requests
 
+from research_token2022_metadata_audit import audit_metadata_extensions
+
 LEGACY = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-TOKEN_2022 = 'TokenzQdBNbLqP5VEhdkAS6EPF2uL8CaNKVhnK2tS9'
+TOKEN_2022 = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
 DEFAULT_RPC = 'https://api.mainnet-beta.solana.com'
 MINT_RE = re.compile(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$')
 BLOCK_EXTENSIONS = {'permanentdelegate', 'transferhook', 'nontransferable',
@@ -72,7 +74,7 @@ def evaluate_mint(mint, sources, account):
     reasons, warnings = [], []
     info = {'mint':mint, 'sources':sources, 'program':'UNKNOWN',
             'mint_authority': 'UNKNOWN', 'freeze_authority':'UNKNOWN',
-            'extensions':[], 'security_gate':'BLOCK',
+            'extensions':[], 'metadata_audit':None, 'security_gate':'BLOCK',
             'live_trade_approval':'BLOCK', 'reasons':reasons, 'warnings':warnings}
     if not isinstance(account, dict):
         reasons.append('MINT_ACCOUNT_NOT_FOUND')
@@ -120,6 +122,11 @@ def evaluate_mint(mint, sources, account):
         if not isinstance(ext, list):
             reasons.append('EXTENSIONS_UNPARSEABLE')
             ext = []
+        info['metadata_audit'] = audit_metadata_extensions(mint, ext)
+        # Metadata audit is diagnostic only. Token-2022 remains blocked until
+        # all extension and market safety requirements are independently audited.
+        for reason in info['metadata_audit']['reasons']:
+            reasons.append('TOKEN_2022_METADATA_' + reason)
         for item in ext:
             kind = item.get('extension') if isinstance(item, dict) else None
             if isinstance(kind, str):

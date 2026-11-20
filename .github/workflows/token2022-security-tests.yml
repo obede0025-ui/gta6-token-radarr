@@ -1,0 +1,32 @@
+name: Token-2022 read-only security regression
+
+on:
+  push:
+    branches:
+      - fix/token2022-canonical-program-id-20261120
+    paths:
+      - 'radar_token_security.py'
+      - 'research_token2022_metadata_audit.py'
+      - 'tests/test_token2022_*.py'
+      - '.github/workflows/token2022-security-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  token2022:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install offline dependencies
+        run: python -m pip install 'requests>=2.31,<3'
+      - name: Compile modules
+        run: python -m py_compile radar_token_security.py research_token2022_metadata_audit.py
+      - name: Verify security and metadata checks (offline only)
+        run: |
+          python -m unittest             tests.test_token2022_canonical_program_id             tests.test_token2022_metadata_audit             tests.test_research_preentry_evidence_v31             tests.test_research_preentry_probe_v31 -v
