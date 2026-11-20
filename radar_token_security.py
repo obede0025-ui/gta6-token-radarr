@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 import requests
 
 from research_token2022_metadata_audit import audit_metadata_extensions
+from research_token2022_risk_diagnostics import assess_token2022_risk
 
 LEGACY = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
 TOKEN_2022 = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
@@ -71,6 +72,12 @@ def rpc_get_account(session, url, mint):
 
 
 def evaluate_mint(mint, sources, account):
+    def _finish(result):
+        # Diagnostic only; no change to original safety or trading decisions.
+        result['risk_diagnostics'] = (assess_token2022_risk(result)
+                                      if result.get('program') != 'SPL_TOKEN' else None)
+        return result
+
     reasons, warnings = [], []
     info = {'mint':mint, 'sources':sources, 'program':'UNKNOWN',
             'mint_authority': 'UNKNOWN', 'freeze_authority':'UNKNOWN',
@@ -78,24 +85,24 @@ def evaluate_mint(mint, sources, account):
             'live_trade_approval':'BLOCK', 'reasons':reasons, 'warnings':warnings}
     if not isinstance(account, dict):
         reasons.append('MINT_ACCOUNT_NOT_FOUND')
-        return info
+        return _finish(info)
     owner = account.get('owner')
     info['program'] = 'SPL_TOKEN' if owner == LEGACY else ('TOKEN_2022' if owner == TOKEN_2022 else 'UNKNOWN')
     if owner not in (LEGACY, TOKEN_2022):
         reasons.append('UNKNOWN_PROGRAM_OWNER')
-        return info
+        return _finish(info)
     if account.get('executable') is True:
         reasons.append('EXECUTABLE_PROGRAM_ACCOUNT')
-        return info
+        return _finish(info)
     data = account.get('data')
     parsed = data.get('parsed') if isinstance(data, dict) else None
     if not isinstance(parsed, dict) or parsed.get('type') != 'mint':
         reasons.append('MINT_ACCOUNT_NOT_JSON_PARSED')
-        return info
+        return _finish(info)
     details = parsed.get('info')
     if not isinstance(details, dict) or not all(k in details for k in ('mintAuthority','freezeAuthority','decimals','supply')):
         reasons.append('INCOMPLETE_MINT_FIELDS')
-        return info
+        return _finish(info)
     # Reject corrupted or incomplete SPL mint payloads. A parsed account
     # that merely omits authorities is not proof of a safe mint.
     decimals, supply = details['decimals'], details['supply']
@@ -103,11 +110,11 @@ def evaluate_mint(mint, sources, account):
             or not 0 <= decimals <= 18
             or not isinstance(supply,str) or not supply.isdigit()):
         reasons.append('MINT_FIELDS_INVALID')
-        return info
+        return _finish(info)
     if not all(v is None or (isinstance(v,str) and MINT_RE.fullmatch(v))
                for v in (details['mintAuthority'],details['freezeAuthority'])):
         reasons.append('MINT_AUTHORITIES_INVALID')
-        return info
+        return _finish(info)
     mint_auth, freeze_auth = details['mintAuthority'], details['freezeAuthority']
     info['mint_authority'] = mint_auth
     info['freeze_authority'] = freeze_auth
@@ -139,7 +146,7 @@ def evaluate_mint(mint, sources, account):
     if not reasons:
         info['security_gate'] = 'BASIC_CHECKS_CLEAR'
         warnings.append('Not a safety certification: LP lock, holder concentration, and transferability unverified')
-    return info
+    return _finish(info)
 
 
 def main(argv=None):
