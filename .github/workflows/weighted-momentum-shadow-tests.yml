@@ -1,0 +1,19 @@
+name: Weighted momentum shadow audit tests
+on:
+  push:
+    branches: [feature/weighted-momentum-shadow-20261120]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m unittest tests.test_research_weighted_momentum_shadow -v
+          python -m unittest tests.test_research_liquidity_spike_classifier -v
