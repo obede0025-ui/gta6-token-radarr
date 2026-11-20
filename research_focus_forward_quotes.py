@@ -62,8 +62,9 @@ def _quote(quoter, input_mint, output_mint, amount):
         return None
 
 
-def run(db_path, state_path, now=None, quoter=None):
-    now = now or datetime.now(timezone.utc)
+def run(db_path, state_path, now=None, quoter=None, clock=None):
+    clock = clock or (lambda: datetime.now(timezone.utc))
+    now = now or clock()
     if now.tzinfo is None:
         raise ValueError("UTC-aware clock required")
     db_path = Path(db_path).resolve()
@@ -92,8 +93,8 @@ def run(db_path, state_path, now=None, quoter=None):
                     continue
                 # Quotes may lag while processing earlier selected mints.
                 observed = timestamp(item["observed_utc"])
-                current = datetime.now(timezone.utc) if now is None else now
-                # Callers may inject now for offline tests; real-world CLI uses live clock.
+                current = clock()
+                # Recheck freshness after any preceding network requests.
                 if observed is None or not 0 <= (current-observed).total_seconds() <= 120:
                     continue
                 mint = item["mint"]
@@ -102,7 +103,7 @@ def run(db_path, state_path, now=None, quoter=None):
                 state["signals"][key] = {
                     "mint": mint, "pair": item["pair"], "strategies": item["strategies"],
                     "signal_utc": item["observed_utc"],
-                    "first_quote_utc": now.isoformat(timespec="seconds"),
+                    "first_quote_utc": clock().isoformat(timespec="seconds"),
                     "initial_buy_raw": str(buy) if buy is not None else None,
                     "initial_sell_usdc_raw": str(sell) if sell is not None else None,
                     "entry_quote_status": "BUY_AND_SELL_QUOTED" if sell is not None
