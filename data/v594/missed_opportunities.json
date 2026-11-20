@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7990,
-  "unique_pairs": 464,
-  "window_start_utc": "2026-11-19T04:20:00+00:00",
-  "window_end_utc": "2026-11-20T04:20:00+00:00",
+  "observations": 7861,
+  "unique_pairs": 458,
+  "window_start_utc": "2026-11-19T04:44:20+00:00",
+  "window_end_utc": "2026-11-20T04:44:20+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 7526,
-    "gaps_over_20_min": 3899,
-    "gap_rate_pct": 51.81,
-    "gaps_with_observed_rise_over_20pct": 31
+    "intervals": 7403,
+    "gaps_over_20_min": 3885,
+    "gap_rate_pct": 52.48,
+    "gaps_with_observed_rise_over_20pct": 32
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 7526,
-    "gaps_over_20_min": 3899,
-    "gap_rate_pct": 51.81,
-    "gaps_with_observed_rise_over_20pct": 31
+    "intervals": 7403,
+    "gaps_over_20_min": 3885,
+    "gap_rate_pct": 52.48,
+    "gaps_with_observed_rise_over_20pct": 32
   },
   "top_potential_blind_spots": [
     {
@@ -120,6 +120,18 @@
       "observed_price_change_pct": 56.77,
       "volume_m5_at_return": 77.04,
       "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "zJqFuKia4W8gabumNKy2yoa1UpUDvpvimY3Fecypump",
+      "pair": "GKgdBnLFsrYipDsj59tWHfr82sEwvPmrtpXNGv9yBCFw",
+      "name": "GTA6",
+      "from_utc": "2026-11-20T04:20:00+00:00",
+      "to_utc": "2026-11-20T04:44:20+00:00",
+      "gap_minutes": 24.33,
+      "observed_price_change_pct": 52.82,
+      "volume_m5_at_return": 2574.8,
+      "liquidity_usd_at_return": 15106.77,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -373,21 +385,9 @@
       "volume_m5_at_return": 77.08,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "HoqJaoes6yfL8YEsHGfENwVKT7LrAPy97ZDg9hmBu4Ep",
-      "pair": "DJGcy9JUP8tzWyxLrB9GtV1RiJBdwupFSWY57qibt8oq",
-      "name": "THUG LIFE INC",
-      "from_utc": "2026-11-19T18:51:14+00:00",
-      "to_utc": "2026-11-19T20:02:31+00:00",
-      "gap_minutes": 71.28,
-      "observed_price_change_pct": 21.12,
-      "volume_m5_at_return": 203.45,
-      "liquidity_usd_at_return": 33468.91,
-      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 31,
+  "blind_spot_count": 32,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
