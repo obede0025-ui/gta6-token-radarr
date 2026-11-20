@@ -35,6 +35,32 @@ class OfficialVaultTests(unittest.TestCase):
         account["owner"]="other"
         self.assertEqual(decode_pool(account,"P")["status"],"WRONG_OWNER")
 
+    def test_mismatch_reports_decoded_mints_but_no_vault_confirmation(self):
+        report={"cases":[{"case":"A","pool":"P","mint":"SOME_OTHER_TOKEN",
+            "transactions":[{"signature":"T","available":True,
+                "transaction_error":None,"token_account_deltas":[
+                    {"token_account":"BASE_V","mint":"BASE","delta_raw":"-2"}]}]}]}
+        pool={"status":"POOL_LAYOUT_VERIFIED","base_mint":"BASE",
+              "quote_mint":"QUOTE","base_vault":"BASE_V","quote_vault":"QUOTE_V"}
+        case=analyze(report,{"P":pool})["cases"][0]
+        self.assertEqual(case["decoded_base_mint"],"BASE")
+        self.assertEqual(case["decoded_quote_mint"],"QUOTE")
+        self.assertFalse(case["mint_matches_either_pool_side"])
+        self.assertEqual(case["verified_vault_addresses_in_successful_transactions"],[])
+        self.assertEqual(case["classification"],"UNVERIFIED")
+
+    def test_quote_side_mint_can_match(self):
+        report={"cases":[{"case":"A","pool":"P","mint":"QUOTE",
+            "transactions":[{"signature":"T","available":True,
+                "transaction_error":None,"token_account_deltas":[
+                    {"token_account":"QUOTE_V","mint":"QUOTE","delta_raw":"-2"}]}]}]}
+        pool={"status":"POOL_LAYOUT_VERIFIED","base_mint":"BASE",
+              "quote_mint":"QUOTE","base_vault":"BASE_V","quote_vault":"QUOTE_V"}
+        case=analyze(report,{"P":pool})["cases"][0]
+        self.assertTrue(case["pool_quote_mint_matches_case"])
+        self.assertEqual(len(case["verified_vault_addresses_in_successful_transactions"]),1)
+        self.assertFalse(case["historical_reserves_fully_verified"])
+
     def test_failed_transaction_not_used(self):
         report={"cases":[{"case":"A","pool":"P","mint":"M",
             "transactions":[{"available":True,
