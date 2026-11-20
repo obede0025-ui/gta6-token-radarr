@@ -99,8 +99,8 @@ def signal_labels(history, price, vol):
 
 
 def diagnose_and_shortlist(conn, now, hours=24, max_shortlist=3):
-    if not 1 <= hours <= 168 or not 1 <= max_shortlist <= MAX_SHORTLIST:
-        raise ValueError("hours 1..168, shortlist 1..3")
+    if not 1 <= hours <= 744 or not 1 <= max_shortlist <= MAX_SHORTLIST:
+        raise ValueError("hours 1..744, shortlist 1..3")
     cutoff = now - timedelta(hours=hours)
     # SQLite ISO 8601 timestamps are parsed with Python (not SQLite datetime lexicographical comparison).
     # Pull recent observations with a 1 day buffer for boundary history. Source is read-only.
