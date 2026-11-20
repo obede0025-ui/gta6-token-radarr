@@ -10,10 +10,10 @@ From the VPS research checkout:
   --db /home/ubuntu/gta6-paper-vps/data/learning.db \
   --abc /home/ubuntu/gta6-paper-vps/data/v591/portfolio.json \
   --b2 /home/ubuntu/gta6-paper-vps/data/v611/b2_portfolio.json \
-  --hours 24
+  --hours 720
 ```
 
-This reports:
+Use --hours 720 for up to 30 days of available history. This reports:
 - Closed A and B2 simulated P/L, median, counts and wins; open $25 stake exposures and total-loss stress outcomes.
 - How many token mints appear in both groups. This is **not** a randomized paired profit comparison. Closed profits alone cannot prove a winning strategy.
 - Historical snapshot gaps and overlapping market rejection counts (not independent tokens).
