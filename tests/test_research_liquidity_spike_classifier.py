@@ -17,6 +17,11 @@ class SpikeClassifierTest(unittest.TestCase):
         self.assertEqual(label2,"MOMENTUM_LIQUIDITY_COLLAPSE")
         self.assertEqual(quote2,"SELL_QUOTE_VERIFIED_RESEARCH")
 
+    def test_liquidity_vanishes_with_price_crash(self):
+        label,quote=classify(2.4e-5,5.5e-9,24065.94,0)
+        self.assertEqual(label,"LIQUIDITY_COLLAPSE_WITH_PRICE_LOSS")
+        self.assertEqual(quote,"SELL_QUOTE_UNAVAILABLE_OR_UNCHECKED")
+
     def test_spike_and_normal_momentum(self):
         self.assertEqual(classify(1,3,30000,31000)[0],"PRICE_SPIKE_UNVERIFIED")
         self.assertEqual(classify(1,1.3,30000,31000)[0],"MOMENTUM_WITH_LIQUIDITY")

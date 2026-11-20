@@ -48,8 +48,10 @@ def classify(entry_price, exit_price, entry_liq, exit_liq, verified_sell_quote=F
         return "INSUFFICIENT_MARKET_EVIDENCE", quote
     gain = (p1/p0-1)*100
     liquidity_drop = (1-l1/l0)*100
-    if gain > 0 and (l1 < MIN_ENTRY_LIQ_USD or liquidity_drop >= COLLAPSE_DROP_PCT):
-        return "MOMENTUM_LIQUIDITY_COLLAPSE", quote
+    if l1 < MIN_ENTRY_LIQ_USD or liquidity_drop >= COLLAPSE_DROP_PCT:
+        if gain > 0:
+            return "MOMENTUM_LIQUIDITY_COLLAPSE", quote
+        return "LIQUIDITY_COLLAPSE_WITH_PRICE_LOSS", quote
     if gain >= EXTREME_GAIN_PCT and not verified_sell_quote:
         return "PRICE_SPIKE_UNVERIFIED", quote
     if gain >= MIN_GAIN_PCT and l1 >= MIN_ENTRY_LIQ_USD:
