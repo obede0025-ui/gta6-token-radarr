@@ -2,15 +2,15 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7443,
-  "unique_pairs": 439,
-  "window_start_utc": "2026-11-19T06:56:27+00:00",
-  "window_end_utc": "2026-11-20T06:56:27+00:00",
+  "observations": 7359,
+  "unique_pairs": 438,
+  "window_start_utc": "2026-11-19T07:12:37+00:00",
+  "window_end_utc": "2026-11-20T07:12:37+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 7004,
-    "gaps_over_20_min": 3828,
-    "gap_rate_pct": 54.65,
+    "intervals": 6921,
+    "gaps_over_20_min": 3796,
+    "gap_rate_pct": 54.85,
     "gaps_with_observed_rise_over_20pct": 30
   },
   "before_cooldown": {
@@ -20,9 +20,9 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 7004,
-    "gaps_over_20_min": 3828,
-    "gap_rate_pct": 54.65,
+    "intervals": 6921,
+    "gaps_over_20_min": 3796,
+    "gap_rate_pct": 54.85,
     "gaps_with_observed_rise_over_20pct": 30
   },
   "top_potential_blind_spots": [
@@ -119,6 +119,18 @@
       "gap_minutes": 20.48,
       "observed_price_change_pct": 56.77,
       "volume_m5_at_return": 77.04,
+      "liquidity_usd_at_return": null,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "3xYAF6iZM8a5Bw6Fvopf4mVq5cN7iea5YUM85kbFENCE",
+      "pair": "EJYRtNX7E6idtqcS4hGcUehgXzjDs75bxGtBTnyy4XWm",
+      "name": "The Fence",
+      "from_utc": "2026-11-20T06:51:03+00:00",
+      "to_utc": "2026-11-20T07:12:37+00:00",
+      "gap_minutes": 21.57,
+      "observed_price_change_pct": 56.18,
+      "volume_m5_at_return": 164.19,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
@@ -263,18 +275,6 @@
       "gap_minutes": 20.92,
       "observed_price_change_pct": 30.01,
       "volume_m5_at_return": 451.26,
-      "liquidity_usd_at_return": null,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "EmoGtdNBJjVgEBEUtGtxZo5Da5P3prLgL3yJLQTgpump",
-      "pair": "HjaTxVLBrSJQwefZNNm9KiUrCaNBygNbssB1X4Xinpu2",
-      "name": "Harry Sherrick",
-      "from_utc": "2026-11-19T06:57:46+00:00",
-      "to_utc": "2026-11-19T07:31:23+00:00",
-      "gap_minutes": 33.62,
-      "observed_price_change_pct": 26.15,
-      "volume_m5_at_return": 202.56,
       "liquidity_usd_at_return": null,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
