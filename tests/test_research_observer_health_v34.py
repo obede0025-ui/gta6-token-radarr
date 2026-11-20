@@ -54,6 +54,30 @@ class Tests(unittest.TestCase):
         self.assertIn("UNEXPECTED_TRADING_COUNTER",r["alerts"])
         self.assertIn("ENTRY_PERMISSION_NOT_BLOCKED",r["alerts"])
 
+    def test_health_distinguishes_operational_ok_from_token_block(self):
+        state=base()
+        x=item(6)
+        x["security_status"]="BLOCK"
+        x["entry_rejection_reasons"]=[
+            "TOKEN_PROGRAM_UNVERIFIED","TOKEN_SECURITY_NOT_CLEARED"]
+        x["followups"]["300"]={"status":"JUPITER_SELL_ROUTE_QUOTED",
+            "quote_return_pct_before_network_fees":"-6.01"}
+        state["signals"]["a"]=x
+        out=metrics(state,report(),NOW)
+        self.assertEqual(out["status"],"OK")
+        self.assertIn("NOT token or trading safety",out["status_meaning"])
+        self.assertEqual(out["security_gate_counts"]["BLOCK"],1)
+        self.assertEqual(out["entry_rejection_reason_counts"]["TOKEN_PROGRAM_UNVERIFIED"],1)
+        self.assertEqual(out["followups_by_horizon_seconds"]["300"]["quoted"],1)
+        self.assertEqual(out["followups_by_horizon_seconds"]["900"]["pending"],1)
+
+    def test_rejections_are_counted_once_per_signal(self):
+        state=base();x=item()
+        x["entry_rejection_reasons"]=["A","A","B"]
+        state["signals"]["a"]=x
+        out=metrics(state,report(),NOW)
+        self.assertEqual(out["entry_rejection_reason_counts"],{"A":1,"B":1})
+
     def test_invalid_return_not_counted_as_profit(self):
         state=base()
         x=item()
