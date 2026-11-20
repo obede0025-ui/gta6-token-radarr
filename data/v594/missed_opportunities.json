@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 7182,
+  "observations": 7179,
   "unique_pairs": 427,
-  "window_start_utc": "2026-11-19T08:16:55+00:00",
-  "window_end_utc": "2026-11-20T08:16:55+00:00",
+  "window_start_utc": "2026-11-19T08:25:02+00:00",
+  "window_end_utc": "2026-11-20T08:25:02+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 6755,
-    "gaps_over_20_min": 3767,
-    "gap_rate_pct": 55.77,
-    "gaps_with_observed_rise_over_20pct": 31
+    "intervals": 6752,
+    "gaps_over_20_min": 3768,
+    "gap_rate_pct": 55.81,
+    "gaps_with_observed_rise_over_20pct": 30
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,24 +20,12 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 6755,
-    "gaps_over_20_min": 3767,
-    "gap_rate_pct": 55.77,
-    "gaps_with_observed_rise_over_20pct": 31
+    "intervals": 6752,
+    "gaps_over_20_min": 3768,
+    "gap_rate_pct": 55.81,
+    "gaps_with_observed_rise_over_20pct": 30
   },
   "top_potential_blind_spots": [
-    {
-      "token": "Ap1q1JbFRD1fgkfi6TskVZ9ciVjfsygrMEhGX3V8KLQB",
-      "pair": "G66k1qGf82r7xbX91BsJrAWs7ECerQWuHy7dmRjoQqRB",
-      "name": "State of Leonida",
-      "from_utc": "2026-11-19T08:19:59+00:00",
-      "to_utc": "2026-11-19T08:45:46+00:00",
-      "gap_minutes": 25.78,
-      "observed_price_change_pct": 139015.78,
-      "volume_m5_at_return": null,
-      "liquidity_usd_at_return": 0.0,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
     {
       "token": "48NvJoxww17Ay6zSoCHVTLj6NMSaELNZ3jQMhG4vED6M",
       "pair": "5JWX4B8cRBavMzq6Nof1uvBfCfUUMeptzdmrU8bo6vbv",
@@ -385,9 +373,21 @@
       "volume_m5_at_return": 203.45,
       "liquidity_usd_at_return": 33468.91,
       "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
+      "token": "2wMTr4ZttVr5tmS4wLStee59wi8f9QQfMtT2Hoispump",
+      "pair": "99RTagSD6VDUCzjwmzi4q1RrAdtyAuYnR7xsXLfesz69",
+      "name": "Grand Theft Auto",
+      "from_utc": "2026-11-19T14:14:40+00:00",
+      "to_utc": "2026-11-19T15:16:31+00:00",
+      "gap_minutes": 61.85,
+      "observed_price_change_pct": 20.6,
+      "volume_m5_at_return": 1.14,
+      "liquidity_usd_at_return": 19574.44,
+      "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 31,
+  "blind_spot_count": 30,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
