@@ -4,14 +4,14 @@
   "analysis_window_hours": 24,
   "observations": 8889,
   "unique_pairs": 649,
-  "window_start_utc": "2026-11-20T06:35:20+00:00",
-  "window_end_utc": "2026-11-21T06:35:20+00:00",
+  "window_start_utc": "2026-11-20T06:40:40+00:00",
+  "window_end_utc": "2026-11-21T06:40:40+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
     "intervals": 8240,
-    "gaps_over_20_min": 4646,
-    "gap_rate_pct": 56.38,
-    "gaps_with_observed_rise_over_20pct": 17
+    "gaps_over_20_min": 4653,
+    "gap_rate_pct": 56.47,
+    "gaps_with_observed_rise_over_20pct": 16
   },
   "before_cooldown": {
     "intervals": 0,
@@ -21,9 +21,9 @@
   },
   "after_cooldown": {
     "intervals": 8240,
-    "gaps_over_20_min": 4646,
-    "gap_rate_pct": 56.38,
-    "gaps_with_observed_rise_over_20pct": 17
+    "gaps_over_20_min": 4653,
+    "gap_rate_pct": 56.47,
+    "gaps_with_observed_rise_over_20pct": 16
   },
   "top_potential_blind_spots": [
     {
@@ -195,18 +195,6 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
-      "token": "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump",
-      "pair": "5E3dXLXGwmTDCokA51WYYaKttjFZBwqCoyUHBUi5gt2m",
-      "name": "GTA6CAT",
-      "from_utc": "2026-11-20T06:37:57+00:00",
-      "to_utc": "2026-11-20T07:41:09+00:00",
-      "gap_minutes": 63.2,
-      "observed_price_change_pct": 23.98,
-      "volume_m5_at_return": 987.99,
-      "liquidity_usd_at_return": 155340.27,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
       "token": "6qEoAnEoL6KMCjQhV7P3h2qzGFtUUkuDdQTaTjs1pump",
       "pair": "GYgpLmkGB9Gpv2be9984LKCJtbasHv8TnDqXgX2X2shZ",
       "name": "GTA6",
@@ -231,7 +219,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 17,
+  "blind_spot_count": 16,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
