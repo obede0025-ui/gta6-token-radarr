@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-21T14:35:33+00:00",
+  "generated_utc": "2026-11-21T14:40:40+00:00",
   "last_processed": [
-    "2026-11-21T14:35:30+00:00",
-    "ESL4ncMHc66ibMcdUa9RNNWfiJC2b3YXXwjkubfs9ZED",
-    "Bts8bqyCUTrzeBhKUQCtaP2i1qubdJk5faPkpC6xRbKM"
+    "2026-11-21T14:40:37+00:00",
+    "QcAGdAnGsdMKzN5eJS4bJPivsvSyNvkKUmQN1nDYwH2",
+    "3y2daMjiKhaRxrq6P33Jz2rQwFAjvhRgZELJacVHLjH9"
   ],
   "run": {
-    "observations": 8,
+    "observations": 23,
     "opened": {
       "A": 0,
       "B": 0,
@@ -25,32 +25,33 @@
       "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 8
+      "no_momentum_signal": 23
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "te_weinig_opeenvolgende_metingen": 2,
-          "volume_5m_te_laag": 6
+          "te_weinig_opeenvolgende_metingen": 18,
+          "volume_5m_te_laag": 5
         },
         "B": {
-          "te_weinig_opeenvolgende_metingen": 2,
-          "volume_5m_te_laag": 6
+          "te_weinig_opeenvolgende_metingen": 18,
+          "volume_5m_te_laag": 5
         },
         "C": {
-          "te_weinig_opeenvolgende_metingen": 1,
-          "volume_5m_te_laag": 7
+          "te_weinig_opeenvolgende_metingen": 18,
+          "volume_5m_te_laag": 5
         }
       },
       "spacing": {
-        "interval_te_lang": 1,
-        "interval_geldig": 7
+        "interval_te_lang": 17,
+        "interval_geldig": 5,
+        "geen_vorige_meting": 1
       },
       "market_filters": {
-        "liquiditeit_te_laag_of_onbekend": 6,
-        "volume_5m_te_laag_of_onbekend": 8,
-        "paarleeftijd_ongeldig": 5,
-        "buys_niet_hoger_dan_sells": 5
+        "liquiditeit_te_laag_of_onbekend": 20,
+        "volume_5m_te_laag_of_onbekend": 22,
+        "buys_niet_hoger_dan_sells": 22,
+        "paarleeftijd_ongeldig": 10
       },
       "note": "Eén primaire diagnose per strategie per verwerkte meting. Marktfilters kunnen overlappen. Papertrades blijven simulaties."
     }
