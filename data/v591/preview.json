@@ -1,13 +1,13 @@
 {
   "mode": "ISOLATED_PAPER_STATE",
-  "generated_utc": "2026-11-21T09:10:38+00:00",
+  "generated_utc": "2026-11-21T09:15:31+00:00",
   "last_processed": [
-    "2026-11-21T09:10:35+00:00",
-    "NRQFsEeftZuivhvjzGGPKNhapGdMuuAVx7iFJVUgavT",
-    "4cVhjyyPDerx5rNeodQE6EVCnkpS82VA3M1xSerfjiEJ"
+    "2026-11-21T09:15:28+00:00",
+    "UJyYA6rSAe2ShMe9e7cgV4977ZJwUiqubqc92HFpump",
+    "AhG2UzVzmoibw8j2rJPCbtWsyVnWkwLNeDfbv7Z45D7E"
   ],
   "run": {
-    "observations": 28,
+    "observations": 29,
     "opened": {
       "A": 0,
       "B": 0,
@@ -20,44 +20,44 @@
     },
     "signals": 4,
     "signals_by_strategy": {
-      "A": 0,
+      "A": 1,
       "B": 3,
-      "C": 1
+      "C": 0
     },
     "rejected": {
-      "no_momentum_signal": 24,
+      "no_momentum_signal": 26,
       "max_positions": 2,
       "market_safety_filters": 2
     },
     "diagnostics": {
       "by_strategy": {
         "A": {
-          "te_weinig_opeenvolgende_metingen": 15,
-          "volume_5m_te_laag": 7,
-          "momentumvoorwaarden_niet_gehaald": 6
-        },
-        "B": {
-          "te_weinig_opeenvolgende_metingen": 15,
-          "volume_5m_te_laag": 7,
-          "maximum_open_posities": 2,
-          "momentumvoorwaarden_niet_gehaald": 3,
+          "volume_5m_te_laag": 13,
+          "momentumvoorwaarden_niet_gehaald": 4,
+          "te_weinig_opeenvolgende_metingen": 11,
           "signaal_geblokkeerd_paarleeftijd": 1
         },
+        "B": {
+          "volume_5m_te_laag": 13,
+          "maximum_open_posities": 2,
+          "te_weinig_opeenvolgende_metingen": 11,
+          "signaal_geblokkeerd_paarleeftijd": 1,
+          "momentumvoorwaarden_niet_gehaald": 2
+        },
         "C": {
-          "volume_5m_te_laag": 12,
-          "te_weinig_opeenvolgende_metingen": 10,
+          "volume_5m_te_laag": 15,
           "momentumvoorwaarden_niet_gehaald": 5,
-          "signaal_geblokkeerd_liquiditeit": 1
+          "te_weinig_opeenvolgende_metingen": 9
         }
       },
       "spacing": {
-        "interval_geldig": 18,
-        "interval_te_lang": 7,
-        "geen_vorige_meting": 3
+        "interval_geldig": 20,
+        "geen_vorige_meting": 2,
+        "interval_te_lang": 7
       },
       "market_filters": {
-        "liquiditeit_te_laag_of_onbekend": 22,
-        "volume_5m_te_laag_of_onbekend": 20,
+        "liquiditeit_te_laag_of_onbekend": 21,
+        "volume_5m_te_laag_of_onbekend": 22,
         "buys_niet_hoger_dan_sells": 23,
         "paarleeftijd_ongeldig": 6
       },
