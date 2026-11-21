@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 9752,
-  "unique_pairs": 701,
-  "window_start_utc": "2026-11-20T15:05:22+00:00",
-  "window_end_utc": "2026-11-21T15:05:22+00:00",
+  "observations": 9753,
+  "unique_pairs": 696,
+  "window_start_utc": "2026-11-20T15:10:41+00:00",
+  "window_end_utc": "2026-11-21T15:10:41+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 9051,
-    "gaps_over_20_min": 5039,
-    "gap_rate_pct": 55.67,
-    "gaps_with_observed_rise_over_20pct": 12
+    "intervals": 9057,
+    "gaps_over_20_min": 5057,
+    "gap_rate_pct": 55.84,
+    "gaps_with_observed_rise_over_20pct": 13
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 9051,
-    "gaps_over_20_min": 5039,
-    "gap_rate_pct": 55.67,
-    "gaps_with_observed_rise_over_20pct": 12
+    "intervals": 9057,
+    "gaps_over_20_min": 5057,
+    "gap_rate_pct": 55.84,
+    "gaps_with_observed_rise_over_20pct": 13
   },
   "top_potential_blind_spots": [
     {
@@ -159,6 +159,18 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
+      "token": "45cR4ZNPem6hhUjVHxC9Vjrb36XTVecS2z5VRFNtCkE9",
+      "pair": "BpRscbRecbErKYu26bFauzMpZj1Rwh1gGqSXvfi3vWFH",
+      "name": "State of Leonida",
+      "from_utc": "2026-11-20T17:35:26+00:00",
+      "to_utc": "2026-11-21T15:10:41+00:00",
+      "gap_minutes": 1295.25,
+      "observed_price_change_pct": 23.08,
+      "volume_m5_at_return": null,
+      "liquidity_usd_at_return": 0.0,
+      "classification": "POTENTIELE_BLINDE_VLEK"
+    },
+    {
       "token": "2afcRhtGYgp1e3xPBMu2UbnELL8AUMZzguLQsPo8pump",
       "pair": "7xLmwsPbCSMVvfFQ9JuhMwfbkehJA3mswshVBBWcJ1j2",
       "name": "VICE CITY",
@@ -171,7 +183,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 12,
+  "blind_spot_count": 13,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
