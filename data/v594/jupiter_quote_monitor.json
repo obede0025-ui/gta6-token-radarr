@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "checked_utc": "2026-11-21T02:05:33+00:00",
+  "checked_utc": "2026-11-21T02:10:33+00:00",
   "mode": "JUPITER_SWAP_V2_QUOTE_ONLY",
   "status": "PARTIAL",
   "stake_usdc": "25",
@@ -12,7 +12,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 97028834018,
+        "output_raw": 97028836023,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -21,16 +21,16 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 97028834018,
-        "output_raw": 172,
-        "router": "dflow",
+        "input_raw": 97028836023,
+        "output_raw": 171,
+        "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
         "fee_mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "0.000172",
+      "roundtrip_usdc": "0.000171",
       "roundtrip_pct": "-99.999",
       "positions": [
         {
@@ -55,7 +55,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 1358426391,
+        "output_raw": 1358426438,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -64,7 +64,7 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 1358426391,
+        "input_raw": 1358426438,
         "output_raw": 283,
         "router": "metis",
         "mode": "ultra",
@@ -83,7 +83,7 @@
           "position_quantity": 1595312.6812855317,
           "estimated_exit_usdc": "0.000567",
           "estimated_net_pnl_usdc_before_network_cost": "-24.9994",
-          "exit_router": "metis",
+          "exit_router": "okx",
           "status": "QUOTE_AVAILABLE"
         }
       ],
@@ -132,7 +132,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 19257026253222,
+        "output_raw": 19292015248465,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -141,8 +141,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 19257026253222,
-        "output_raw": 23394836,
+        "input_raw": 19292015248465,
+        "output_raw": 23406428,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -150,16 +150,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.394836",
-      "roundtrip_pct": "-6.421",
+      "roundtrip_usdc": "23.406428",
+      "roundtrip_pct": "-6.374",
       "positions": [
         {
           "strategy": "B",
           "opened_at": "2026-11-07T21:55:17+00:00",
           "entry_market": 0.0001958,
           "position_quantity": 123925.97488433577,
-          "estimated_exit_usdc": "0.153461",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.8465",
+          "estimated_exit_usdc": "0.153334",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.8467",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -175,7 +175,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 19246265688026,
+        "output_raw": 19267121560471,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -184,8 +184,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 19246265688026,
-        "output_raw": 23403163,
+        "input_raw": 19267121560471,
+        "output_raw": 23397806,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -193,16 +193,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.403163",
-      "roundtrip_pct": "-6.387",
+      "roundtrip_usdc": "23.397806",
+      "roundtrip_pct": "-6.409",
       "positions": [
         {
           "strategy": "B",
           "opened_at": "2026-11-08T00:20:20+00:00",
           "entry_market": 0.0001237,
           "position_quantity": 196157.68700366162,
-          "estimated_exit_usdc": "0.243092",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.7569",
+          "estimated_exit_usdc": "0.24292",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.7571",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -218,7 +218,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 184537124,
+        "output_raw": 184537125,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -227,7 +227,7 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 184537124,
+        "input_raw": 184537125,
         "output_raw": 82,
         "router": "metis",
         "mode": "ultra",
@@ -261,7 +261,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 17995903825965,
+        "output_raw": 18015639489916,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -270,8 +270,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 17995903825965,
-        "output_raw": 23436130,
+        "input_raw": 18015639489916,
+        "output_raw": 23430484,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -279,16 +279,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.43613",
-      "roundtrip_pct": "-6.255",
+      "roundtrip_usdc": "23.430484",
+      "roundtrip_pct": "-6.278",
       "positions": [
         {
           "strategy": "C",
           "opened_at": "2026-11-09T00:30:38+00:00",
           "entry_market": 5.744e-05,
           "position_quantity": 422435.6873668688,
-          "estimated_exit_usdc": "0.560411",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.4396",
+          "estimated_exit_usdc": "0.559878",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.4401",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
@@ -304,7 +304,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 1905816594,
+        "output_raw": 1905816675,
         "router": "okx",
         "mode": "ultra",
         "fee_bps": 10,
@@ -313,7 +313,7 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 1905816594,
+        "input_raw": 1905816675,
         "output_raw": 391,
         "router": "dflow",
         "mode": "ultra",
@@ -347,7 +347,7 @@
       ],
       "buy_quote": {
         "input_raw": 25000000,
-        "output_raw": 17950248083659,
+        "output_raw": 17964524762678,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -356,8 +356,8 @@
         "quote_only": true
       },
       "sell_back_quote": {
-        "input_raw": 17950248083659,
-        "output_raw": 23451104,
+        "input_raw": 17964524762678,
+        "output_raw": 23446904,
         "router": "metis",
         "mode": "ultra",
         "fee_bps": 10,
@@ -365,16 +365,16 @@
         "error_code": null,
         "quote_only": true
       },
-      "roundtrip_usdc": "23.451104",
-      "roundtrip_pct": "-6.196",
+      "roundtrip_usdc": "23.446904",
+      "roundtrip_pct": "-6.212",
       "positions": [
         {
           "strategy": "C",
           "opened_at": "2026-11-15T04:02:49+00:00",
           "entry_market": 0.0003445,
           "position_quantity": 70434.55989071971,
-          "estimated_exit_usdc": "0.093715",
-          "estimated_net_pnl_usdc_before_network_cost": "-24.9063",
+          "estimated_exit_usdc": "0.093622",
+          "estimated_net_pnl_usdc_before_network_cost": "-24.9064",
           "exit_router": "metis",
           "status": "QUOTE_AVAILABLE"
         }
