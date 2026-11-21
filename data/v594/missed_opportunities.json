@@ -2,16 +2,16 @@
   "version": "1.0",
   "mode": "READ_ONLY_RETROSPECTIVE",
   "analysis_window_hours": 24,
-  "observations": 9782,
-  "unique_pairs": 711,
-  "window_start_utc": "2026-11-20T14:10:40+00:00",
-  "window_end_utc": "2026-11-21T14:10:40+00:00",
+  "observations": 9779,
+  "unique_pairs": 710,
+  "window_start_utc": "2026-11-20T14:15:36+00:00",
+  "window_end_utc": "2026-11-21T14:15:36+00:00",
   "cooldown_boundary_utc": "2026-11-07T17:10:00+00:00",
   "overall": {
-    "intervals": 9071,
-    "gaps_over_20_min": 5060,
-    "gap_rate_pct": 55.78,
-    "gaps_with_observed_rise_over_20pct": 14
+    "intervals": 9069,
+    "gaps_over_20_min": 5052,
+    "gap_rate_pct": 55.71,
+    "gaps_with_observed_rise_over_20pct": 12
   },
   "before_cooldown": {
     "intervals": 0,
@@ -20,10 +20,10 @@
     "gaps_with_observed_rise_over_20pct": 0
   },
   "after_cooldown": {
-    "intervals": 9071,
-    "gaps_over_20_min": 5060,
-    "gap_rate_pct": 55.78,
-    "gaps_with_observed_rise_over_20pct": 14
+    "intervals": 9069,
+    "gaps_over_20_min": 5052,
+    "gap_rate_pct": 55.71,
+    "gaps_with_observed_rise_over_20pct": 12
   },
   "top_potential_blind_spots": [
     {
@@ -48,18 +48,6 @@
       "observed_price_change_pct": 7688.55,
       "volume_m5_at_return": null,
       "liquidity_usd_at_return": 0.0,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "9rbKkz2BDQBVgZmrHY6d7PTq2ge91gkpEyE4y9PPpump",
-      "pair": "6Ecx5Lm5dinVma1xWMEumj6ABZL3g1Xx4t5rxQxELzdn",
-      "name": "The State of Leonida",
-      "from_utc": "2026-11-20T14:13:39+00:00",
-      "to_utc": "2026-11-20T14:36:47+00:00",
-      "gap_minutes": 23.13,
-      "observed_price_change_pct": 165.81,
-      "volume_m5_at_return": 4977.0,
-      "liquidity_usd_at_return": 75830.95,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -108,18 +96,6 @@
       "observed_price_change_pct": 34.29,
       "volume_m5_at_return": 0.28,
       "liquidity_usd_at_return": 7459.72,
-      "classification": "POTENTIELE_BLINDE_VLEK"
-    },
-    {
-      "token": "HF2RBPrfNBk9TxggL2cYZFEKSgirzh5HKCngLENTpump",
-      "pair": "Bfiq9eaLcMjpEKcgm16GSzzGdedCpcFhRAFvivRP4QkY",
-      "name": "Cool Dog",
-      "from_utc": "2026-11-20T14:13:39+00:00",
-      "to_utc": "2026-11-20T14:36:47+00:00",
-      "gap_minutes": 23.13,
-      "observed_price_change_pct": 29.45,
-      "volume_m5_at_return": 50017.23,
-      "liquidity_usd_at_return": 117713.97,
       "classification": "POTENTIELE_BLINDE_VLEK"
     },
     {
@@ -195,7 +171,7 @@
       "classification": "POTENTIELE_BLINDE_VLEK"
     }
   ],
-  "blind_spot_count": 14,
+  "blind_spot_count": 12,
   "methodology": "Vergelijkt uitsluitend opeenvolgende, opgeslagen marktmetingen van exact hetzelfde token/pair. Meer dan 20 minuten tussen metingen plus een gemeten prijsstijging van minstens 20% markeert een potentiële blinde vlek. Tokenbewegingen zonder latere meting blijven onbekend.",
   "limitations": "Geen realtime ontdekking van niet-gevolgde tokens. Niet aantoonbaar veroorzaakt door cooldown. Geen bewijs van verhandelbaarheid, slippage of winst. Kleine pre/post-steekproeven niet causaal interpreteren."
 }
